@@ -1,0 +1,22 @@
+ext {
+    applicationId = 'com.flyang.network'
+
+    app_name = "网络库"
+    compileSdkVersion = 28
+    buildToolsVersion = "26.0.2"
+    minSdkVersion = 19
+    targetSdkVersion = 28
+    versionCode = 1
+    versionName = "1.1.1.2019_beta_01"
+
+    isAlone = false
+
+    utilVersion = "1.2.1.2019_beta_11"
+
+    dep = [
+            util           : "com.flyang.common:util:$utilVersion",
+            okhttp         : 'com.squareup.okhttp3:okhttp:3.10.0',
+    ]
+}
+
+//./gradlew clean utilcode-lib:bintrayUpload
