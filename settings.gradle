@@ -1,1 +1,1 @@
-include ':app', ':netlib', ':imageloader'
+include ':app', ':netlib', ':imageloader', ':progress'
