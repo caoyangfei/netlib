@@ -1,18 +1,53 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
+configurations {
+    deployerJars
+}
+
+repositories {
+    mavenCentral()
+}
 
 android {
-    compileSdkVersion 28
-
-
-
+    compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
-        minSdkVersion 26
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+    }
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
+    lintOptions {
+        abortOnError false
+    }
+
+    //  解决build警告：编码GBK的不可映射字符
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+
+    task sourcesJar(type: Jar) {
+        from android.sourceSets.main.java.srcDirs
+        classifier = 'sources'
+    }
+    task javadoc(type: Javadoc) {
+        failOnError false
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+    artifacts {
+        archives javadocJar
+        archives sourcesJar
     }
 
     buildTypes {
@@ -32,6 +67,33 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    api 'io.reactivex.rxjava2:rxjava:2.1.1'
-    api project(':okgo')
+    implementation dep.util
+    //第三方依赖库
+    implementation dep.logginginterceptor
+    implementation dep.okhttp
+    implementation dep.disklrucache
+    implementation dep.rxjava
+    implementation dep.rxandroid
+    implementation dep.retrofit
+    implementation dep.convertergson
+    implementation dep.adapterrxjava
+}
+
+def version = "2.1.1.2019_beta_01"
+
+uploadArchives {
+
+    repositories {
+        mavenDeployer {
+
+            pom.version = version
+            pom.artifactId = "netlib"
+            pom.groupId = GROUP_ID
+
+            repository(url: rootProject.getRepositoryUrl(version)) {
+                // maven授权信息
+                authentication(userName: NAME, password: PASSWORD)
+            }
+        }
+    }
 }
