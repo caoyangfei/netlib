@@ -20,13 +20,15 @@ package com.flyang.netlib.utils;
 import com.flyang.netlib.func.HandleFuc;
 import com.flyang.netlib.func.HttpResponseFunc;
 import com.flyang.netlib.model.ApiResult;
+import com.flyang.util.log.LogUtils;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.ObservableTransformer;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscription;
+
+import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -40,23 +42,23 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class RxUtil {
 
-    public static <T> ObservableTransformer<T, T> io_main() {
-        return new ObservableTransformer<T, T>() {
+    public static <T> FlowableTransformer<T, T> io_main() {
+        return new FlowableTransformer<T, T>() {
             @Override
-            public ObservableSource<T> apply(@NonNull Observable<T> upstream) {
+            public Publisher<T> apply(Flowable<T> upstream) {
                 return upstream
                         .subscribeOn(Schedulers.io())
                         .unsubscribeOn(Schedulers.io())
-                        .doOnSubscribe(new Consumer<Disposable>() {
+                        .doOnSubscribe(new Consumer<Subscription>() {
                             @Override
-                            public void accept(@NonNull Disposable disposable) throws Exception {
-                                HttpLog.i("+++doOnSubscribe+++" + disposable.isDisposed());
+                            public void accept(Subscription subscription) throws Exception {
+                                LogUtils.i("+++doOnSubscribe+++");
                             }
                         })
                         .doFinally(new Action() {
                             @Override
                             public void run() throws Exception {
-                                HttpLog.i("+++doFinally+++");
+                                LogUtils.i("+++doFinally+++");
                             }
                         })
                         .observeOn(AndroidSchedulers.mainThread());
@@ -64,25 +66,26 @@ public class RxUtil {
         };
     }
 
-    public static <T> ObservableTransformer<ApiResult<T>, T> _io_main() {
-        return new ObservableTransformer<ApiResult<T>, T>() {
+    public static <T> FlowableTransformer<ApiResult<T>, T> _io_main() {
+        return new FlowableTransformer<ApiResult<T>, T>() {
             @Override
-            public ObservableSource<T> apply(@NonNull Observable<ApiResult<T>> upstream) {
+            public Publisher<T> apply(@NonNull Flowable<ApiResult<T>> upstream) {
                 return upstream
                         .subscribeOn(Schedulers.io())
                         .unsubscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .map(new HandleFuc<T>())
-                        .doOnSubscribe(new Consumer<Disposable>() {
+                        .doOnSubscribe(new Consumer<Subscription>() {
                             @Override
-                            public void accept(@NonNull Disposable disposable) throws Exception {
-                                HttpLog.i("+++doOnSubscribe+++" + disposable.isDisposed());
+                            public void accept(Subscription subscription) throws Exception {
+                                subscription.cancel();
+                                LogUtils.i("+++doOnSubscribe+++");
                             }
                         })
                         .doFinally(new Action() {
                             @Override
                             public void run() throws Exception {
-                                HttpLog.i("+++doFinally+++");
+                                LogUtils.i("+++doFinally+++");
                             }
                         })
                         .onErrorResumeNext(new HttpResponseFunc<T>());
@@ -91,23 +94,23 @@ public class RxUtil {
     }
 
 
-    public static <T> ObservableTransformer<ApiResult<T>, T> _main() {
-        return new ObservableTransformer<ApiResult<T>, T>() {
+    public static <T> FlowableTransformer<ApiResult<T>, T> _main() {
+        return new FlowableTransformer<ApiResult<T>, T>() {
             @Override
-            public ObservableSource<T> apply(@NonNull Observable<ApiResult<T>> upstream) {
+            public Publisher<T> apply(@NonNull Flowable<ApiResult<T>> upstream) {
                 return upstream
                         //.observeOn(AndroidSchedulers.mainThread())
                         .map(new HandleFuc<T>())
-                        .doOnSubscribe(new Consumer<Disposable>() {
+                        .doOnSubscribe(new Consumer<Subscription>() {
                             @Override
-                            public void accept(@NonNull Disposable disposable) throws Exception {
-                                HttpLog.i("+++doOnSubscribe+++" + disposable.isDisposed());
+                            public void accept(Subscription subscription) throws Exception {
+                                LogUtils.i("+++doOnSubscribe+++");
                             }
                         })
                         .doFinally(new Action() {
                             @Override
                             public void run() throws Exception {
-                                HttpLog.i("+++doFinally+++");
+                                LogUtils.i("+++doFinally+++");
                             }
                         })
                         .onErrorResumeNext(new HttpResponseFunc<T>());

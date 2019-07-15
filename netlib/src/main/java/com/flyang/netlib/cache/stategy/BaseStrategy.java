@@ -19,11 +19,14 @@ package com.flyang.netlib.cache.stategy;
 
 import com.flyang.netlib.cache.RxCache;
 import com.flyang.netlib.cache.model.CacheResult;
-import com.flyang.netlib.utils.HttpLog;
+import com.flyang.util.log.LogUtils;
+
+import org.reactivestreams.Publisher;
 
 import java.lang.reflect.Type;
 import java.util.ConcurrentModificationException;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.annotations.NonNull;
@@ -39,26 +42,26 @@ import io.reactivex.schedulers.Schedulers;
  * 版本： v2.0<br>
  */
 public abstract class BaseStrategy implements IStrategy {
-    <T> Observable<CacheResult<T>> loadCache(final RxCache rxCache, Type type, final String key, final long time, final boolean needEmpty) {
-        Observable<CacheResult<T>> observable = rxCache.<T>load(type, key, time).flatMap(new Function<T, ObservableSource<CacheResult<T>>>() {
+    <T> Flowable<CacheResult<T>> loadCache(final RxCache rxCache, Type type, final String key, final long time, final boolean needEmpty) {
+        Flowable<CacheResult<T>> flowable = rxCache.<T>load(type, key, time).flatMap(new Function<T, Flowable<CacheResult<T>>>() {
             @Override
-            public ObservableSource<CacheResult<T>> apply(@NonNull T t) throws Exception {
+            public Flowable<CacheResult<T>> apply(T t) throws Exception {
                 if (t == null) {
-                    return Observable.error(new NullPointerException("Not find the cache!"));
+                    return Flowable.error(new NullPointerException("Not find the cache!"));
                 }
-                return Observable.just(new CacheResult<T>(true, t));
+                return Flowable.just(new CacheResult<T>(true, t));
             }
         });
         if (needEmpty) {
-            observable = observable
-                    .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends CacheResult<T>>>() {
+            flowable = flowable
+                    .onErrorResumeNext(new Function<Throwable, Publisher<? extends CacheResult<T>>>() {
                         @Override
-                        public ObservableSource<? extends CacheResult<T>> apply(@NonNull Throwable throwable) throws Exception {
-                            return Observable.empty();
+                        public Publisher<? extends CacheResult<T>> apply(Throwable throwable) throws Exception {
+                            return Flowable.empty();
                         }
                     });
         }
-        return observable;
+        return flowable;
     }
 
     //请求成功后：异步保存
@@ -67,20 +70,20 @@ public abstract class BaseStrategy implements IStrategy {
                 .map(new Function<T, CacheResult<T>>() {
                     @Override
                     public CacheResult<T> apply(@NonNull T t) throws Exception {
-                        HttpLog.i("loadRemote result=" + t);
+                        LogUtils.i("loadRemote result=" + t);
                         rxCache.save(key, t).subscribeOn(Schedulers.io())
                                 .subscribe(new Consumer<Boolean>() {
                                     @Override
                                     public void accept(@NonNull Boolean status) throws Exception {
-                                        HttpLog.i("save status => " + status);
+                                        LogUtils.i("save status => " + status);
                                     }
                                 }, new Consumer<Throwable>() {
                                     @Override
                                     public void accept(@NonNull Throwable throwable) throws Exception {
                                         if (throwable instanceof ConcurrentModificationException) {
-                                            HttpLog.i("Save failed, please use a synchronized cache strategy :", throwable);
+                                            LogUtils.i("Save failed, please use a synchronized cache strategy :", throwable);
                                         } else {
-                                            HttpLog.i(throwable.getMessage());
+                                            LogUtils.i(throwable.getMessage());
                                         }
                                     }
                                 });
@@ -100,35 +103,35 @@ public abstract class BaseStrategy implements IStrategy {
     }
 
     //请求成功后：同步保存
-    <T> Observable<CacheResult<T>> loadRemote(final RxCache rxCache, final String key, Observable<T> source, final boolean needEmpty) {
-        Observable<CacheResult<T>> observable = source
-                .flatMap(new Function<T, ObservableSource<CacheResult<T>>>() {
+    <T> Flowable<CacheResult<T>> loadRemote(final RxCache rxCache, final String key, Flowable<T> source, final boolean needEmpty) {
+        Flowable<CacheResult<T>> flowable = source
+                .flatMap(new Function<T, Flowable<CacheResult<T>>>() {
                     @Override
-                    public ObservableSource<CacheResult<T>> apply(final @NonNull T t) throws Exception {
-                        return  rxCache.save(key, t).map(new Function<Boolean, CacheResult<T>>() {
+                    public Flowable<CacheResult<T>> apply(final @NonNull T t) throws Exception {
+                        return rxCache.save(key, t).map(new Function<Boolean, CacheResult<T>>() {
                             @Override
                             public CacheResult<T> apply(@NonNull Boolean aBoolean) throws Exception {
-                                HttpLog.i("save status => " + aBoolean);
+                                LogUtils.i("save status => " + aBoolean);
                                 return new CacheResult<T>(false, t);
                             }
                         }).onErrorReturn(new Function<Throwable, CacheResult<T>>() {
                             @Override
                             public CacheResult<T> apply(@NonNull Throwable throwable) throws Exception {
-                                HttpLog.i("save status => " + throwable);
+                                LogUtils.i("save status => " + throwable);
                                 return new CacheResult<T>(false, t);
                             }
                         });
                     }
                 });
         if (needEmpty) {
-            observable = observable
-                    .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends CacheResult<T>>>() {
+            flowable = flowable
+                    .onErrorResumeNext(new Function<Throwable, Publisher<? extends CacheResult<T>>>() {
                         @Override
-                        public ObservableSource<? extends CacheResult<T>> apply(@NonNull Throwable throwable) throws Exception {
-                            return Observable.empty();
+                        public Publisher<? extends CacheResult<T>> apply(Throwable throwable) throws Exception {
+                            return Flowable.empty();
                         }
                     });
         }
-        return observable;
+        return flowable;
     }
 }

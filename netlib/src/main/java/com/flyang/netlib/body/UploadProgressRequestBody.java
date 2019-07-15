@@ -17,7 +17,6 @@
 package com.flyang.netlib.body;
 
 
-import com.flyang.netlib.utils.HttpLog;
 import com.flyang.util.log.LogUtils;
 
 import java.io.IOException;
@@ -72,7 +71,7 @@ public class UploadProgressRequestBody extends RequestBody {
         try {
             return delegate.contentLength();
         } catch (IOException e) {
-            HttpLog.e(e.getMessage());
+            LogUtils.e(e.getMessage());
             return -1;
         }
     }

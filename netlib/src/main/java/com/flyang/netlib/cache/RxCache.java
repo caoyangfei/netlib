@@ -16,6 +16,7 @@
 
 package com.flyang.netlib.cache;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
 import android.os.StatFs;
@@ -27,18 +28,22 @@ import com.flyang.netlib.cache.core.LruDiskCache;
 import com.flyang.netlib.cache.model.CacheMode;
 import com.flyang.netlib.cache.model.CacheResult;
 import com.flyang.netlib.cache.stategy.IStrategy;
-import com.flyang.netlib.utils.HttpLog;
 import com.flyang.netlib.utils.Utils;
+import com.flyang.util.log.LogUtils;
+
+import org.reactivestreams.Publisher;
 
 import java.io.File;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import io.reactivex.Observable;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.FlowableTransformer;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
-import io.reactivex.ObservableTransformer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.exceptions.Exceptions;
 
@@ -95,6 +100,7 @@ public final class RxCache {
         this.appVersion = builder.appVersion;
         this.diskMaxSize = builder.diskMaxSize;
         this.diskConverter = builder.diskConverter;
+
         cacheCore = new CacheCore(new LruDiskCache(diskConverter, diskDir, appVersion, diskMaxSize));
     }
 
@@ -108,13 +114,13 @@ public final class RxCache {
      * @param cacheMode 缓存类型
      * @param type      缓存clazz
      */
-    @SuppressWarnings(value={"unchecked", "deprecation"})
-    public <T> ObservableTransformer<T, CacheResult<T>> transformer(CacheMode cacheMode, final Type type) {
+    @SuppressWarnings(value = {"unchecked", "deprecation"})
+    public <T> FlowableTransformer<T, CacheResult<T>> transformer(CacheMode cacheMode, final Type type) {
         final IStrategy strategy = loadStrategy(cacheMode);//获取缓存策略
-        return new ObservableTransformer<T, CacheResult<T>>() {
+        return new FlowableTransformer<T, CacheResult<T>>() {
             @Override
-            public ObservableSource<CacheResult<T>> apply(@NonNull Observable<T> upstream) {
-                HttpLog.i("cackeKey=" + RxCache.this.cacheKey);
+            public Publisher<CacheResult<T>> apply(Flowable<T> upstream) {
+                LogUtils.i("cackeKey=" + RxCache.this.cacheKey);
                 Type tempType = type;
                 if (type instanceof ParameterizedType) {//自定义ApiResult
                     Class<T> cls = (Class) ((ParameterizedType) type).getRawType();
@@ -136,7 +142,7 @@ public final class RxCache {
                     subscriber.onNext(data);
                 }
             } catch (Throwable e) {
-                HttpLog.e(e.getMessage());
+                LogUtils.e(e.getMessage());
                 if (!subscriber.isDisposed()) {
                     subscriber.onError(e);
                 }
@@ -155,10 +161,11 @@ public final class RxCache {
 
     /**
      * 获取缓存
+     *
      * @param type 保存的类型
-     * @param key 缓存key
+     * @param key  缓存key
      */
-    public <T> Observable<T> load(final Type type, final String key) {
+    public <T> Flowable<T> load(final Type type, final String key) {
         return load(type, key, -1);
     }
 
@@ -169,13 +176,13 @@ public final class RxCache {
      * @param key  缓存key
      * @param time 保存时间
      */
-    public <T> Observable<T> load(final Type type, final String key, final long time) {
-        return Observable.create(new SimpleSubscribe<T>() {
+    public <T> Flowable<T> load(final Type type, final String key, final long time) {
+        return Flowable.create(new FlowableOnSubscribe<T>() {
             @Override
-            T execute() {
-                return cacheCore.load(type, key, time);
+            public void subscribe(FlowableEmitter<T> emitter) throws Exception {
+                cacheCore.load(type, key, time);
             }
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
     /**
@@ -184,50 +191,50 @@ public final class RxCache {
      * @param key   缓存key
      * @param value 缓存Value
      */
-    public <T> Observable<Boolean> save(final String key, final T value) {
-        return Observable.create(new SimpleSubscribe<Boolean>() {
+    @SuppressLint("CheckResult")
+    public <T> Flowable<Boolean> save(final String key, final T value) {
+        return Flowable.create(new FlowableOnSubscribe<Boolean>() {
             @Override
-            Boolean execute() throws Throwable {
+            public void subscribe(FlowableEmitter<Boolean> emitter) throws Exception {
                 cacheCore.save(key, value);
-                return true;
             }
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
     /**
      * 是否包含
      */
-    public Observable<Boolean> containsKey(final String key) {
-        return Observable.create(new SimpleSubscribe<Boolean>() {
+    public Flowable<Boolean> containsKey(final String key) {
+        return Flowable.create(new FlowableOnSubscribe<Boolean>() {
             @Override
-            Boolean execute() throws Throwable {
-                return cacheCore.containsKey(key);
+            public void subscribe(FlowableEmitter<Boolean> emitter) throws Exception {
+                cacheCore.containsKey(key);
             }
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
     /**
      * 删除缓存
      */
-    public Observable<Boolean> remove(final String key) {
-        return Observable.create(new SimpleSubscribe<Boolean>() {
+    public Flowable<Boolean> remove(final String key) {
+        return Flowable.create(new FlowableOnSubscribe<Boolean>() {
             @Override
-            Boolean execute() throws Throwable {
-                return cacheCore.remove(key);
+            public void subscribe(FlowableEmitter<Boolean> emitter) throws Exception {
+                cacheCore.remove(key);
             }
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
     /**
      * 清空缓存
      */
-    public Observable<Boolean> clear() {
-        return Observable.create(new SimpleSubscribe<Boolean>() {
+    public Flowable<Boolean> clear() {
+        return Flowable.create(new FlowableOnSubscribe<Boolean>() {
             @Override
-            Boolean execute() throws Throwable {
-                return cacheCore.clear();
+            public void subscribe(FlowableEmitter<Boolean> emitter) throws Exception {
+                cacheCore.clear();
             }
-        });
+        }, BackpressureStrategy.BUFFER);
     }
 
     /**

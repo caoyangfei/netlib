@@ -16,6 +16,8 @@
 
 package com.flyang.netlib.utils;
 
+import com.flyang.util.log.LogUtils;
+
 import java.nio.charset.Charset;
 import java.util.Map;
 
@@ -42,7 +44,7 @@ public class HttpUtil {
             sb.deleteCharAt(sb.length() - 1);
             return sb.toString();
         } catch (Exception e) {
-            HttpLog.e(e.getMessage());
+            LogUtils.e(e.getMessage());
         }
         return url;
     }

@@ -18,15 +18,16 @@ package com.flyang.netlib.func;
 
 
 import com.flyang.netlib.exception.ApiException;
-import com.flyang.netlib.utils.HttpLog;
+import com.flyang.util.log.LogUtils;
+
+import org.reactivestreams.Publisher;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
+import io.reactivex.Flowable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
@@ -37,7 +38,7 @@ import io.reactivex.functions.Function;
  * 日期： 2017/4/12 17:52 <br>
  * 版本： v1.0<br>
  */
-public class RetryExceptionFunc implements Function<Observable<? extends Throwable>, Observable<?>> {
+public class RetryExceptionFunc implements Function<Flowable<? extends Throwable>, Flowable<?>> {
     /* retry次数*/
     private int count = 0;
     /*延迟*/
@@ -61,17 +62,17 @@ public class RetryExceptionFunc implements Function<Observable<? extends Throwab
     }
 
     @Override
-    public Observable<?> apply(@NonNull Observable<? extends Throwable> observable) throws Exception {
-        return observable.zipWith(Observable.range(1, count + 1), new BiFunction<Throwable, Integer, Wrapper>() {
+    public Flowable<?> apply(@NonNull Flowable<? extends Throwable> flowable) throws Exception {
+        return flowable.zipWith(Flowable.range(1, count + 1), new BiFunction<Throwable, Integer, Wrapper>() {
             @Override
             public Wrapper apply(@NonNull Throwable throwable, @NonNull Integer integer) throws Exception {
                 return new Wrapper(throwable, integer);
             }
-        }).flatMap(new Function<Wrapper, ObservableSource<?>>() {
+        }).flatMap(new Function<Wrapper, Publisher<?>>() {
             @Override
-            public ObservableSource<?> apply(@NonNull Wrapper wrapper) throws Exception {
+            public Publisher<?> apply(Wrapper wrapper) throws Exception {
                 if (wrapper.index > 1)
-                    HttpLog.i("重试次数：" + (wrapper.index));
+                    LogUtils.i("重试次数：" + (wrapper.index));
                 int errCode = 0;
                 if (wrapper.throwable instanceof ApiException) {
                     ApiException exception = (ApiException) wrapper.throwable;
@@ -84,10 +85,10 @@ public class RetryExceptionFunc implements Function<Observable<? extends Throwab
                         || wrapper.throwable instanceof SocketTimeoutException
                         || wrapper.throwable instanceof TimeoutException)
                         && wrapper.index < count + 1) { //如果超出重试次数也抛出错误，否则默认是会进入onCompleted
-                    return Observable.timer(delay + (wrapper.index - 1) * increaseDelay, TimeUnit.MILLISECONDS);
+                    return Flowable.timer(delay + (wrapper.index - 1) * increaseDelay, TimeUnit.MILLISECONDS);
 
                 }
-                return Observable.error(wrapper.throwable);
+                return Flowable.error(wrapper.throwable);
             }
         });
     }

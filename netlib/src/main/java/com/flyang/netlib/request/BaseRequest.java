@@ -16,6 +16,7 @@
 
 package com.flyang.netlib.request;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -32,9 +33,9 @@ import com.flyang.netlib.interceptor.HeadersInterceptor;
 import com.flyang.netlib.interceptor.NoCacheInterceptor;
 import com.flyang.netlib.model.HttpHeaders;
 import com.flyang.netlib.model.HttpParams;
-import com.flyang.netlib.utils.HttpLog;
 import com.flyang.netlib.utils.RxUtil;
 import com.flyang.netlib.utils.Utils;
+import com.flyang.util.log.LogUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -46,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import okhttp3.Cache;
@@ -369,17 +370,18 @@ public abstract class BaseRequest<R extends BaseRequest> {
     /**
      * 移除缓存（key）
      */
+    @SuppressLint("CheckResult")
     public void removeCache(String key) {
         getRxCache().remove(key).compose(RxUtil.<Boolean>io_main())
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(@NonNull Boolean aBoolean) throws Exception {
-                        HttpLog.i("removeCache success!!!");
+                        LogUtils.i("removeCache success!!!");
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(@NonNull Throwable throwable) throws Exception {
-                        HttpLog.i("removeCache err!!!" + throwable);
+                        LogUtils.i("removeCache err!!!" + throwable);
                     }
                 });
     }
@@ -546,5 +548,5 @@ public abstract class BaseRequest<R extends BaseRequest> {
         return (R) this;
     }
 
-    protected abstract Observable<ResponseBody> generateRequest();
+    protected abstract Flowable<ResponseBody> generateRequest();
 }

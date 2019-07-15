@@ -19,10 +19,10 @@ package com.flyang.netlib.transformer;
 
 import com.flyang.netlib.func.HttpResponseFunc;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.ObservableTransformer;
-import io.reactivex.annotations.NonNull;
+import org.reactivestreams.Publisher;
+
+import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
 
 /**
  * <p>描述：错误转换Transformer</p>
@@ -30,9 +30,9 @@ import io.reactivex.annotations.NonNull;
  * 日期： 2017/5/15 17:09 <br>
  * 版本： v1.0<br>
  */
-public class HandleErrTransformer<T> implements ObservableTransformer<T, T> {
+public class HandleErrTransformer<T> implements FlowableTransformer<T, T> {
     @Override
-    public ObservableSource<T> apply(@NonNull Observable<T> upstream) {
+    public Publisher<T> apply(Flowable<T> upstream) {
         return upstream.onErrorResumeNext(new HttpResponseFunc<T>());
     }
 }

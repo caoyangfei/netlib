@@ -19,7 +19,7 @@ package com.flyang.netlib.func;
 
 import com.flyang.netlib.exception.ApiException;
 
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 
@@ -29,9 +29,9 @@ import io.reactivex.functions.Function;
  * 日期： 2017/5/15 16:55 <br>
  * 版本： v1.0<br>
  */
-public class HttpResponseFunc<T> implements Function<Throwable, Observable<T>> {
+public class HttpResponseFunc<T> implements Function<Throwable, Flowable<T>> {
     @Override
-    public Observable<T> apply(@NonNull Throwable throwable) throws Exception {
-        return Observable.error(ApiException.handleException(throwable));
+    public Flowable<T> apply(@NonNull Throwable throwable) throws Exception {
+        return Flowable.error(ApiException.handleException(throwable));
     }
 }

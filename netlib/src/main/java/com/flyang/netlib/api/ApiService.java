@@ -19,7 +19,7 @@ package com.flyang.netlib.api;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -61,63 +61,63 @@ public interface ApiService {
 
     @POST()
     @FormUrlEncoded
-    Observable<ResponseBody> post(@Url String url, @FieldMap Map<String, String> maps);
+    Flowable<ResponseBody> post(@Url String url, @FieldMap Map<String, String> maps);
 
     @POST()
-    Observable<ResponseBody> postBody(@Url String url, @Body Object object);
+    Flowable<ResponseBody> postBody(@Url String url, @Body Object object);
 
     @POST()
     @Headers({"Content-Type: application/json", "Accept: application/json"})
-    Observable<ResponseBody> postJson(@Url String url, @Body RequestBody jsonBody);
+    Flowable<ResponseBody> postJson(@Url String url, @Body RequestBody jsonBody);
 
     @POST()
-    Observable<ResponseBody> postBody(@Url String url, @Body RequestBody body);
+    Flowable<ResponseBody> postBody(@Url String url, @Body RequestBody body);
 
     @GET()
-    Observable<ResponseBody> get(@Url String url, @QueryMap Map<String, String> maps);
+    Flowable<ResponseBody> get(@Url String url, @QueryMap Map<String, String> maps);
 
     @DELETE()
-    Observable<ResponseBody> delete(@Url String url, @QueryMap Map<String, String> maps);
+    Flowable<ResponseBody> delete(@Url String url, @QueryMap Map<String, String> maps);
 
     //@DELETE()//delete body请求比较特殊 需要自定义
     @HTTP(method = "DELETE",/*path = "",*/hasBody = true)
-    Observable<ResponseBody> deleteBody(@Url String url, @Body Object object);
+    Flowable<ResponseBody> deleteBody(@Url String url, @Body Object object);
 
     //@DELETE()//delete body请求比较特殊 需要自定义
     @HTTP(method = "DELETE",/*path = "",*/hasBody = true)
-    Observable<ResponseBody> deleteBody(@Url String url, @Body RequestBody body);
+    Flowable<ResponseBody> deleteBody(@Url String url, @Body RequestBody body);
 
     //@DELETE()//delete body请求比较特殊 需要自定义
     @Headers({"Content-Type: application/json", "Accept: application/json"})
     @HTTP(method = "DELETE",/*path = "",*/hasBody = true)
-    Observable<ResponseBody> deleteJson(@Url String url, @Body RequestBody jsonBody);
+    Flowable<ResponseBody> deleteJson(@Url String url, @Body RequestBody jsonBody);
 
     @PUT()
-    Observable<ResponseBody> put(@Url String url, @QueryMap Map<String, String> maps);
+    Flowable<ResponseBody> put(@Url String url, @QueryMap Map<String, String> maps);
 
     @PUT()
-    Observable<ResponseBody> putBody(@Url String url, @Body Object object);
+    Flowable<ResponseBody> putBody(@Url String url, @Body Object object);
 
     @PUT()
-    Observable<ResponseBody> putBody(@Url String url, @Body RequestBody body);
+    Flowable<ResponseBody> putBody(@Url String url, @Body RequestBody body);
 
     @PUT()
     @Headers({"Content-Type: application/json", "Accept: application/json"})
-    Observable<ResponseBody> putJson(@Url String url, @Body RequestBody jsonBody);
+    Flowable<ResponseBody> putJson(@Url String url, @Body RequestBody jsonBody);
 
     @Multipart
     @POST()
-    Observable<ResponseBody> uploadFlie(@Url String fileUrl, @Part("description") RequestBody description, @Part("files") MultipartBody.Part file);
+    Flowable<ResponseBody> uploadFlie(@Url String fileUrl, @Part("description") RequestBody description, @Part("files") MultipartBody.Part file);
 
     @Multipart
     @POST()
-    Observable<ResponseBody> uploadFiles(@Url String url, @PartMap() Map<String, RequestBody> maps);
+    Flowable<ResponseBody> uploadFiles(@Url String url, @PartMap() Map<String, RequestBody> maps);
 
     @Multipart
     @POST()
-    Observable<ResponseBody> uploadFiles(@Url String url, @Part() List<MultipartBody.Part> parts);
+    Flowable<ResponseBody> uploadFiles(@Url String url, @Part() List<MultipartBody.Part> parts);
 
     @Streaming
     @GET
-    Observable<ResponseBody> downloadFile(@Url String fileUrl);
+    Flowable<ResponseBody> downloadFile(@Url String fileUrl);
 }

@@ -17,9 +17,9 @@
 package com.flyang.netlib.interceptor;
 
 
-import com.flyang.netlib.utils.HttpLog;
 import com.flyang.netlib.utils.HttpUtil;
 import com.flyang.netlib.utils.Utils;
+import com.flyang.util.log.LogUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -161,7 +161,7 @@ public abstract class BaseDynamicInterceptor<R extends BaseDynamicInterceptor> i
                 //Logc.i(entry.getKey() + " -> " + value);
             }
             String url = HttpUtil.createUrlFromParams(httpUrl.url().toString(), newParams);
-            HttpLog.i(url);
+            LogUtils.i(url);
             formBody = bodyBuilder.build();
             request = request.newBuilder().post(formBody).build();
         } else if (request.body() instanceof MultipartBody) {

@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import com.flyang.netlib.utils.HttpLog;
+import com.flyang.util.log.LogUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -183,7 +183,7 @@ public class PersistentCookieStore {
             ObjectOutputStream outputStream = new ObjectOutputStream(os);
             outputStream.writeObject(cookie);
         } catch (IOException e) {
-            HttpLog.d("IOException in encodeCookie" + e.getMessage());
+            LogUtils.d("IOException in encodeCookie" + e.getMessage());
             return null;
         }
 
@@ -201,9 +201,9 @@ public class PersistentCookieStore {
             ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
             cookie = ((SerializableOkHttpCookies) objectInputStream.readObject()).getCookies();
         } catch (IOException e) {
-            HttpLog.d("IOException in decodeCookie" + e.getMessage());
+            LogUtils.d("IOException in decodeCookie" + e.getMessage());
         } catch (ClassNotFoundException e) {
-            HttpLog.d("ClassNotFoundException in decodeCookie" + e.getMessage());
+            LogUtils.d("ClassNotFoundException in decodeCookie" + e.getMessage());
         }
 
         return cookie;

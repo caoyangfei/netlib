@@ -22,11 +22,11 @@ import com.flyang.netlib.func.RetryExceptionFunc;
 import com.flyang.netlib.subsciber.DownloadSubscriber;
 import com.flyang.netlib.transformer.HandleErrTransformer;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.ObservableTransformer;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+
+import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
@@ -36,7 +36,7 @@ import okhttp3.ResponseBody;
  * 日期： 2017/4/28 17:20 <br>
  * 版本： v1.0<br>
  */
-@SuppressWarnings(value={"unchecked", "deprecation"})
+@SuppressWarnings(value = {"unchecked", "deprecation"})
 public class DownloadRequest extends BaseRequest<DownloadRequest> {
     public DownloadRequest(String url) {
         super(url);
@@ -63,10 +63,10 @@ public class DownloadRequest extends BaseRequest<DownloadRequest> {
         return this;
     }
 
-    public <T> Disposable execute(CallBack<T> callBack) {
-        return (Disposable) build().generateRequest().compose(new ObservableTransformer<ResponseBody, ResponseBody>() {
+    public <T> Subscriber execute(CallBack<T> callBack) {
+        return (Subscriber) build().generateRequest().compose(new FlowableTransformer<ResponseBody, ResponseBody>() {
             @Override
-            public ObservableSource<ResponseBody> apply(@NonNull Observable<ResponseBody> upstream) {
+            public Publisher<ResponseBody> apply(Flowable<ResponseBody> upstream) {
                 if (isSyncRequest) {
                     return upstream;//.observeOn(AndroidSchedulers.mainThread());
                 } else {
@@ -80,7 +80,7 @@ public class DownloadRequest extends BaseRequest<DownloadRequest> {
     }
 
     @Override
-    protected Observable<ResponseBody> generateRequest() {
+    protected Flowable<ResponseBody> generateRequest() {
         return apiManager.downloadFile(url);
     }
 }

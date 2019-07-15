@@ -20,7 +20,7 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.flyang.netlib.EasyHttp;
-import com.flyang.netlib.utils.HttpLog;
+import com.flyang.util.log.LogUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -139,7 +139,7 @@ public class HttpHeaders implements Serializable {
                 jsonObject.put(entry.getKey(), entry.getValue());
             }
         } catch (JSONException e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         }
         return jsonObject.toString();
     }

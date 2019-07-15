@@ -19,12 +19,12 @@ package com.flyang.netlib.subsciber;
 import android.content.Context;
 
 import com.flyang.netlib.exception.ApiException;
-import com.flyang.netlib.utils.HttpLog;
+import com.flyang.util.log.LogUtils;
 
 import java.lang.ref.WeakReference;
 
 import io.reactivex.annotations.NonNull;
-import io.reactivex.observers.DisposableObserver;
+import io.reactivex.subscribers.DisposableSubscriber;
 
 import static com.flyang.netlib.utils.Utils.isNetworkAvailable;
 
@@ -38,7 +38,7 @@ import static com.flyang.netlib.utils.Utils.isNetworkAvailable;
  * 日期： 2016/12/20 10:35<br>
  * 版本： v2.0<br>
  */
-public abstract class BaseSubscriber<T> extends DisposableObserver<T> {
+public abstract class BaseSubscriber<T> extends DisposableSubscriber<T> {
     public WeakReference<Context> contextWeakReference;
     
     public BaseSubscriber() {
@@ -46,7 +46,7 @@ public abstract class BaseSubscriber<T> extends DisposableObserver<T> {
 
     @Override
     protected void onStart() {
-        HttpLog.e("-->http is onStart");
+        LogUtils.e("-->http is onStart");
         if (contextWeakReference != null && contextWeakReference.get() != null && !isNetworkAvailable(contextWeakReference.get())) {
             //Toast.makeText(context, "无网络，读取缓存数据", Toast.LENGTH_SHORT).show();
             onComplete();
@@ -62,24 +62,24 @@ public abstract class BaseSubscriber<T> extends DisposableObserver<T> {
 
     @Override
     public void onNext(@NonNull T t) {
-        HttpLog.e("-->http is onNext");
+        LogUtils.e("-->http is onNext");
     }
 
     @Override
     public final void onError(Throwable e) {
-        HttpLog.e("-->http is onError");
+        LogUtils.e("-->http is onError");
         if (e instanceof ApiException) {
-            HttpLog.e("--> e instanceof ApiException err:" + e);
+            LogUtils.e("--> e instanceof ApiException err:" + e);
             onError((ApiException) e);
         } else {
-            HttpLog.e("--> e !instanceof ApiException err:" + e);
+            LogUtils.e("--> e !instanceof ApiException err:" + e);
             onError(ApiException.handleException(e));
         }
     }
 
     @Override
     public void onComplete() {
-        HttpLog.e("-->http is onComplete");
+        LogUtils.e("-->http is onComplete");
     }
 
 

@@ -35,9 +35,9 @@ import com.flyang.netlib.request.DownloadRequest;
 import com.flyang.netlib.request.GetRequest;
 import com.flyang.netlib.request.PostRequest;
 import com.flyang.netlib.request.PutRequest;
-import com.flyang.netlib.utils.HttpLog;
 import com.flyang.netlib.utils.RxUtil;
 import com.flyang.netlib.utils.Utils;
+import com.flyang.util.log.LogUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -193,17 +193,12 @@ public final class EasyHttp {
      * 并不是框架错误,如果不想每次打印,这里可以关闭异常显示
      */
     public EasyHttp debug(String tag, boolean isPrintException) {
-        String tempTag = TextUtils.isEmpty(tag)?"RxEasyHttp_":tag;
-        if(isPrintException){
+        String tempTag = TextUtils.isEmpty(tag) ? "RxEasyHttp_" : tag;
+        if (isPrintException) {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(tempTag, isPrintException);
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             okHttpClientBuilder.addInterceptor(loggingInterceptor);
         }
-        HttpLog.customTagPrefix = tempTag;
-        HttpLog.allowE = isPrintException;
-        HttpLog.allowD = isPrintException;
-        HttpLog.allowI = isPrintException;
-        HttpLog.allowV = isPrintException;
         return this;
     }
 
@@ -603,12 +598,12 @@ public final class EasyHttp {
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(@NonNull Boolean aBoolean) throws Exception {
-                        HttpLog.i("clearCache success!!!");
+                        LogUtils.i("clearCache success!!!");
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(@NonNull Throwable throwable) throws Exception {
-                        HttpLog.i("clearCache err!!!");
+                        LogUtils.i("clearCache err!!!");
                     }
                 });
     }
@@ -620,12 +615,12 @@ public final class EasyHttp {
         getRxCache().remove(key).compose(RxUtil.<Boolean>io_main()).subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
-                HttpLog.i("removeCache success!!!");
+                LogUtils.i("removeCache success!!!");
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(@NonNull Throwable throwable) throws Exception {
-                    HttpLog.i("removeCache err!!!");
+                LogUtils.i("removeCache err!!!");
             }
         });
     }

@@ -17,7 +17,7 @@
 package com.flyang.netlib.https;
 
 
-import com.flyang.netlib.utils.HttpLog;
+import com.flyang.util.log.LogUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,7 +89,7 @@ public class HttpsUtils {
                 try {
                     if (certificate != null) certificate.close();
                 } catch (IOException e) {
-                    HttpLog.e(e);
+                    LogUtils.e(e);
                 }
             }
             TrustManagerFactory trustManagerFactory;
@@ -97,13 +97,13 @@ public class HttpsUtils {
             trustManagerFactory.init(keyStore);
             return trustManagerFactory.getTrustManagers();
         } catch (NoSuchAlgorithmException e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         } catch (CertificateException e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         } catch (KeyStoreException e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         } catch (Exception e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         }
         return null;
     }
@@ -117,17 +117,17 @@ public class HttpsUtils {
             keyManagerFactory.init(clientKeyStore, password.toCharArray());
             return keyManagerFactory.getKeyManagers();
         } catch (KeyStoreException e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         } catch (NoSuchAlgorithmException e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         } catch (UnrecoverableKeyException e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         } catch (CertificateException e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         } catch (IOException e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         } catch (Exception e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         }
         return null;
     }

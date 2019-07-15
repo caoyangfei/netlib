@@ -31,12 +31,11 @@ import com.flyang.netlib.utils.RxUtil;
 import com.flyang.netlib.utils.Utils;
 import com.google.gson.reflect.TypeToken;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.ObservableTransformer;
-import io.reactivex.Observer;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+
+import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
 import okhttp3.ResponseBody;
 
 /**
@@ -45,7 +44,7 @@ import okhttp3.ResponseBody;
  * 日期： 2017/5/15 17:04 <br>
  * 版本： v1.0<br>
  */
-@SuppressWarnings(value={"unchecked", "deprecation"})
+@SuppressWarnings(value = {"unchecked", "deprecation"})
 public class CustomRequest extends BaseRequest<CustomRequest> {
     public CustomRequest() {
         super("");
@@ -74,19 +73,19 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
      * 调用call返回一个Observable<T>
      * 举例：如果你给的是一个Observable<ApiResult<AuthModel>> 那么返回的<T>是一个ApiResult<AuthModel>
      */
-    public <T> Observable<T> call(Observable<T> observable) {
+    public <T> Flowable<T> call(Flowable<T> flowable) {
         checkvalidate();
-        return observable.compose(RxUtil.io_main())
+        return flowable.compose(RxUtil.io_main())
                 .compose(new HandleErrTransformer())
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
     }
 
-    public <T> void call(Observable<T> observable, CallBack<T> callBack) {
-        call(observable, new CallBackSubsciber(context, callBack));
+    public <T> void call(Flowable<T> flowable, CallBack<T> callBack) {
+        call(flowable, new CallBackSubsciber(context, callBack));
     }
 
-    public <R> void call(Observable observable, Observer<R> subscriber) {
-        observable.compose(RxUtil.io_main())
+    public <R> void call(Flowable flowable, Subscriber<R> subscriber) {
+        flowable.compose(RxUtil.io_main())
                 .subscribe(subscriber);
     }
 
@@ -95,26 +94,26 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
      * 调用call返回一个Observable,针对ApiResult的业务<T>
      * 举例：如果你给的是一个Observable<ApiResult<AuthModel>> 那么返回的<T>是AuthModel
      */
-    public <T> Observable<T> apiCall(Observable<ApiResult<T>> observable) {
+    public <T> Flowable<T> apiCall(Flowable<ApiResult<T>> flowable) {
         checkvalidate();
-        return observable
+        return flowable
                 .map(new HandleFuc<T>())
                 .compose(RxUtil.<T>io_main())
                 .compose(new HandleErrTransformer<T>())
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
     }
 
-    public <T> Disposable apiCall(Observable<T> observable, CallBack<T> callBack) {
-        return call(observable, new CallBackProxy<ApiResult<T>, T>(callBack) {
+    public <T> Subscriber apiCall(Flowable<T> flowable, CallBack<T> callBack) {
+        return call(flowable, new CallBackProxy<ApiResult<T>, T>(callBack) {
         });
     }
 
-    public <T> Disposable call(Observable<T> observable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
-        Observable<CacheResult<T>> cacheobservable = build().toObservable(observable, proxy);
+    public <T> Subscriber call(Flowable<T> flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
+        Flowable<CacheResult<T>> cacheobservable = build().toObservable(flowable, proxy);
         if (CacheResult.class != proxy.getCallBack().getRawType()) {
-            return cacheobservable.compose(new ObservableTransformer<CacheResult<T>, T>() {
+            return cacheobservable.compose(new FlowableTransformer<CacheResult<T>, T>() {
                 @Override
-                public ObservableSource<T> apply(@NonNull Observable<CacheResult<T>> upstream) {
+                public Publisher<T> apply(Flowable<CacheResult<T>> upstream) {
                     return upstream.map(new CacheResultFunc<T>());
                 }
             }).subscribeWith(new CallBackSubsciber<T>(context, proxy.getCallBack()));
@@ -123,9 +122,9 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
         }
     }
 
-    @SuppressWarnings(value={"unchecked", "deprecation"})
-    private <T> Observable<CacheResult<T>> toObservable(Observable observable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
-        return observable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
+    @SuppressWarnings(value = {"unchecked", "deprecation"})
+    private <T> Flowable<CacheResult<T>> toObservable(Flowable flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
+        return flowable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
         }.getType()))
                 .compose(isSyncRequest ? RxUtil._main() : RxUtil._io_main())
                 .compose(rxCache.transformer(cacheMode, proxy.getCallBack().getType()))
@@ -133,7 +132,7 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
     }
 
     @Override
-    protected Observable<ResponseBody> generateRequest() {
+    protected Flowable<ResponseBody> generateRequest() {
         return null;
     }
 }

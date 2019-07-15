@@ -18,7 +18,7 @@ package com.flyang.netlib.interceptor;
 
 
 import com.flyang.netlib.model.HttpHeaders;
-import com.flyang.netlib.utils.HttpLog;
+import com.flyang.util.log.LogUtils;
 
 import java.io.IOException;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class HeadersInterceptor implements Interceptor {
                 builder.header(entry.getKey(), entry.getValue()).build();
             }
         } catch (Exception e) {
-            HttpLog.e(e);
+            LogUtils.e(e);
         }
         return chain.proceed(builder.build());
 

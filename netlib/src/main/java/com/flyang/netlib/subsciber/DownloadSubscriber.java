@@ -22,7 +22,7 @@ import android.text.TextUtils;
 import com.flyang.netlib.callback.CallBack;
 import com.flyang.netlib.callback.DownloadProgressCallBack;
 import com.flyang.netlib.exception.ApiException;
-import com.flyang.netlib.utils.HttpLog;
+import com.flyang.util.log.LogUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -78,13 +78,13 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
 
     @Override
     public void onError(final ApiException e) {
-        HttpLog.d("DownSubscriber:>>>> onError:" + e.getMessage());
+        LogUtils.d("DownSubscriber:>>>> onError:" + e.getMessage());
         finalonError(e);
     }
 
     @Override
     public void onNext(ResponseBody responseBody) {
-        HttpLog.d("DownSubscriber:>>>> onNext");
+        LogUtils.d("DownSubscriber:>>>> onNext");
         writeResponseBodyToDisk(path, name, context, responseBody);
 
     }
@@ -121,7 +121,7 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
             path = path.replaceAll("//", "/");
         }
 
-        HttpLog.i("path:-->" + path);
+        LogUtils.i("path:-->" + path);
         try {
             File futureStudioIconFile = new File(path);
            /* if (!futureStudioIconFile.exists()) {
@@ -135,7 +135,7 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
 
                 final long fileSize = body.contentLength();
                 long fileSizeDownloaded = 0;
-                HttpLog.d("file length: " + fileSize);
+                LogUtils.d("file length: " + fileSize);
                 inputStream = body.byteStream();
                 outputStream = new FileOutputStream(futureStudioIconFile);
                 final CallBack callBack = mCallBack;
@@ -148,7 +148,7 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
 
                     outputStream.write(fileReader, 0, read);
                     fileSizeDownloaded += read;
-                    HttpLog.i("file download: " + fileSizeDownloaded + " of " + fileSize);
+                    LogUtils.i("file download: " + fileSizeDownloaded + " of " + fileSize);
                     //下载进度
                     float progress = fileSizeDownloaded * 1.0f / fileSize;
                     long curTime = System.currentTimeMillis();
@@ -178,7 +178,7 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
                 }
 
                 outputStream.flush();
-                HttpLog.i("file downloaded: " + fileSizeDownloaded + " of " + fileSize);
+                LogUtils.i("file downloaded: " + fileSizeDownloaded + " of " + fileSize);
 
                 if (callBack != null) {
                     //final String finalName = name;
@@ -196,8 +196,8 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
 
                         }
                     });
-                    HttpLog.i("file downloaded: " + fileSizeDownloaded + " of " + fileSize);
-                    HttpLog.i("file downloaded: is sucess");
+                    LogUtils.i("file downloaded: " + fileSizeDownloaded + " of " + fileSize);
+                    LogUtils.i("file downloaded: is sucess");
                 }
 
                 return true;

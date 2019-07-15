@@ -28,13 +28,13 @@ import com.flyang.netlib.subsciber.CallBackSubsciber;
 import com.flyang.netlib.utils.RxUtil;
 import com.google.gson.reflect.TypeToken;
 
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+
 import java.lang.reflect.Type;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.ObservableTransformer;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
@@ -49,54 +49,54 @@ public class PutRequest extends BaseBodyRequest<PutRequest> {
         super(url);
     }
 
-    public <T> Observable<T> execute(Class<T> clazz) {
+    public <T> Flowable<T> execute(Class<T> clazz) {
         return execute(new CallClazzProxy<ApiResult<T>, T>(clazz) {
         });
     }
 
-    public <T> Observable<T> execute(Type type) {
+    public <T> Flowable<T> execute(Type type) {
         return execute(new CallClazzProxy<ApiResult<T>, T>(type) {
         });
     }
 
-    @SuppressWarnings(value={"unchecked", "deprecation"})
-    public <T> Observable<T> execute(CallClazzProxy<? extends ApiResult<T>, T> proxy) {
+    @SuppressWarnings(value = {"unchecked", "deprecation"})
+    public <T> Flowable<T> execute(CallClazzProxy<? extends ApiResult<T>, T> proxy) {
         return build().generateRequest()
                 .map(new ApiResultFunc(proxy.getType()))
                 .compose(isSyncRequest ? RxUtil._main() : RxUtil._io_main())
                 .compose(rxCache.transformer(cacheMode, proxy.getCallType()))
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay))
-                .compose(new ObservableTransformer() {
+                .compose(new FlowableTransformer() {
                     @Override
-                    public ObservableSource apply(@NonNull Observable upstream) {
+                    public Publisher apply(Flowable upstream) {
                         return upstream.map(new CacheResultFunc<T>());
                     }
                 });
     }
 
-    public <T> Disposable execute(CallBack<T> callBack) {
+    public <T> Subscriber execute(CallBack<T> callBack) {
         return execute(new CallBackProxy<ApiResult<T>, T>(callBack) {
         });
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Disposable execute(CallBackProxy<? extends ApiResult<T>, T> proxy) {
-        Observable<CacheResult<T>> observable = build().toObservable(generateRequest(), proxy);
+    public <T> Subscriber execute(CallBackProxy<? extends ApiResult<T>, T> proxy) {
+        Flowable<CacheResult<T>> flowable = build().toObservable(generateRequest(), proxy);
         if (CacheResult.class != proxy.getCallBack().getRawType()) {
-            return observable.compose(new ObservableTransformer<CacheResult<T>, T>() {
+            return flowable.compose(new FlowableTransformer<CacheResult<T>, T>() {
                 @Override
-                public ObservableSource<T> apply(@NonNull Observable<CacheResult<T>> upstream) {
+                public Publisher<T> apply(Flowable<CacheResult<T>> upstream) {
                     return upstream.map(new CacheResultFunc<T>());
                 }
             }).subscribeWith(new CallBackSubsciber<T>(context, proxy.getCallBack()));
         } else {
-            return observable.subscribeWith(new CallBackSubsciber<CacheResult<T>>(context, proxy.getCallBack()));
+            return flowable.subscribeWith(new CallBackSubsciber<CacheResult<T>>(context, proxy.getCallBack()));
         }
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Observable<CacheResult<T>> toObservable(Observable observable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
-        return observable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
+    private <T> Flowable<CacheResult<T>> toObservable(Flowable flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
+        return flowable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
         }.getType()))
                 .compose(isSyncRequest ? RxUtil._main() : RxUtil._io_main())
                 .compose(rxCache.transformer(cacheMode, proxy.getCallBack().getType()))
@@ -104,13 +104,13 @@ public class PutRequest extends BaseBodyRequest<PutRequest> {
     }
 
     @Override
-    protected Observable<ResponseBody> generateRequest() {
+    protected Flowable<ResponseBody> generateRequest() {
         if (this.requestBody != null) { //自定义的请求体
             return apiManager.putBody(url, this.requestBody);
         } else if (this.json != null) {//Json
             RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), this.json);
             return apiManager.putJson(url, body);
-        }  else if (this.object != null) {//自定义的请求object
+        } else if (this.object != null) {//自定义的请求object
             return apiManager.putBody(url, object);
         } else if (this.string != null) {//文本内容
             RequestBody body = RequestBody.create(mediaType, this.string);

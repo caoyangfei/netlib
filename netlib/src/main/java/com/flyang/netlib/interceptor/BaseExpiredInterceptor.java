@@ -17,7 +17,7 @@
 package com.flyang.netlib.interceptor;
 
 
-import com.flyang.netlib.utils.HttpLog;
+import com.flyang.util.log.LogUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -55,7 +55,7 @@ public abstract class BaseExpiredInterceptor implements Interceptor {
             charset = contentType.charset(UTF8);
         }
         String bodyString = buffer.clone().readString(charset);
-        HttpLog.i("网络拦截器:" + bodyString + " host:" + request.url().toString());
+        LogUtils.i("网络拦截器:" + bodyString + " host:" + request.url().toString());
         boolean isText = isText(contentType);
         if (!isText) {
             return response;

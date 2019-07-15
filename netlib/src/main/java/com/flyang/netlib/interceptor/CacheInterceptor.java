@@ -19,7 +19,7 @@ package com.flyang.netlib.interceptor;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.flyang.netlib.utils.HttpLog;
+import com.flyang.util.log.LogUtils;
 
 import java.io.IOException;
 
@@ -62,7 +62,7 @@ public class CacheInterceptor implements Interceptor {
         okhttp3.Response originalResponse = chain.proceed(chain.request());
         String cacheControl = originalResponse.header("Cache-Control");
         //String cacheControl = request.cacheControl().toString();
-       HttpLog.e( maxStaleOnline + "s load cache:" + cacheControl);
+       LogUtils.e( maxStaleOnline + "s load cache:" + cacheControl);
         if (TextUtils.isEmpty(cacheControl) || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
                 cacheControl.contains("must-revalidate") || cacheControl.contains("max-age") || cacheControl.contains("max-stale")) {
             return originalResponse.newBuilder()
