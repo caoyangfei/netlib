@@ -22,7 +22,7 @@ import com.flyang.netlib.cache.model.CacheResult;
 
 import java.lang.reflect.Type;
 
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 
 /**
  * <p>描述：只请求网络</p>
@@ -33,7 +33,7 @@ import io.reactivex.Observable;
  */
 public final class OnlyRemoteStrategy extends BaseStrategy{
     @Override
-    public <T> Observable<CacheResult<T>> execute(RxCache rxCache, String key, long time, Observable<T> source, Type type) {
+    public <T> Flowable<CacheResult<T>> execute(RxCache rxCache, String key, long time, Flowable<T> source, Type type) {
         return loadRemote(rxCache,key, source,false);
     }
 }
