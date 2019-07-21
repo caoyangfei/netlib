@@ -8,8 +8,11 @@ import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.target.Target;
 import com.flyang.imageloader.config.ImageConfigSpread;
+import com.flyang.util.constant.PermissionConstant;
 import com.flyang.util.data.ConvertUtils;
 import com.flyang.util.data.ThreadUtils;
+import com.flyang.util.system.PermissionUtils;
+import com.flyang.util.view.ToastUtils;
 import com.flyang.util.view.img.ImageUtils;
 
 /**
@@ -34,14 +37,20 @@ public class GlideDownLoadImageRunable<T> extends ThreadUtils.SimpleTask<T> {
     public T doInBackground() throws Throwable {
         FutureTarget<T> submit = request.submit(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
         t = submit.get();
+
+        boolean storage = PermissionUtils.hasSelfPermissions(PermissionConstant.getPermissions(PermissionConstant.STORAGE));
         if (imageConfig.isSaveGallery()) {
-            if (imageConfig.isAsBitmap()) {
-                //保存到图库
-                ImageUtils.saveImageToGallery((Bitmap) t, Bitmap.CompressFormat.JPEG);
-            } else if (imageConfig.isAsDrawable()) {
-                Bitmap bitmap = ConvertUtils.drawable2Bitmap((Drawable) t);
-                //保存到图库
-                ImageUtils.saveImageToGallery(bitmap, Bitmap.CompressFormat.JPEG);
+            if (!storage) {
+                ToastUtils.showShort("没有存储权限，不能保存到图库！");
+            } else {
+                if (imageConfig.isAsBitmap()) {
+                    //保存到图库
+                    ImageUtils.saveImageToGallery((Bitmap) t, Bitmap.CompressFormat.JPEG);
+                } else if (imageConfig.isAsDrawable()) {
+                    Bitmap bitmap = ConvertUtils.drawable2Bitmap((Drawable) t);
+                    //保存到图库
+                    ImageUtils.saveImageToGallery(bitmap, Bitmap.CompressFormat.JPEG);
+                }
             }
         }
         return t;

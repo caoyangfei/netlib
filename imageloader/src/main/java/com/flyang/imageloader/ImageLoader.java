@@ -5,6 +5,7 @@ import android.content.Context;
 import com.bumptech.glide.MemoryCategory;
 import com.flyang.imageloader.config.ImageConfigSpread;
 import com.flyang.imageloader.loader.ImageLoaderStrategy;
+import com.flyang.util.data.PreconditionUtils;
 
 /**
  * @author yangfei.cao
@@ -40,9 +41,7 @@ public class ImageLoader<T extends ImageLoaderStrategy, R extends Runnable> {
      * @return
      */
     public static ImageLoaderStrategy getActualLoader() {
-        if (imageLoaderStrategy == null) {
-            throw new RuntimeException("Not initialized ImageLoader");
-        }
+        PreconditionUtils.checkNotNull(imageLoaderStrategy, "Not initialized ImageLoader");
         return imageLoaderStrategy;
     }
 
@@ -66,20 +65,26 @@ public class ImageLoader<T extends ImageLoaderStrategy, R extends Runnable> {
         return builder;
     }
 
-    public void clearDiskCache() {
+    /**
+     * 清除所有磁盘缓存
+     */
+    public static void clearDiskCache() {
         getActualLoader().clearDiskCache();
     }
 
-    public void clearMomory() {
+    /**
+     * 清除内存缓存
+     */
+    public static void clearMomory() {
         getActualLoader().clearMomory();
     }
 
-    public void pauseRequests() {
-        getActualLoader().pauseRequests();
+    public static void resumeRequests() {
+        getActualLoader().resumeRequests();
     }
 
-    public void resumeRequests() {
-        getActualLoader().resumeRequests();
+    public static void pauseRequests() {
+        getActualLoader().pauseRequests();
     }
 
     public static void trimMemory(int level) {

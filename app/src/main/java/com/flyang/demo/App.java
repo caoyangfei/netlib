@@ -19,4 +19,17 @@ public class App extends Application {
         ApplicationUtils.init(this);
         ImageLoader.init(new GlideImageLoaderStrategy());
     }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        ImageLoader.trimMemory(level);
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+
+        ImageLoader.clearAllMemoryCaches();
+    }
 }

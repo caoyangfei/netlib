@@ -20,9 +20,9 @@ public interface ImageLoaderStrategy<T extends ImageConfig> {
 
     void clearMomory();
 
-    void pauseRequests();
-
     void resumeRequests();
+
+    void pauseRequests();
 
     void trimMemory(int level);
 

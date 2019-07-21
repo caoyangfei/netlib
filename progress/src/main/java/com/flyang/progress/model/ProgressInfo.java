@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flyang.progress.body;
+package com.flyang.progress.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -26,6 +26,14 @@ import android.os.Parcelable;
  * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
+ */
+
+/**
+ * @author caoyangfei
+ * @ClassName ProgressInfo
+ * @date 2019/7/20
+ * ------------- Description -------------
+ * 进度
  */
 public class ProgressInfo implements Parcelable {
     private long currentBytes; //当前已上传或下载的总长度
@@ -42,23 +50,23 @@ public class ProgressInfo implements Parcelable {
         this.id = id;
     }
 
-    void setCurrentbytes(long currentbytes) {
+    public void setCurrentbytes(long currentbytes) {
         this.currentBytes = currentbytes;
     }
 
-    void setContentLength(long contentLength) {
+    public void setContentLength(long contentLength) {
         this.contentLength = contentLength;
     }
 
-    void setIntervalTime(long intervalTime) {
+    public void setIntervalTime(long intervalTime) {
         this.intervalTime = intervalTime;
     }
 
-    void setEachBytes(long eachBytes) {
+    public void setEachBytes(long eachBytes) {
         this.eachBytes = eachBytes;
     }
 
-    void setFinish(boolean finish) {
+    public void setFinish(boolean finish) {
         this.finish = finish;
     }
 

@@ -28,6 +28,12 @@
             android:layout_height="135dp"
             android:transitionName="the image of transition"/>
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="请求"
+            android:layout_alignParentBottom="true"
+            android:onClick="onClick"/>
         <!--<com.flyang.imageloader.progress.CircleProgressView-->
             <!--android:id="@+id/progressView"-->
             <!--android:layout_width="50dp"-->

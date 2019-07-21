@@ -18,7 +18,8 @@ package com.flyang.progress.body;
 import android.os.Handler;
 import android.os.SystemClock;
 
-import com.flyang.progress.ProgressListener;
+import com.flyang.progress.OnProgressListener;
+import com.flyang.progress.model.ProgressInfo;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,27 +33,25 @@ import okio.Okio;
 import okio.Sink;
 
 /**
- * ================================================
+ * @author caoyangfei
+ * @ClassName ProgressRequestBody
+ * @date 2019/7/20
+ * ------------- Description -------------
  * 继承于 {@link RequestBody}, 通过此类获取 Okhttp 上传的二进制数据
- * <p>
- * Created by JessYan on 02/06/2017 18:05
- * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
- * <a href="https://github.com/JessYanCoding">Follow me</a>
- * ================================================
  */
 public class ProgressRequestBody extends RequestBody {
 
     protected Handler mHandler;
     protected int mRefreshTime;
     protected final RequestBody mDelegate;
-    protected final ProgressListener[] mListeners;
+    protected final OnProgressListener[] mListeners;
     protected final ProgressInfo mProgressInfo;
     private BufferedSink mBufferedSink;
 
 
-    public ProgressRequestBody(Handler handler, RequestBody delegate, List<ProgressListener> listeners, int refreshTime) {
+    public ProgressRequestBody(Handler handler, RequestBody delegate, List<OnProgressListener> listeners, int refreshTime) {
         this.mDelegate = delegate;
-        this.mListeners = listeners.toArray(new ProgressListener[listeners.size()]);
+        this.mListeners = listeners.toArray(new OnProgressListener[listeners.size()]);
         this.mHandler = handler;
         this.mRefreshTime = refreshTime;
         this.mProgressInfo = new ProgressInfo(System.currentTimeMillis());
@@ -122,7 +121,7 @@ public class ProgressRequestBody extends RequestBody {
                     final long finalTotalBytesRead = totalBytesRead;
                     final long finalIntervalTime = curTime - lastRefreshTime;
                     for (int i = 0; i < mListeners.length; i++) {
-                        final ProgressListener listener = mListeners[i];
+                        final OnProgressListener listener = mListeners[i];
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {

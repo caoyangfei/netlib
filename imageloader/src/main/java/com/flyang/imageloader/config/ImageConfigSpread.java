@@ -10,7 +10,7 @@ import com.bumptech.glide.request.target.Target;
 import com.flyang.imageloader.ImageLoader;
 import com.flyang.imageloader.R;
 import com.flyang.imageloader.lisenter.ImageCallBackListener;
-import com.flyang.imageloader.lisenter.OnProgressListener;
+import com.flyang.progress.OnProgressListener;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -62,7 +62,9 @@ public class ImageConfigSpread extends ImageConfig {
     private int shapeMode;//默认矩形,可选直角矩形,圆形/椭圆
     private int rectRoundRadius;//圆角矩形时圆角的半径
 
-    private DiskCacheStrategy diskCacheStrategy;
+    private DiskCacheStrategy diskCacheStrategy;//磁盘缓存策略
+
+    private boolean skipMemoryCache;//是否跳过内存缓存
 
     private int scaleMode;//填充模式,默认centercrop,可选fitXY,centerInside...
 
@@ -120,6 +122,7 @@ public class ImageConfigSpread extends ImageConfig {
         this.shapeMode = builder.shapeMode;//默认矩形,可选直角矩形,圆形/椭圆
         this.rectRoundRadius = builder.rectRoundRadius;//圆角矩形时圆角的半径
         this.diskCacheStrategy = builder.diskCacheStrategy;
+        this.skipMemoryCache = builder.skipMemoryCache;
         this.scaleMode = builder.scaleMode;//填充模式,默认centercrop,可选fitXY,centerInside...
         this.priority = builder.priority; //请求优先级
         this.filteColor = builder.filteColor; //滤镜颜色
@@ -247,6 +250,10 @@ public class ImageConfigSpread extends ImageConfig {
         return diskCacheStrategy;
     }
 
+    public boolean isSkipMemoryCache() {
+        return skipMemoryCache;
+    }
+
     public int getScaleMode() {
         return scaleMode;
     }
@@ -328,7 +335,9 @@ public class ImageConfigSpread extends ImageConfig {
         private int shapeMode;//默认矩形,可选直角矩形,圆形/椭圆
         private int rectRoundRadius;//圆角矩形时圆角的半径
 
-        private DiskCacheStrategy diskCacheStrategy;
+        private DiskCacheStrategy diskCacheStrategy = DiskCacheStrategy.AUTOMATIC;
+
+        private boolean skipMemoryCache = false;
 
         private int scaleMode;//填充模式,默认centercrop,可选fitXY,centerInside...
 
@@ -568,6 +577,11 @@ public class ImageConfigSpread extends ImageConfig {
 
         public Builder diskCacheStrategy(DiskCacheStrategy diskCacheStrategy) {
             this.diskCacheStrategy = diskCacheStrategy;
+            return this;
+        }
+
+        public Builder skipMemoryCache(boolean skipMemoryCache) {
+            this.skipMemoryCache = skipMemoryCache;
             return this;
         }
 

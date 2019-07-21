@@ -12,7 +12,7 @@ import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.MemoryCategory;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.load.engine.cache.ExternalCacheDiskCacheFactory;
+import com.bumptech.glide.load.engine.cache.ExternalPreferredCacheDiskCacheFactory;
 import com.bumptech.glide.load.engine.cache.InternalCacheDiskCacheFactory;
 import com.flyang.imageloader.GlideApp;
 import com.flyang.imageloader.config.ImageConfigSpread;
@@ -21,7 +21,7 @@ import com.flyang.imageloader.config.inter.ScaleMode;
 import com.flyang.imageloader.loader.runable.GlideDownLoadImageRunable;
 import com.flyang.imageloader.loader.target.GlideBitmapImageViewTarget;
 import com.flyang.imageloader.loader.target.GlideDrawableImageViewTarget;
-import com.flyang.imageloader.manager.ProgressManager;
+import com.flyang.progress.ProgressManager;
 import com.flyang.util.app.ApplicationUtils;
 import com.flyang.util.data.ThreadUtils;
 
@@ -44,9 +44,11 @@ public class GlideImageLoaderStrategy implements ImageLoaderStrategy<ImageConfig
     public void init(int cacheSizeInM, MemoryCategory memoryCategory, boolean isInternalCD) {
         GlideBuilder builder = new GlideBuilder();
         if (isInternalCD) {
+            //内存磁盘缓存
             builder.setDiskCache(new InternalCacheDiskCacheFactory(context, cacheSizeInM * 1024 * 1024));
         } else {
-            builder.setDiskCache(new ExternalCacheDiskCacheFactory(context, cacheSizeInM * 1024 * 1024));
+            //外部磁盘缓存
+            builder.setDiskCache(new ExternalPreferredCacheDiskCacheFactory(context, cacheSizeInM * 1024 * 1024));
         }
         GlideApp.init(context, builder);
         GlideApp.get(context).setMemoryCategory(memoryCategory); //如果在应用当中想要调整内存缓存的大小，开发者可以通过如下方式：
@@ -63,24 +65,43 @@ public class GlideImageLoaderStrategy implements ImageLoaderStrategy<ImageConfig
         loadOptions(request, imageConfig);
     }
 
+    /**
+     * 清除磁盘缓存（需要在子线程里调用）
+     */
     @Override
     public void clearDiskCache() {
-        GlideApp.get(context).clearDiskCache();
+        ThreadUtils.executeByCached(new ThreadUtils.SimpleTask<Boolean>() {
+            @Nullable
+            @Override
+            public Boolean doInBackground() throws Throwable {
+                GlideApp.get(context).clearDiskCache();
+                return true;
+            }
+
+            @Override
+            public void onSuccess(@Nullable Boolean result) {
+
+            }
+        });
     }
 
+    /**
+     * 清除内存缓存（需要在UI线程里调用）
+     */
     @Override
     public void clearMomory() {
         GlideApp.get(context).clearMemory();
     }
 
     @Override
-    public void pauseRequests() {
-        GlideApp.with(context).pauseRequestsRecursive();
+    public void resumeRequests() {
+        GlideApp.with(context).resumeRequestsRecursive();
     }
 
     @Override
-    public void resumeRequests() {
-        GlideApp.with(context).resumeRequestsRecursive();
+    public void pauseRequests() {
+        key = "";
+        GlideApp.with(context).pauseRequestsRecursive();
     }
 
 
@@ -143,7 +164,7 @@ public class GlideImageLoaderStrategy implements ImageLoaderStrategy<ImageConfig
         }
 
         if (imageConfig.getOnProgressListener() != null && !TextUtils.isEmpty(key)) {
-            ProgressManager.addListener(key, imageConfig.getOnProgressListener());
+            ProgressManager.getInstance().addResponseListener(key, imageConfig.getOnProgressListener());
         }
         return requestBuilder;
     }
@@ -184,16 +205,11 @@ public class GlideImageLoaderStrategy implements ImageLoaderStrategy<ImageConfig
         if (imageConfig.getoWidth() != 0 && imageConfig.getoHeight() != 0) {
             request.override(imageConfig.getoWidth(), imageConfig.getoHeight());
         }
-        //是否跳过磁盘存储
-        if (imageConfig.getDiskCacheStrategy() != null) {
-            if (imageConfig.getDiskCacheStrategy().decodeCachedData()
-                    && imageConfig.getDiskCacheStrategy().decodeCachedResource()) {
-                request.skipMemoryCache(true);
-            } else {
-                request.skipMemoryCache(false);
-            }
-            request.diskCacheStrategy(imageConfig.getDiskCacheStrategy());
-        }
+        //是否跳过内存缓存
+        request.skipMemoryCache(imageConfig.isSkipMemoryCache());
+
+        //磁盘缓存策略
+        request.diskCacheStrategy(imageConfig.getDiskCacheStrategy());
 
         ImageLoaderOptionsSwitch.setShapeModeAndBlur(imageConfig, request);
         //设置图片加载优先级

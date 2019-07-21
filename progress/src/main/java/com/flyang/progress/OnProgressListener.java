@@ -16,16 +16,16 @@
 package com.flyang.progress;
 
 
-import com.flyang.progress.body.ProgressInfo;
+import com.flyang.progress.model.ProgressInfo;
 
 /**
- * ================================================
- * Created by JessYan on 02/06/2017 18:23
- * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
- * <a href="https://github.com/JessYanCoding">Follow me</a>
- * ================================================
+ * @author caoyangfei
+ * @ClassName OnProgressListener
+ * @date 2019/7/20
+ * ------------- Description -------------
+ * 进度监听器
  */
-public interface ProgressListener {
+public interface OnProgressListener {
     /**
      * 进度监听
      *
