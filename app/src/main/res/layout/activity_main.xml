@@ -28,6 +28,14 @@
             android:layout_height="135dp"
             android:transitionName="the image of transition"/>
 
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="240dp"
+            android:layout_height="135dp"
+            android:layout_centerInParent="true"
+            android:transitionName="the image of transition"/>
+
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

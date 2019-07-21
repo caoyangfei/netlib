@@ -455,7 +455,7 @@ public class ImageConfigSpread extends ImageConfig {
             return this;
         }
 
-        public Builder imageCallBackListener(ImageCallBackListener imageCallBackListener) {
+        public <T> Builder imageCallBackListener(ImageCallBackListener<T> imageCallBackListener) {
             this.imageCallBackListener = imageCallBackListener;
             return this;
         }

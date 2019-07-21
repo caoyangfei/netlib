@@ -48,6 +48,7 @@ public class GlideBitmapImageViewTarget extends BitmapImageViewTarget {
 
     @Override
     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+        super.onResourceReady(resource, transition);
         if (imageConfig.getImageCallBackListener() != null) {
             imageConfig.getImageCallBackListener().onSuccess(resource);
         }
@@ -74,6 +75,5 @@ public class GlideBitmapImageViewTarget extends BitmapImageViewTarget {
                 });
             }
         }
-        super.onResourceReady(resource, transition);
     }
 }

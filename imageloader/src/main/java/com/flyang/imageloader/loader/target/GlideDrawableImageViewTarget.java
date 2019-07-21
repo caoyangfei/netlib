@@ -48,6 +48,7 @@ public class GlideDrawableImageViewTarget extends DrawableImageViewTarget {
 
     @Override
     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+        super.onResourceReady(resource, transition);
         if (imageConfig.getImageCallBackListener() != null) {
             imageConfig.getImageCallBackListener().onSuccess(resource);
         }
@@ -75,7 +76,5 @@ public class GlideDrawableImageViewTarget extends DrawableImageViewTarget {
                 });
             }
         }
-
-        super.onResourceReady(resource, transition);
     }
 }
