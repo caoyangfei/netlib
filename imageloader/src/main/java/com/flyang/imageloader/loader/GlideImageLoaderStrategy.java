@@ -44,7 +44,7 @@ public class GlideImageLoaderStrategy implements ImageLoaderStrategy<ImageConfig
     public void init(int cacheSizeInM, MemoryCategory memoryCategory, boolean isInternalCD) {
         GlideBuilder builder = new GlideBuilder();
         if (isInternalCD) {
-            //内存磁盘缓存
+            //内部磁盘缓存
             builder.setDiskCache(new InternalCacheDiskCacheFactory(context, cacheSizeInM * 1024 * 1024));
         } else {
             //外部磁盘缓存
@@ -159,6 +159,9 @@ public class GlideImageLoaderStrategy implements ImageLoaderStrategy<ImageConfig
         } else if (!TextUtils.isEmpty(imageConfig.getRawPath())) {
             key = imageConfig.getRawPath();
             requestBuilder = requestBuilder.load(imageConfig.getRawPath());
+        } else if (imageConfig.getGlideUrl() != null) {
+            key = imageConfig.getGlideUrl().getCacheKey();
+            requestBuilder = requestBuilder.load(imageConfig.getGlideUrl());
         } else {
             throw new RuntimeException("No images to load");
         }

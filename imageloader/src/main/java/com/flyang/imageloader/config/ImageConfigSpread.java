@@ -6,6 +6,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.TransitionOptions;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.request.target.Target;
 import com.flyang.imageloader.ImageLoader;
 import com.flyang.imageloader.R;
@@ -26,6 +27,8 @@ import java.lang.ref.WeakReference;
  */
 public class ImageConfigSpread extends ImageConfig {
 
+
+    private GlideUrl glideUrl;//重写此类修改key值
 
     private boolean asGif;
     private boolean asBitmap;//只获取bitmap
@@ -85,6 +88,7 @@ public class ImageConfigSpread extends ImageConfig {
         this.rawPath = builder.rawPath;
         this.assertspath = builder.assertspath;
         this.contentProvider = builder.contentProvider;
+        this.glideUrl = builder.glideUrl;
         this.saveGallery = builder.saveGallery;
 
         this.placeholder = builder.placeholder;
@@ -133,6 +137,9 @@ public class ImageConfigSpread extends ImageConfig {
         ImageLoader.getActualLoader().showImage(this);
     }
 
+    public GlideUrl getGlideUrl() {
+        return glideUrl;
+    }
 
     public boolean isAsGif() {
         return asGif;
@@ -288,6 +295,8 @@ public class ImageConfigSpread extends ImageConfig {
         private String assertspath;
         private String contentProvider;
 
+        private GlideUrl glideUrl;//修改缓存key重写
+
         private int placeholder = R.mipmap.image_loading;
         private int errorPic = R.mipmap.image_load_failed;
         private float thumbnail; //缩略图缩放倍数
@@ -404,6 +413,11 @@ public class ImageConfigSpread extends ImageConfig {
 
         public Builder contentProvider(String contentProvider) {
             this.contentProvider = contentProvider;
+            return this;
+        }
+
+        public Builder glideUrl(GlideUrl glideUrl) {
+            this.glideUrl = glideUrl;
             return this;
         }
 

@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.bumptech.glide.load.model.GlideUrl;
 import com.flyang.imageloader.ImageLoader;
 import com.flyang.imageloader.config.inter.ShapeMode;
 import com.flyang.imageloader.lisenter.ImageCallBackListener;
@@ -40,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
     public void button(View view) {
 
         ImageLoader.with(this)
-                .url(url)
+//                .url(url)
+                .glideUrl(new GlideUrl(url))
                 .isNeedVignette(true)
                 .shapeMode(ShapeMode.OVAL)
                 .skipMemoryCache(true)
