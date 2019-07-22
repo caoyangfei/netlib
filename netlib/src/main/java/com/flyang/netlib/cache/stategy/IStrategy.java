@@ -25,10 +25,20 @@ import java.lang.reflect.Type;
 import io.reactivex.Flowable;
 
 /**
- * <p>描述：实现缓存策略的接口，可以自定义缓存实现方式，只要实现该接口就可以了</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/24 10:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName IStrategy
+ * @date 2019/7/22
+ * ------------- Description -------------
+ * 实现缓存策略的接口
+ * {@link CacheAndRemoteDistinctStrategy 先显示缓存，再请求网络;
+ * @link CacheAndRemoteStrategy  先显示缓存，再请求网络;
+ * @link FirstCacheStategy  先显示缓存，缓存不存在，再请求网络;
+ * @link FirstRemoteStrategy  先请求网络，网络请求失败，再加载缓存;
+ * @link NoStrategy  网络加载，不缓存;
+ * @link OnlyCacheStrategy  只读缓存;
+ * @link OnlyRemoteStrategy  只请求网络;}
+ * <p>
+ * 自定义缓存实现方式，实现该接口
  */
 public interface IStrategy {
 
@@ -39,7 +49,7 @@ public interface IStrategy {
      * @param cacheKey  缓存key
      * @param cacheTime 缓存时间
      * @param source    网络请求对象
-     * @param type     要转换的目标对象
+     * @param type      要转换的目标对象
      * @return 返回带缓存的Observable流对象
      */
     <T> Flowable<CacheResult<T>> execute(RxCache rxCache, String cacheKey, long cacheTime, Flowable<T> source, Type type);

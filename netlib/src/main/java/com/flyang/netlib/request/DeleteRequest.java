@@ -28,10 +28,10 @@ import com.flyang.netlib.utils.RxUtil;
 import com.google.gson.reflect.TypeToken;
 
 import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
 
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
+import io.reactivex.disposables.Disposable;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
@@ -47,12 +47,12 @@ public class DeleteRequest extends BaseBodyRequest<DeleteRequest> {
         super(url);
     }
 
-    public <T> Subscriber execute(CallBack<T> callBack) {
+    public <T> Disposable execute(CallBack<T> callBack) {
         return execute(new CallBackProxy<ApiResult<T>, T>(callBack) {
         });
     }
 
-    public <T> Subscriber execute(CallBackProxy<? extends ApiResult<T>, T> proxy) {
+    public <T> Disposable execute(CallBackProxy<? extends ApiResult<T>, T> proxy) {
         Flowable<CacheResult<T>> flowable = build().toObservable(generateRequest(), proxy);
         if (CacheResult.class != proxy.getCallBack().getRawType()) {
             return flowable.compose(new FlowableTransformer<CacheResult<T>, T>() {
@@ -81,7 +81,7 @@ public class DeleteRequest extends BaseBodyRequest<DeleteRequest> {
         } else if (this.json != null) {//Json
             RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), this.json);
             return apiManager.deleteJson(url, body);
-        } else if (this.object != null) {//自定义的请求object
+        }  else if (this.object != null) {//自定义的请求object
             return apiManager.deleteBody(url, object);
         } else if (this.string != null) {//文本内容
             RequestBody body = RequestBody.create(mediaType, this.string);

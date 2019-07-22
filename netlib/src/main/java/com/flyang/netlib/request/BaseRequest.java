@@ -16,7 +16,6 @@
 
 package com.flyang.netlib.request;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -34,7 +33,7 @@ import com.flyang.netlib.interceptor.NoCacheInterceptor;
 import com.flyang.netlib.model.HttpHeaders;
 import com.flyang.netlib.model.HttpParams;
 import com.flyang.netlib.utils.RxUtil;
-import com.flyang.netlib.utils.Utils;
+import com.flyang.util.data.PreconditionUtils;
 import com.flyang.util.log.LogUtils;
 
 import java.io.File;
@@ -205,12 +204,12 @@ public abstract class BaseRequest<R extends BaseRequest> {
     }
 
     public R addInterceptor(Interceptor interceptor) {
-        interceptors.add(Utils.checkNotNull(interceptor, "interceptor == null"));
+        interceptors.add(PreconditionUtils.checkNotNull(interceptor, "interceptor == null"));
         return (R) this;
     }
 
     public R addNetworkInterceptor(Interceptor interceptor) {
-        networkInterceptors.add(Utils.checkNotNull(interceptor, "interceptor == null"));
+        networkInterceptors.add(PreconditionUtils.checkNotNull(interceptor, "interceptor == null"));
         return (R) this;
     }
 
@@ -259,7 +258,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
      * 设置缓存的转换器
      */
     public R cacheDiskConverter(IDiskConverter converter) {
-        this.diskConverter = Utils.checkNotNull(converter, "converter == null");
+        this.diskConverter = PreconditionUtils.checkNotNull(converter, "converter == null");
         return (R) this;
     }
 
@@ -370,7 +369,6 @@ public abstract class BaseRequest<R extends BaseRequest> {
     /**
      * 移除缓存（key）
      */
-    @SuppressLint("CheckResult")
     public void removeCache(String key) {
         getRxCache().remove(key).compose(RxUtil.<Boolean>io_main())
                 .subscribe(new Consumer<Boolean>() {
@@ -519,13 +517,13 @@ public abstract class BaseRequest<R extends BaseRequest> {
                 interceptors.add(new NoCacheInterceptor());
                 if (diskConverter == null) {
                     final RxCache.Builder tempRxCacheBuilder = rxCacheBuilder;
-                    tempRxCacheBuilder.cachekey(Utils.checkNotNull(cacheKey, "cacheKey == null"))
+                    tempRxCacheBuilder.cachekey(PreconditionUtils.checkNotNull(cacheKey, "cacheKey == null"))
                             .cacheTime(cacheTime);
                     return tempRxCacheBuilder;
                 } else {
                     final RxCache.Builder cacheBuilder = getRxCache().newBuilder();
                     cacheBuilder.diskConverter(diskConverter)
-                            .cachekey(Utils.checkNotNull(cacheKey, "cacheKey == null"))
+                            .cachekey(PreconditionUtils.checkNotNull(cacheKey, "cacheKey == null"))
                             .cacheTime(cacheTime);
                     return cacheBuilder;
                 }

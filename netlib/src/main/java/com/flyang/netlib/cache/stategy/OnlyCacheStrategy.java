@@ -22,18 +22,18 @@ import com.flyang.netlib.cache.model.CacheResult;
 
 import java.lang.reflect.Type;
 
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 
 /**
- * <p>描述：只读缓存</p>
- *<-------此类加载用的是反射 所以类名是灰色的 没有直接引用  不要误删----------------><br>
- * 作者： zhouyou<br>
- * 日期： 2016/12/24 10:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName OnlyCacheStrategy
+ * @date 2019/7/22
+ * ------------- Description -------------
+ * 只读缓存(反射使用)
  */
-public final class OnlyCacheStrategy extends BaseStrategy{
+public final class OnlyCacheStrategy extends BaseStrategy {
     @Override
-    public <T> Observable<CacheResult<T>> execute(RxCache rxCache, String key, long time, Observable<T> source, Type type) {
-        return loadCache(rxCache,type,key,time,false);
+    public <T> Flowable<CacheResult<T>> execute(RxCache rxCache, String key, long time, Flowable<T> source, Type type) {
+        return loadCache(rxCache, type, key, time, false);
     }
 }

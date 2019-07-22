@@ -28,11 +28,11 @@ import io.reactivex.functions.Predicate;
 
 
 /**
- * <p>描述：先显示缓存，再请求网络</p>
- * <-------此类加载用的是反射 所以类名是灰色的 没有直接引用  不要误删----------------><br>
- * 作者： zhouyou<br>
- * 日期： 2016/12/24 10:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName CacheAndRemoteStrategy
+ * @date 2019/7/22
+ * ------------- Description -------------
+ * 先显示缓存，再请求网络(反射使用)
  */
 public final class CacheAndRemoteStrategy extends BaseStrategy {
     @Override

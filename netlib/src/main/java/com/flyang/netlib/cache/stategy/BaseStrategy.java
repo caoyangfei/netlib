@@ -17,6 +17,8 @@
 package com.flyang.netlib.cache.stategy;
 
 
+import android.annotation.SuppressLint;
+
 import com.flyang.netlib.cache.RxCache;
 import com.flyang.netlib.cache.model.CacheResult;
 import com.flyang.util.log.LogUtils;
@@ -27,8 +29,6 @@ import java.lang.reflect.Type;
 import java.util.ConcurrentModificationException;
 
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -36,16 +36,29 @@ import io.reactivex.schedulers.Schedulers;
 
 
 /**
- * <p>描述：实现缓存策略的基类</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/24 10:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName BaseStrategy
+ * @date 2019/7/22
+ * ------------- Description -------------
+ * 实现缓存策略的基类
  */
 public abstract class BaseStrategy implements IStrategy {
-    <T> Flowable<CacheResult<T>> loadCache(final RxCache rxCache, Type type, final String key, final long time, final boolean needEmpty) {
-        Flowable<CacheResult<T>> flowable = rxCache.<T>load(type, key, time).flatMap(new Function<T, Flowable<CacheResult<T>>>() {
+
+    /**
+     * 加载缓存
+     *
+     * @param rxCache
+     * @param type
+     * @param key
+     * @param time
+     * @param needEmpty
+     * @param <T>
+     * @return
+     */
+    protected <T> Flowable<CacheResult<T>> loadCache(final RxCache rxCache, Type type, final String key, final long time, final boolean needEmpty) {
+        Flowable<CacheResult<T>> flowable = rxCache.<T>load(type, key, time).flatMap(new Function<T, Publisher<CacheResult<T>>>() {
             @Override
-            public Flowable<CacheResult<T>> apply(T t) throws Exception {
+            public Publisher<CacheResult<T>> apply(T t) throws Exception {
                 if (t == null) {
                     return Flowable.error(new NullPointerException("Not find the cache!"));
                 }
@@ -64,12 +77,22 @@ public abstract class BaseStrategy implements IStrategy {
         return flowable;
     }
 
-    //请求成功后：异步保存
-    <T> Observable<CacheResult<T>> loadRemote2(final RxCache rxCache, final String key, Observable<T> source, final boolean needEmpty) {
-        Observable<CacheResult<T>> observable = source
+    /**
+     * 请求成功后：异步保存
+     *
+     * @param rxCache
+     * @param key
+     * @param source
+     * @param needEmpty
+     * @param <T>
+     * @return
+     */
+    protected <T> Flowable<CacheResult<T>> loadRemote2(final RxCache rxCache, final String key, Flowable<T> source, final boolean needEmpty) {
+        Flowable<CacheResult<T>> flowable = source
                 .map(new Function<T, CacheResult<T>>() {
+                    @SuppressLint("CheckResult")
                     @Override
-                    public CacheResult<T> apply(@NonNull T t) throws Exception {
+                    public CacheResult<T> apply(T t) throws Exception {
                         LogUtils.i("loadRemote result=" + t);
                         rxCache.save(key, t).subscribeOn(Schedulers.io())
                                 .subscribe(new Consumer<Boolean>() {
@@ -91,23 +114,32 @@ public abstract class BaseStrategy implements IStrategy {
                     }
                 });
         if (needEmpty) {
-            observable = observable
-                    .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends CacheResult<T>>>() {
+            flowable = flowable
+                    .onErrorResumeNext(new Function<Throwable, Publisher<? extends CacheResult<T>>>() {
                         @Override
-                        public ObservableSource<? extends CacheResult<T>> apply(@NonNull Throwable throwable) throws Exception {
-                            return Observable.empty();
+                        public Publisher<? extends CacheResult<T>> apply(Throwable throwable) throws Exception {
+                            return Flowable.empty();
                         }
                     });
         }
-        return observable;
+        return flowable;
     }
 
-    //请求成功后：同步保存
-    <T> Flowable<CacheResult<T>> loadRemote(final RxCache rxCache, final String key, Flowable<T> source, final boolean needEmpty) {
+    /**
+     * 请求成功后：同步保存
+     *
+     * @param rxCache
+     * @param key
+     * @param source
+     * @param needEmpty
+     * @param <T>
+     * @return
+     */
+    protected <T> Flowable<CacheResult<T>> loadRemote(final RxCache rxCache, final String key, Flowable<T> source, final boolean needEmpty) {
         Flowable<CacheResult<T>> flowable = source
-                .flatMap(new Function<T, Flowable<CacheResult<T>>>() {
+                .flatMap(new Function<T, Publisher<CacheResult<T>>>() {
                     @Override
-                    public Flowable<CacheResult<T>> apply(final @NonNull T t) throws Exception {
+                    public Publisher<CacheResult<T>> apply(final T t) throws Exception {
                         return rxCache.save(key, t).map(new Function<Boolean, CacheResult<T>>() {
                             @Override
                             public CacheResult<T> apply(@NonNull Boolean aBoolean) throws Exception {

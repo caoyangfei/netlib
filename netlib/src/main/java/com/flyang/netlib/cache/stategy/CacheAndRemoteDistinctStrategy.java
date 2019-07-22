@@ -23,24 +23,23 @@ import com.flyang.netlib.cache.model.CacheResult;
 import java.lang.reflect.Type;
 
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import okio.ByteString;
 
 /**
- * <p>描述：先显示缓存，再请求网络</p>
- * <-------此类加载用的是反射 所以类名是灰色的 没有直接引用  不要误删----------------><br>
- * 作者： zhouyou<br>
- * 日期： 2016/12/24 10:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName CacheAndRemoteDistinctStrategy
+ * @date 2019/7/22
+ * ------------- Description -------------
+ * 先显示缓存，再请求网络(反射使用)
  */
 public final class CacheAndRemoteDistinctStrategy extends BaseStrategy {
     @Override
     public <T> Flowable<CacheResult<T>> execute(RxCache rxCache, String key, long time, Flowable<T> source, Type type) {
-        Flowable<CacheResult<T>> cache = loadCache(rxCache, type, key, time,true);
-        Flowable<CacheResult<T>> remote = loadRemote(rxCache, key, source,false);
+        Flowable<CacheResult<T>> cache = loadCache(rxCache, type, key, time, true);
+        Flowable<CacheResult<T>> remote = loadRemote(rxCache, key, source, false);
         return Flowable.concat(cache, remote)
                 .filter(new Predicate<CacheResult<T>>() {
                     @Override
@@ -50,7 +49,7 @@ public final class CacheAndRemoteDistinctStrategy extends BaseStrategy {
                 }).distinctUntilChanged(new Function<CacheResult<T>, String>() {
                     @Override
                     public String apply(@NonNull CacheResult<T> tCacheResult) throws Exception {
-                        return  ByteString.of(tCacheResult.data.toString().getBytes()).md5().hex();
+                        return ByteString.of(tCacheResult.data.toString().getBytes()).md5().hex();
                     }
                 });
     }

@@ -16,7 +16,6 @@
 
 package com.flyang.netlib.cache;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
 import android.os.StatFs;
@@ -42,8 +41,6 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.FlowableTransformer;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.exceptions.Exceptions;
 
@@ -100,7 +97,6 @@ public final class RxCache {
         this.appVersion = builder.appVersion;
         this.diskMaxSize = builder.diskMaxSize;
         this.diskConverter = builder.diskConverter;
-
         cacheCore = new CacheCore(new LruDiskCache(diskConverter, diskDir, appVersion, diskMaxSize));
     }
 
@@ -133,17 +129,17 @@ public final class RxCache {
         };
     }
 
-    private static abstract class SimpleSubscribe<T> implements ObservableOnSubscribe<T> {
+    private static abstract class SimpleSubscribe<T> implements FlowableOnSubscribe<T> {
         @Override
-        public void subscribe(@NonNull ObservableEmitter<T> subscriber) throws Exception {
+        public void subscribe(@NonNull FlowableEmitter<T> subscriber) throws Exception {
             try {
                 T data = execute();
-                if (!subscriber.isDisposed()) {
+                if (!subscriber.isCancelled()) {
                     subscriber.onNext(data);
                 }
             } catch (Throwable e) {
                 LogUtils.e(e.getMessage());
-                if (!subscriber.isDisposed()) {
+                if (!subscriber.isCancelled()) {
                     subscriber.onError(e);
                 }
                 Exceptions.throwIfFatal(e);
@@ -151,7 +147,7 @@ public final class RxCache {
                 return;
             }
 
-            if (!subscriber.isDisposed()) {
+            if (!subscriber.isCancelled()) {
                 subscriber.onComplete();
             }
         }
@@ -177,10 +173,10 @@ public final class RxCache {
      * @param time 保存时间
      */
     public <T> Flowable<T> load(final Type type, final String key, final long time) {
-        return Flowable.create(new FlowableOnSubscribe<T>() {
+        return Flowable.create(new SimpleSubscribe<T>() {
             @Override
-            public void subscribe(FlowableEmitter<T> emitter) throws Exception {
-                cacheCore.load(type, key, time);
+            T execute() throws Throwable {
+                return cacheCore.load(type, key, time);
             }
         }, BackpressureStrategy.BUFFER);
     }
@@ -191,12 +187,12 @@ public final class RxCache {
      * @param key   缓存key
      * @param value 缓存Value
      */
-    @SuppressLint("CheckResult")
     public <T> Flowable<Boolean> save(final String key, final T value) {
-        return Flowable.create(new FlowableOnSubscribe<Boolean>() {
+        return Flowable.create(new SimpleSubscribe<Boolean>() {
             @Override
-            public void subscribe(FlowableEmitter<Boolean> emitter) throws Exception {
+            Boolean execute() throws Throwable {
                 cacheCore.save(key, value);
+                return true;
             }
         }, BackpressureStrategy.BUFFER);
     }
@@ -205,10 +201,11 @@ public final class RxCache {
      * 是否包含
      */
     public Flowable<Boolean> containsKey(final String key) {
-        return Flowable.create(new FlowableOnSubscribe<Boolean>() {
+        return Flowable.create(new SimpleSubscribe<Boolean>() {
+
             @Override
-            public void subscribe(FlowableEmitter<Boolean> emitter) throws Exception {
-                cacheCore.containsKey(key);
+            Boolean execute() throws Throwable {
+                return cacheCore.containsKey(key);
             }
         }, BackpressureStrategy.BUFFER);
     }
@@ -217,10 +214,11 @@ public final class RxCache {
      * 删除缓存
      */
     public Flowable<Boolean> remove(final String key) {
-        return Flowable.create(new FlowableOnSubscribe<Boolean>() {
+        return Flowable.create(new SimpleSubscribe<Boolean>() {
+
             @Override
-            public void subscribe(FlowableEmitter<Boolean> emitter) throws Exception {
-                cacheCore.remove(key);
+            Boolean execute() throws Throwable {
+                return cacheCore.remove(key);
             }
         }, BackpressureStrategy.BUFFER);
     }
@@ -229,10 +227,10 @@ public final class RxCache {
      * 清空缓存
      */
     public Flowable<Boolean> clear() {
-        return Flowable.create(new FlowableOnSubscribe<Boolean>() {
+        return Flowable.create(new SimpleSubscribe<Boolean>() {
             @Override
-            public void subscribe(FlowableEmitter<Boolean> emitter) throws Exception {
-                cacheCore.clear();
+            Boolean execute() throws Throwable {
+                return cacheCore.clear();
             }
         }, BackpressureStrategy.BUFFER);
     }
@@ -362,7 +360,7 @@ public final class RxCache {
             if (this.diskDir == null && this.context != null) {
                 this.diskDir = getDiskCacheDir(this.context, "data-cache");
             }
-            Utils.checkNotNull(this.diskDir, "diskDir==null");
+            PreconditionUtils.checkNotNull(this.diskDir, "diskDir==null");
             if (!this.diskDir.exists()) {
                 this.diskDir.mkdirs();
             }

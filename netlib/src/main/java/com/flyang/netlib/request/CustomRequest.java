@@ -28,7 +28,7 @@ import com.flyang.netlib.model.ApiResult;
 import com.flyang.netlib.subsciber.CallBackSubsciber;
 import com.flyang.netlib.transformer.HandleErrTransformer;
 import com.flyang.netlib.utils.RxUtil;
-import com.flyang.netlib.utils.Utils;
+import com.flyang.util.data.PreconditionUtils;
 import com.google.gson.reflect.TypeToken;
 
 import org.reactivestreams.Publisher;
@@ -36,6 +36,7 @@ import org.reactivestreams.Subscriber;
 
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
+import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
 
 /**
@@ -44,7 +45,7 @@ import okhttp3.ResponseBody;
  * 日期： 2017/5/15 17:04 <br>
  * 版本： v1.0<br>
  */
-@SuppressWarnings(value = {"unchecked", "deprecation"})
+@SuppressWarnings(value={"unchecked", "deprecation"})
 public class CustomRequest extends BaseRequest<CustomRequest> {
     public CustomRequest() {
         super("");
@@ -66,7 +67,7 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
     }
 
     private void checkvalidate() {
-        Utils.checkNotNull(retrofit, "请先在调用build()才能使用");
+        PreconditionUtils.checkNotNull(retrofit, "请先在调用build()才能使用");
     }
 
     /**
@@ -103,12 +104,12 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
     }
 
-    public <T> Subscriber apiCall(Flowable<T> flowable, CallBack<T> callBack) {
+    public <T> Disposable apiCall(Flowable<T> flowable, CallBack<T> callBack) {
         return call(flowable, new CallBackProxy<ApiResult<T>, T>(callBack) {
         });
     }
 
-    public <T> Subscriber call(Flowable<T> flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
+    public <T> Disposable call(Flowable<T> flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
         Flowable<CacheResult<T>> cacheobservable = build().toObservable(flowable, proxy);
         if (CacheResult.class != proxy.getCallBack().getRawType()) {
             return cacheobservable.compose(new FlowableTransformer<CacheResult<T>, T>() {
@@ -122,7 +123,7 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
         }
     }
 
-    @SuppressWarnings(value = {"unchecked", "deprecation"})
+    @SuppressWarnings(value={"unchecked", "deprecation"})
     private <T> Flowable<CacheResult<T>> toObservable(Flowable flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
         return flowable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
         }.getType()))

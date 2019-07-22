@@ -30,12 +30,12 @@ import com.flyang.netlib.utils.RxUtil;
 import com.google.gson.reflect.TypeToken;
 
 import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
 
 import java.lang.reflect.Type;
 
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
+import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
 
 /**
@@ -74,12 +74,12 @@ public class GetRequest extends BaseRequest<GetRequest> {
                 });
     }
 
-    public <T> Subscriber execute(CallBack<T> callBack) {
+    public <T> Disposable execute(CallBack<T> callBack) {
         return execute(new CallBackProxy<ApiResult<T>, T>(callBack) {
         });
     }
 
-    public <T> Subscriber execute(CallBackProxy<? extends ApiResult<T>, T> proxy) {
+    public <T> Disposable execute(CallBackProxy<? extends ApiResult<T>, T> proxy) {
         Flowable<CacheResult<T>> flowable = build().toObservable(apiManager.get(url, params.urlParamsMap), proxy);
         if (CacheResult.class != proxy.getCallBack().getRawType()) {
             return flowable.compose(new FlowableTransformer<CacheResult<T>, T>() {

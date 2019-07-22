@@ -33,10 +33,22 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(':imageloader')
 
+
     implementation 'jp.co.cyberagent.android:gpuimage:2.0.3'
     implementation 'jp.wasabeef:glide-transformations:4.0.0'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     implementation 'com.github.bumptech.glide:annotations:4.9.0'
+    implementation 'com.github.bumptech.glide:okhttp3-integration:4.9.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     implementation dep.util
+    implementation project(':netlib')
+    implementation dep.logginginterceptor
+    implementation dep.okhttp
+    implementation dep.disklrucache
+    implementation dep.rxjava
+    implementation dep.rxandroid
+    implementation dep.retrofit
+    implementation dep.convertergson
+    implementation dep.adapterrxjava
+    implementation project(':progress')
 }

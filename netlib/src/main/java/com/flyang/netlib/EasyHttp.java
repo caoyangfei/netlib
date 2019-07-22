@@ -16,6 +16,7 @@
 
 package com.flyang.netlib;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
@@ -36,7 +37,7 @@ import com.flyang.netlib.request.GetRequest;
 import com.flyang.netlib.request.PostRequest;
 import com.flyang.netlib.request.PutRequest;
 import com.flyang.netlib.utils.RxUtil;
-import com.flyang.netlib.utils.Utils;
+import com.flyang.util.data.PreconditionUtils;
 import com.flyang.util.log.LogUtils;
 
 import java.io.File;
@@ -49,8 +50,8 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.subscribers.DisposableSubscriber;
 import okhttp3.Cache;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
@@ -193,12 +194,13 @@ public final class EasyHttp {
      * 并不是框架错误,如果不想每次打印,这里可以关闭异常显示
      */
     public EasyHttp debug(String tag, boolean isPrintException) {
-        String tempTag = TextUtils.isEmpty(tag) ? "RxEasyHttp_" : tag;
-        if (isPrintException) {
+        String tempTag = TextUtils.isEmpty(tag)?"RxEasyHttp_":tag;
+        if(isPrintException){
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(tempTag, isPrintException);
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             okHttpClientBuilder.addInterceptor(loggingInterceptor);
         }
+        LogUtils.getLogConfig().configAllowLog(isPrintException);
         return this;
     }
 
@@ -389,7 +391,7 @@ public final class EasyHttp {
      * 全局设置缓存的路径，默认是应用包下面的缓存
      */
     public EasyHttp setCacheDirectory(File directory) {
-        mCacheDirectory = Utils.checkNotNull(directory, "directory == null");
+        mCacheDirectory = PreconditionUtils.checkNotNull(directory, "directory == null");
         rxCacheBuilder.diskDir(directory);
         return this;
     }
@@ -405,7 +407,7 @@ public final class EasyHttp {
      * 全局设置缓存的转换器
      */
     public EasyHttp setCacheDiskConverter(IDiskConverter converter) {
-        rxCacheBuilder.diskConverter(Utils.checkNotNull(converter, "converter == null"));
+        rxCacheBuilder.diskConverter(PreconditionUtils.checkNotNull(converter, "converter == null"));
         return this;
     }
 
@@ -460,7 +462,7 @@ public final class EasyHttp {
      * 添加全局拦截器
      */
     public EasyHttp addInterceptor(Interceptor interceptor) {
-        okHttpClientBuilder.addInterceptor(Utils.checkNotNull(interceptor, "interceptor == null"));
+        okHttpClientBuilder.addInterceptor(PreconditionUtils.checkNotNull(interceptor, "interceptor == null"));
         return this;
     }
 
@@ -468,7 +470,7 @@ public final class EasyHttp {
      * 添加全局网络拦截器
      */
     public EasyHttp addNetworkInterceptor(Interceptor interceptor) {
-        okHttpClientBuilder.addNetworkInterceptor(Utils.checkNotNull(interceptor, "interceptor == null"));
+        okHttpClientBuilder.addNetworkInterceptor(PreconditionUtils.checkNotNull(interceptor, "interceptor == null"));
         return this;
     }
 
@@ -476,7 +478,7 @@ public final class EasyHttp {
      * 全局设置代理
      */
     public EasyHttp setOkproxy(Proxy proxy) {
-        okHttpClientBuilder.proxy(Utils.checkNotNull(proxy, "proxy == null"));
+        okHttpClientBuilder.proxy(PreconditionUtils.checkNotNull(proxy, "proxy == null"));
         return this;
     }
 
@@ -484,7 +486,7 @@ public final class EasyHttp {
      * 全局设置请求的连接池
      */
     public EasyHttp setOkconnectionPool(ConnectionPool connectionPool) {
-        okHttpClientBuilder.connectionPool(Utils.checkNotNull(connectionPool, "connectionPool == null"));
+        okHttpClientBuilder.connectionPool(PreconditionUtils.checkNotNull(connectionPool, "connectionPool == null"));
         return this;
     }
 
@@ -492,7 +494,7 @@ public final class EasyHttp {
      * 全局为Retrofit设置自定义的OkHttpClient
      */
     public EasyHttp setOkclient(OkHttpClient client) {
-        retrofitBuilder.client(Utils.checkNotNull(client, "client == null"));
+        retrofitBuilder.client(PreconditionUtils.checkNotNull(client, "client == null"));
         return this;
     }
 
@@ -500,7 +502,7 @@ public final class EasyHttp {
      * 全局设置Converter.Factory,默认GsonConverterFactory.create()
      */
     public EasyHttp addConverterFactory(Converter.Factory factory) {
-        retrofitBuilder.addConverterFactory(Utils.checkNotNull(factory, "factory == null"));
+        retrofitBuilder.addConverterFactory(PreconditionUtils.checkNotNull(factory, "factory == null"));
         return this;
     }
 
@@ -508,7 +510,7 @@ public final class EasyHttp {
      * 全局设置CallAdapter.Factory,默认RxJavaCallAdapterFactory.create()
      */
     public EasyHttp addCallAdapterFactory(CallAdapter.Factory factory) {
-        retrofitBuilder.addCallAdapterFactory(Utils.checkNotNull(factory, "factory == null"));
+        retrofitBuilder.addCallAdapterFactory(PreconditionUtils.checkNotNull(factory, "factory == null"));
         return this;
     }
 
@@ -516,7 +518,7 @@ public final class EasyHttp {
      * 全局设置Retrofit callbackExecutor
      */
     public EasyHttp setCallbackExecutor(Executor executor) {
-        retrofitBuilder.callbackExecutor(Utils.checkNotNull(executor, "executor == null"));
+        retrofitBuilder.callbackExecutor(PreconditionUtils.checkNotNull(executor, "executor == null"));
         return this;
     }
 
@@ -524,7 +526,7 @@ public final class EasyHttp {
      * 全局设置Retrofit对象Factory
      */
     public EasyHttp setCallFactory(okhttp3.Call.Factory factory) {
-        retrofitBuilder.callFactory(Utils.checkNotNull(factory, "factory == null"));
+        retrofitBuilder.callFactory(PreconditionUtils.checkNotNull(factory, "factory == null"));
         return this;
     }
 
@@ -532,7 +534,7 @@ public final class EasyHttp {
      * 全局设置baseurl
      */
     public EasyHttp setBaseUrl(String baseUrl) {
-        mBaseUrl = Utils.checkNotNull(baseUrl, "baseUrl == null");
+        mBaseUrl = PreconditionUtils.checkNotNull(baseUrl, "baseUrl == null");
         return this;
     }
 
@@ -584,7 +586,7 @@ public final class EasyHttp {
     /**
      * 取消订阅
      */
-    public static void cancelSubscription(Disposable disposable) {
+    public static void cancelSubscription(DisposableSubscriber disposable) {
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
@@ -593,6 +595,7 @@ public final class EasyHttp {
     /**
      * 清空缓存
      */
+    @SuppressLint("CheckResult")
     public static void clearCache() {
         getRxCache().clear().compose(RxUtil.<Boolean>io_main())
                 .subscribe(new Consumer<Boolean>() {
@@ -611,6 +614,7 @@ public final class EasyHttp {
     /**
      * 移除缓存（key）
      */
+    @SuppressLint("CheckResult")
     public static void removeCache(String key) {
         getRxCache().remove(key).compose(RxUtil.<Boolean>io_main()).subscribe(new Consumer<Boolean>() {
             @Override
