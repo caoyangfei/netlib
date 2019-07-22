@@ -19,6 +19,7 @@ package com.flyang.netlib.cache.core;
 
 import com.flyang.netlib.cache.converter.IDiskConverter;
 import com.flyang.netlib.utils.Utils;
+import com.flyang.util.data.PreconditionUtils;
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
