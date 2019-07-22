@@ -16,6 +16,7 @@
 
 package com.flyang.netlib.subsciber;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -29,7 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
@@ -89,8 +90,9 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
 
     }
 
+    @SuppressLint("CheckResult")
     private boolean writeResponseBodyToDisk(String path, String name, Context context, okhttp3.ResponseBody body) {
-        //HttpLog.d("contentType:>>>>" + body.contentType().toString());
+        //LogUtils.d("contentType:>>>>" + body.contentType().toString());
         if (!TextUtils.isEmpty(name)) {//text/html; charset=utf-8
             String type;
             if (!name.contains(".")) {
@@ -157,7 +159,7 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
                         if (callBack != null) {
                             if (callBack != null) {
                                 final long finalFileSizeDownloaded = fileSizeDownloaded;
-                                Observable.just(finalFileSizeDownloaded).observeOn(AndroidSchedulers.mainThread())
+                                Flowable.just(finalFileSizeDownloaded).observeOn(AndroidSchedulers.mainThread())
                                         .subscribe(new Consumer<Long>() {
                                             @Override
                                             public void accept(@NonNull Long aLong) throws Exception {
@@ -183,7 +185,7 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
                 if (callBack != null) {
                     //final String finalName = name;
                     final String finalPath = path;
-                    Observable.just(finalPath).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<String>() {
+                    Flowable.just(finalPath).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<String>() {
                         @Override
                         public void accept(@NonNull String s) throws Exception {
                             if (callBack instanceof DownloadProgressCallBack) {
@@ -219,13 +221,14 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
         }
     }
 
+    @SuppressLint("CheckResult")
     private void finalonError(final Exception e) {
 
         if (mCallBack == null) {
             return;
         }
         //if (Utils.checkMain()) {
-        Observable.just(new ApiException(e, 100)).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<ApiException>() {
+        Flowable.just(new ApiException(e, 100)).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<ApiException>() {
             @Override
             public void accept(@NonNull ApiException e) throws Exception {
                 if (mCallBack != null) {

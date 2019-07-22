@@ -64,7 +64,7 @@ public class DownloadRequest extends BaseRequest<DownloadRequest> {
     }
 
     public <T> Subscriber execute(CallBack<T> callBack) {
-        return (Subscriber) build().generateRequest().compose(new FlowableTransformer<ResponseBody, ResponseBody>() {
+        return build().generateRequest().compose(new FlowableTransformer<ResponseBody, ResponseBody>() {
             @Override
             public Publisher<ResponseBody> apply(Flowable<ResponseBody> upstream) {
                 if (isSyncRequest) {

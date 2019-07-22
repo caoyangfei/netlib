@@ -18,7 +18,7 @@ package com.flyang.netlib.interceptor;
 
 
 import com.flyang.netlib.utils.HttpUtil;
-import com.flyang.netlib.utils.Utils;
+import com.flyang.util.data.PreconditionUtils;
 import com.flyang.util.log.LogUtils;
 
 import java.io.IOException;
@@ -125,7 +125,7 @@ public abstract class BaseDynamicInterceptor<R extends BaseDynamicInterceptor> i
         String nameKeys = Collections.singletonList(nameList).toString();
         //拼装新的参数
         TreeMap<String, String> newParams = dynamic(oldparams);
-        Utils.checkNotNull(newParams, "newParams==null");
+        PreconditionUtils.checkNotNull(newParams, "newParams==null");
         for (Map.Entry<String, String> entry : newParams.entrySet()) {
             String urlValue = URLEncoder.encode(entry.getValue(), UTF8.name());
             //原来的URl: https://xxx.xxx.xxx/app/chairdressing/skinAnalyzePower/skinTestResult?appId=10101
@@ -153,7 +153,7 @@ public abstract class BaseDynamicInterceptor<R extends BaseDynamicInterceptor> i
 
             //拼装新的参数
             TreeMap<String, String> newParams = dynamic(oldparams);
-            Utils.checkNotNull(newParams, "newParams==null");
+            PreconditionUtils.checkNotNull(newParams, "newParams==null");
             //Logc.i("======post请求参数===========");
             for (Map.Entry<String, String> entry : newParams.entrySet()) {
                 String value = URLDecoder.decode(entry.getValue(), UTF8.name());

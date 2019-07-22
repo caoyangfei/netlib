@@ -16,7 +16,8 @@
 
 package com.flyang.netlib.cache.core;
 
-import com.flyang.util.data.PreconditionUtils;
+
+import com.flyang.netlib.utils.Utils;
 import com.flyang.util.log.LogUtils;
 
 import java.lang.reflect.Type;

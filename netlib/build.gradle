@@ -69,11 +69,14 @@ dependencies {
 
     implementation dep.util
     //第三方依赖库
+    //日志打印
     implementation dep.logginginterceptor
     implementation dep.okhttp
     implementation dep.disklrucache
+    //rxjava
     implementation dep.rxjava
     implementation dep.rxandroid
+
     implementation dep.retrofit
     implementation dep.convertergson
     implementation dep.adapterrxjava

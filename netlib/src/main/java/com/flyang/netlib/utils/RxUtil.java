@@ -28,17 +28,17 @@ import org.reactivestreams.Subscription;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 
 /**
- * <p>描述：线程调度工具</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/15 17:12 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName RxUtil
+ * @date 2019/7/22
+ * ------------- Description -------------
+ * RXjava线程工具类
  */
 public class RxUtil {
 
@@ -68,8 +68,9 @@ public class RxUtil {
 
     public static <T> FlowableTransformer<ApiResult<T>, T> _io_main() {
         return new FlowableTransformer<ApiResult<T>, T>() {
+
             @Override
-            public Publisher<T> apply(@NonNull Flowable<ApiResult<T>> upstream) {
+            public Publisher<T> apply(Flowable<ApiResult<T>> upstream) {
                 return upstream
                         .subscribeOn(Schedulers.io())
                         .unsubscribeOn(Schedulers.io())
@@ -78,7 +79,7 @@ public class RxUtil {
                         .doOnSubscribe(new Consumer<Subscription>() {
                             @Override
                             public void accept(Subscription subscription) throws Exception {
-                                subscription.cancel();
+
                                 LogUtils.i("+++doOnSubscribe+++");
                             }
                         })
@@ -96,8 +97,9 @@ public class RxUtil {
 
     public static <T> FlowableTransformer<ApiResult<T>, T> _main() {
         return new FlowableTransformer<ApiResult<T>, T>() {
+
             @Override
-            public Publisher<T> apply(@NonNull Flowable<ApiResult<T>> upstream) {
+            public Publisher<T> apply(Flowable<ApiResult<T>> upstream) {
                 return upstream
                         //.observeOn(AndroidSchedulers.mainThread())
                         .map(new HandleFuc<T>())
@@ -116,5 +118,6 @@ public class RxUtil {
                         .onErrorResumeNext(new HttpResponseFunc<T>());
             }
         };
+
     }
 }

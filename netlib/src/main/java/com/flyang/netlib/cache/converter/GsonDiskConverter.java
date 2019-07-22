@@ -17,7 +17,7 @@
 package com.flyang.netlib.cache.converter;
 
 
-import com.flyang.util.data.PreconditionUtils;
+import com.flyang.netlib.utils.Utils;
 import com.flyang.util.log.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -56,7 +56,7 @@ import java.util.ConcurrentModificationException;
  * 日期： 2016/12/24 17:35<br>
  * 版本： v2.0<br>
  */
-@SuppressWarnings(value = {"unchecked", "deprecation"})
+@SuppressWarnings(value={"unchecked", "deprecation"})
 public class GsonDiskConverter implements IDiskConverter {
     private Gson gson = new Gson();
 
@@ -77,16 +77,12 @@ public class GsonDiskConverter implements IDiskConverter {
             JsonReader jsonReader = gson.newJsonReader(new InputStreamReader(source));
             value = (T) adapter.read(jsonReader);
             //value = gson.fromJson(new InputStreamReader(source), type);
-        } catch (JsonIOException | IOException | ConcurrentModificationException | JsonSyntaxException e) {
+        } catch (JsonIOException | IOException| ConcurrentModificationException | JsonSyntaxException e) {
             LogUtils.e(e.getMessage());
-        } catch (Exception e) {
+        } catch (Exception e){
             LogUtils.e(e.getMessage());
-        } finally {
-            try {
-                source.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        }finally {
+            com.flyang.netlib.utils.Utils.close(source);
         }
         return value;
     }
@@ -99,16 +95,12 @@ public class GsonDiskConverter implements IDiskConverter {
             sink.write(bytes, 0, bytes.length);
             sink.flush();
             return true;
-        } catch (JsonIOException | JsonSyntaxException | ConcurrentModificationException | IOException e) {
+        } catch (JsonIOException | JsonSyntaxException | ConcurrentModificationException| IOException e) {
             LogUtils.e(e.getMessage());
-        } catch (Exception e) {
+        }catch (Exception e){
             LogUtils.e(e.getMessage());
         } finally {
-            try {
-                sink.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            com.flyang.netlib.utils.Utils.close(sink);
         }
         return false;
     }

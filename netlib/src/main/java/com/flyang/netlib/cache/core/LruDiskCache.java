@@ -19,7 +19,6 @@ package com.flyang.netlib.cache.core;
 
 import com.flyang.netlib.cache.converter.IDiskConverter;
 import com.flyang.netlib.utils.Utils;
-import com.flyang.util.system.CloseUtils;
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
@@ -46,7 +45,7 @@ public class LruDiskCache extends BaseCache {
 
 
     public LruDiskCache(IDiskConverter diskConverter, File diskDir, int appVersion, long diskMaxSize) {
-        this.mDiskConverter = Utils.checkNotNull(diskConverter, "diskConverter ==null");
+        this.mDiskConverter = PreconditionUtils.checkNotNull(diskConverter, "diskConverter ==null");
         try {
             mDiskLruCache = DiskLruCache.open(diskDir, appVersion, 1, diskMaxSize);
         } catch (IOException e) {
@@ -69,7 +68,7 @@ public class LruDiskCache extends BaseCache {
             T value;
             if (source != null) {
                 value = mDiskConverter.load(source,type);
-                CloseUtils.closeIO(source);
+                Utils.close(source);
                 edit.commit();
                 return value;
             }
@@ -93,7 +92,7 @@ public class LruDiskCache extends BaseCache {
             OutputStream sink = edit.newOutputStream(0);
             if (sink != null) {
                 boolean result = mDiskConverter.writer(sink, value);
-                CloseUtils.closeIO(sink);
+                Utils.close(sink);
                 edit.commit();
                 return result;
             }

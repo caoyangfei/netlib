@@ -17,6 +17,7 @@
 package com.flyang.netlib.cache.converter;
 
 
+import com.flyang.netlib.utils.Utils;
 import com.flyang.util.log.LogUtils;
 
 import java.io.IOException;
@@ -50,11 +51,7 @@ public class SerializableDiskConverter implements IDiskConverter {
         } catch (IOException | ClassNotFoundException e) {
             LogUtils.e(e);
         } finally {
-            try {
-                oin.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Utils.close(oin);
         }
         return value;
     }
@@ -70,11 +67,7 @@ public class SerializableDiskConverter implements IDiskConverter {
         } catch (IOException e) {
             LogUtils.e(e);
         } finally {
-            try {
-                oos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Utils.close(oos);
         }
         return false;
     }

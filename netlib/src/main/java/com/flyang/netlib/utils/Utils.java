@@ -21,6 +21,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Looper;
 
+import com.flyang.util.data.PreconditionUtils;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -41,19 +43,12 @@ import okhttp3.RequestBody;
  * 版本： v2.0<br>
  */
 public class Utils {
-    public static <T> T checkNotNull(T t, String message) {
-        if (t == null) {
-            throw new NullPointerException(message);
-        }
-        return t;
-    }
-
     public static boolean checkMain() {
         return Thread.currentThread() == Looper.getMainLooper().getThread();
     }
 
     public static RequestBody createJson(String jsonString) {
-        checkNotNull(jsonString, "json not null!");
+        PreconditionUtils.checkNotNull(jsonString, "json not null!");
         return RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), jsonString);
     }
 
@@ -62,7 +57,7 @@ public class Utils {
      * @return
      */
     public static RequestBody createFile(String name) {
-        checkNotNull(name, "name not null!");
+        PreconditionUtils.checkNotNull(name, "name not null!");
         return RequestBody.create(okhttp3.MediaType.parse("multipart/form-data; charset=utf-8"), name);
     }
 
@@ -71,7 +66,7 @@ public class Utils {
      * @return
      */
     public static RequestBody createFile(File file) {
-        checkNotNull(file, "file not null!");
+        PreconditionUtils.checkNotNull(file, "file not null!");
         return RequestBody.create(okhttp3.MediaType.parse("multipart/form-data; charset=utf-8"), file);
     }
 
@@ -80,7 +75,7 @@ public class Utils {
      * @return
      */
     public static RequestBody createImage(File file) {
-        checkNotNull(file, "file not null!");
+        PreconditionUtils.checkNotNull(file, "file not null!");
         return RequestBody.create(okhttp3.MediaType.parse("image/jpg; charset=utf-8"), file);
     }
 
@@ -154,7 +149,7 @@ public class Utils {
             return type;
         }
     }
-    
+
     public static Type getParameterizedType(Type type, int i) {
         if (type instanceof ParameterizedType) { // 处理泛型类型    
             Type genericType = ((ParameterizedType) type).getActualTypeArguments()[i];

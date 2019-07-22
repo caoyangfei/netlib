@@ -40,7 +40,7 @@ import okhttp3.Response;
  *
  * @Headers("Cache-Control: public, max-age=3600)
  * @GET("merchants/{shopId}/icon")
- * Observable<ShopIconEntity> getShopIcon(@Path("shopId") long shopId);
+ * Flowable<ShopIconEntity> getShopIcon(@Path("shopId") long shopId);
  * 
  * 如果你不想加入公共缓存，想单独对某个api进行缓存，可用Headers来实现<br/>
  * 

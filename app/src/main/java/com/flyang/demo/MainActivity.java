@@ -1,94 +1,645 @@
+/*
+ * Copyright (C) 2017 zhouyou(478319399@qq.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.flyang.demo;
 
 import android.annotation.SuppressLint;
-import android.graphics.drawable.Drawable;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.Toast;
 
-import com.bumptech.glide.load.model.GlideUrl;
-import com.flyang.imageloader.ImageLoader;
-import com.flyang.imageloader.config.inter.ShapeMode;
-import com.flyang.imageloader.lisenter.ImageCallBackListener;
-import com.flyang.progress.OnProgressListener;
-import com.flyang.progress.model.ProgressInfo;
+import com.flyang.demo.Api.LoginService;
+import com.flyang.demo.constant.AppConstant;
+import com.flyang.demo.constant.ComParamContact;
+import com.flyang.demo.customapi.test5.TestApiResult5;
+import com.flyang.demo.model.ApiInfo;
+import com.flyang.demo.model.AuthModel;
+import com.flyang.demo.model.SectionItem;
+import com.flyang.demo.model.SkinTestResult;
+import com.flyang.demo.utils.FileUtils;
+import com.flyang.demo.utils.MD5;
+import com.flyang.netlib.EasyHttp;
+import com.flyang.netlib.callback.CallBack;
+import com.flyang.netlib.callback.CallClazzProxy;
+import com.flyang.netlib.callback.ProgressDialogCallBack;
+import com.flyang.netlib.callback.SimpleCallBack;
+import com.flyang.netlib.exception.ApiException;
+import com.flyang.netlib.model.ApiResult;
+import com.flyang.netlib.request.CustomRequest;
+import com.flyang.netlib.subsciber.BaseSubscriber;
+import com.flyang.netlib.subsciber.IProgressDialog;
+import com.flyang.netlib.subsciber.ProgressSubscriber;
+import com.flyang.netlib.utils.RxUtil;
 import com.flyang.util.log.LogUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.util.List;
+
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+/**
+ * <p>描述：网络请求介绍</p>
+ * 作者： zhouyou<br>
+ * 日期： 2017/7/6 16:26 <br>
+ * 版本： v1.0<br>
+ */
 public class MainActivity extends AppCompatActivity {
 
-    private ImageView imageView,imageView2;
-//    private CircleProgressView progressView;
-
-    String url = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1497688355699&di=ea69a930b82ce88561c635089995e124&imgtype=0&src=http%3A%2F%2Fcms-bucket.nosdn.127.net%2Ff84e566bcf654b3698363409fbd676ef20161119091503.jpg";
-
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        imageView = findViewById(R.id.imageView);
-        imageView2 = findViewById(R.id.imageView2);
-//        progressView = findViewById(R.id.progressView);
-    }
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            //actionBar.setHomeButtonEnabled(true);
+            //actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.openOptionsMenu();
+        }
 
+        Flowable.create(new FlowableOnSubscribe<String>() {
+            @Override
+            public void subscribe(FlowableEmitter<String> emitter) throws Exception {
+                FileUtils.getFileFromAsset(MainActivity.this, "1.jpg");
+            }
+        }, BackpressureStrategy.BUFFER).compose(RxUtil.<String>io_main()).subscribe(new Consumer<String>() {
+            @Override
+            public void accept(@NonNull String s) throws Exception {
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        ImageLoader.resumeRequests();
-    }
-
-    public void button(View view) {
-
-        ImageLoader.with(this)
-//                .url(url)
-                .glideUrl(new GlideUrl(url))
-                .isNeedVignette(true)
-                .shapeMode(ShapeMode.OVAL)
-                .skipMemoryCache(true)
-                .rectRoundRadius(50)
-                .asDrawable(true)
-                .saveGallery(true)
-                .onProgressListener(new OnProgressListener() {
-                    @Override
-                    public void onProgress(ProgressInfo progressInfo) {
-                        LogUtils.e(progressInfo.toString());
-                    }
-
-                    @Override
-                    public void onError(long id, Exception e) {
-                        LogUtils.e(e.toString());
-                    }
-                })
-                .imageCallBackListener(new ImageCallBackListener<Drawable>() {
-                    @Override
-                    public void onSuccess(Drawable type) {
-                        imageView2.setImageDrawable(type);
-                    }
-
-                    @Override
-                    public void onFail() {
-
-                    }
-                })
-                .into(imageView);
-
-    }
-
-    @SuppressLint("CheckResult")
-    public void onClick(View view) {
-        ImageLoader.clearMomory();
-        ImageLoader.clearDiskCache();
+            }
+        });
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        ImageLoader.pauseRequests();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.adout_layout:
+                Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+                startActivity(intent);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void onLogin(View view) {
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+    }
+
+    public void onGet(View view) {
+        EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                .readTimeOut(30 * 1000)//局部定义读超时 ,可以不用定义
+                .writeTimeOut(30 * 1000)
+                .connectTimeout(30 * 1000)
+                //.headers("","")//设置头参数
+                //.params("name","张三")//设置参数
+                //.addInterceptor()
+                //.addConverterFactory()
+                //.addCookie()
+                .timeStamp(true)
+                .execute(new SimpleCallBack<SkinTestResult>() {
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast(e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(SkinTestResult response) {
+                        if (response != null) showToast(response.toString());
+                    }
+                });
+               /* .execute(new SimpleCallBack<String>() {
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast(e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(String response) {
+                        if (response != null) showToast(response.toString());
+                    }
+                });*/
+    }
+
+    /**
+     * post请求
+     */
+    public void onPost(View view) {
+        EasyHttp.post("v1/app/chairdressing/news/favorite")
+                .params("newsId", "552")
+                .accessToken(true)
+                .timeStamp(true)
+                .execute(new SimpleCallBack<String>() {
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast(e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(String response) {
+                        showToast(response);
+                    }
+                });
+    }
+
+    /**
+     * post提交Object
+     */
+    public void onPostObject(View view) {
+        ApiInfo apiInfo = new ApiInfo();
+        ApiInfo.ApiInfoBean apiInfoBean = apiInfo.new ApiInfoBean();
+        apiInfoBean.setApiKey("12345");
+        apiInfoBean.setApiName("zhou-you");
+        apiInfo.setApiInfo(apiInfoBean);
+        EasyHttp.post("client/shipper/getCarType")
+                .baseUrl("http://WuXiaolong.me/")
+                //如果是body的方式提交object，必须要加GsonConverterFactory.create()
+                //他的本质就是把object转成json给到服务器，所以必须要加Gson Converter
+                //切记！切记！切记！  本例可能地址不对只做演示用
+                .addConverterFactory(GsonConverterFactory.create())
+                .upObject(apiInfo)//这种方式会自己把对象转成json提交给服务器
+                .execute(new SimpleCallBack<String>() {
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast(e.getMessage() + "  " + e.getCode());
+                    }
+
+                    @Override
+                    public void onSuccess(String response) {
+                        showToast(response);
+                    }
+                });
+    }
+
+    /**
+     * post提交json
+     */
+    public void onPostJson(View view) {
+        EasyHttp.post("api/")
+                .baseUrl("http://xxxx.xx.xx/dlydbg/")
+                .upJson("{\"\":\"\",\"\":\"\",\"\":\"\",\"swry_dm\":\"127053096\",\"version\":\"1.0.0\"}")
+                //这里不想解析，简单只是为了做演示 直接返回String
+                .execute(new SimpleCallBack<String>() {
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast(e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(String s) {
+                        showToast(s);
+                    }
+                });
+    }
+
+    /**
+     * put请求
+     */
+    public void onPut(View view) {
+        //http://api.youdui.org/api/v1/cart/1500996?count=4
+        EasyHttp.put("http://api.youdui.org/api/v1/cart/1500996")
+                .removeParam("appId")
+                .params("count", "4")
+                .execute(new SimpleCallBack<String>() {
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast(e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(String response) {
+                        showToast(response);
+                    }
+                });
+    }
+
+    /**
+     * delete请求
+     */
+    public void onDelete(View view) {
+        //测试请用自己的URL，这里为了安全去掉了地址
+        //这里采用的是delete请求提交json的方式，可以选择其他需要的方式
+        EasyHttp.delete("https://www.xxx.com/v1/user/Frined")
+                .upJson("{\"uid\":\"10008\",\"token\":\"5b305fbeaa331\"}\n")
+                .execute(new SimpleCallBack<String>() {
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast(e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(String response) {
+                        showToast(response);
+                    }
+                });
+    }
+
+    /**
+     * 基础回调
+     */
+    public void onCallBack(View view) {
+        //支持CallBack<SkinTestResult>、CallBack<String>回调
+        Disposable mDisposable = EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                .timeStamp(true)
+                .execute(new CallBack<SkinTestResult>() {
+                    @Override
+                    public void onStart() {
+                        showToast("开始请求");
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        showToast("请求完成");
+                    }
+
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast("请求失败：" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(SkinTestResult response) {
+                        showToast("请求成功：" + response.toString());
+                    }
+                });
+    }
+
+    /**
+     * 简单回调
+     *
+     * @param view
+     */
+    public void onSimpleCallBack(View view) {
+        //支持SimpleCallBack<SkinTestResult>、SimpleCallBack<String>回调
+        EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                .timeStamp(true)
+                .execute(new SimpleCallBack<SkinTestResult>() {
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast(e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(SkinTestResult response) {
+                        showToast(response.toString());
+                    }
+                });
+    }
+
+    private IProgressDialog mProgressDialog = new IProgressDialog() {
+        @Override
+        public Dialog getDialog() {
+            ProgressDialog dialog = new ProgressDialog(MainActivity.this);
+            dialog.setMessage("请稍候...");
+            return dialog;
+        }
+    };
+
+    /**
+     * 带有加载进度框的回调，支持是否可以取消对话框，取消对话框时可以自动取消网络请求，不需要再手动取消。
+     */
+    public void onProgressDialogCallBack(View view) {
+        EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                .timeStamp(true)
+                .execute(new ProgressDialogCallBack<SkinTestResult>(mProgressDialog, true, true) {
+                    @Override
+                    public void onError(ApiException e) {
+                        super.onError(e);//super.onError(e)必须写不能删掉或者忘记了
+                        showToast(e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(SkinTestResult response) {
+                        showToast(response.toString());
+                    }
+                });
+    }
+
+    /**
+     * 请求网络接口最终获取Subscription对象，通过该对象手动取消网络请求
+     * 在需要取消网络请求的地方调用,一般在onDestroy()中
+     */
+    public void onSubscription(View view) {
+        Disposable disposable = EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                .timeStamp(true)
+                .execute(new SimpleCallBack<SkinTestResult>() {
+
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast(e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(SkinTestResult response) {
+                        showToast(response.toString());
+                    }
+                });
+
+        //EasyHttp.cancelSubscription(disposable);
+
+    }
+
+    /**
+     * 返回Observable对象，Observable是Rxjava，有了Observable可以与其它业务逻辑很好的结合
+     * 本例不讲怎么结合简单订阅下输出结果，结合需要看具体场景
+     */
+    public void onObservable(View view) {
+        Flowable<SkinTestResult> flowable = EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                .timeStamp(true)
+                .execute(SkinTestResult.class);
+
+        flowable.subscribe(new BaseSubscriber<SkinTestResult>() {
+            @Override
+            public void onError(ApiException e) {
+                showToast(e.getMessage());
+            }
+
+            @Override
+            public void onNext(SkinTestResult skinTestResult) {
+                showToast(skinTestResult.toString());
+            }
+        });
+    }
+
+    /**
+     * 带有进度框的订阅者，对话框消失，可以自动取消掉网络请求
+     */
+    public void onProgressSubscriber(View view) {
+        Flowable<SkinTestResult> flowable = EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                .timeStamp(true)
+                .execute(SkinTestResult.class);
+
+        flowable.subscribe(new ProgressSubscriber<SkinTestResult>(this, mProgressDialog) {
+            @Override
+            public void onError(ApiException e) {
+                super.onError(e);
+                showToast(e.getMessage());
+            }
+
+            @Override
+            public void onNext(SkinTestResult skinTestResult) {
+                showToast(skinTestResult.toString());
+            }
+        });
+    }
+
+    /**
+     * 上传文件
+     */
+    public void onUploadFile(View view) {
+        Intent intent = new Intent(this, UploadActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * 上传文件
+     */
+    public void onDownloadFile(View view) {
+        Intent intent = new Intent(this, DownloadActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * 同步请求
+     */
+    private Handler mHandler = new Handler();
+
+    public void onSync(View view) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                        .readTimeOut(30 * 1000)//局部定义读超时
+                        .writeTimeOut(30 * 1000)
+                        .connectTimeout(30 * 1000)
+                        .timeStamp(true)
+                        .syncRequest(true)//设置同步请求
+                        .execute(new SimpleCallBack<SkinTestResult>() {
+                            @Override
+                            public void onError(final ApiException e) {
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        showToast(e.getMessage());
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onSuccess(final SkinTestResult response) {
+                                mHandler.post(new Runnable() {//异步 Toast
+                                    @Override
+                                    public void run() {
+                                        if (response != null) showToast(response.toString());
+                                    }
+                                });
+                            }
+                        });
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                LogUtils.i("====同步请求==========");
+                EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                        .readTimeOut(30 * 1000)//局部定义读超时
+                        .writeTimeOut(30 * 1000)
+                        .connectTimeout(30 * 1000)
+                        .syncRequest(true)//设置同步请求
+                        .timeStamp(true)
+                        .execute(new SimpleCallBack<SkinTestResult>() {
+                            @Override
+                            public void onError(final ApiException e) {
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        showToast(e.getMessage());
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onSuccess(final SkinTestResult response) {
+                                mHandler.post(new Runnable() {//异步 Toast
+                                    @Override
+                                    public void run() {
+                                        if (response != null) showToast(response.toString());
+                                    }
+                                });
+                            }
+                        });
+            }
+        }).start();
+    }
+
+    /**
+     * 网络缓存
+     */
+    public void onCache(View view) {
+        Intent intent = new Intent(this, CacheActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * 使用EasyHttp调用自定义api  注意：如果有签名的注意路径有"/"的情况如下
+     * https://www.xxx.com/v1/account/login （正确）
+     * https://www.xxx.com//v1/account/login (错误 可能会导致签名失败)
+     */
+    public void onCustomCall(View view) {
+        final String name = "18688994275";
+        final String pass = "123456";
+        final CustomRequest request = EasyHttp.custom().addConverterFactory(GsonConverterFactory.create(new Gson()))
+                .sign(true)
+                .timeStamp(true)
+                .params(ComParamContact.Login.ACCOUNT, name)
+                .params(ComParamContact.Login.PASSWORD, MD5.encrypt4login(pass, AppConstant.APP_SECRET))
+                .build();
+
+        LoginService mLoginService = request.create(LoginService.class);
+        Flowable<ApiResult<AuthModel>> flowable = request.call(mLoginService.login("v1/account/login", request.getParams().urlParamsMap));
+        Disposable disposable = flowable.subscribe(new Consumer<ApiResult<AuthModel>>() {
+            @Override
+            public void accept(@NonNull ApiResult<AuthModel> result) throws Exception {
+                showToast(result.toString());
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                showToast(throwable.getMessage());
+            }
+        });
+        //EasyHttp.cancelSubscription(disposable);//取消订阅
+    }
+
+    public void onCustomApiCall(View view) {
+        final String name = "18688994275";
+        final String pass = "123456";
+        final CustomRequest request = EasyHttp.custom()
+                .addConverterFactory(GsonConverterFactory.create(new Gson()))
+                .sign(true)
+                .timeStamp(true)
+                .params(ComParamContact.Login.ACCOUNT, name)
+                .params(ComParamContact.Login.PASSWORD, MD5.encrypt4login(pass, AppConstant.APP_SECRET))
+                .build();
+
+        LoginService mLoginService = request.create(LoginService.class);
+        Flowable<AuthModel> flowable = request.apiCall(mLoginService.login("v1/account/login", request.getParams().urlParamsMap));
+        Disposable disposable = flowable.subscribe(new Consumer<AuthModel>() {
+            @Override
+            public void accept(@NonNull AuthModel authModel) throws Exception {
+                showToast(authModel.toString());
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                showToast(throwable.getMessage());
+            }
+        });
+        //EasyHttp.cancelSubscription(disposable);//取消订阅
+    }
+
+    public void onCustomApiResult(View view) {
+        Intent intent = new Intent(this, CustomApiActivity.class);
+        startActivity(intent);
+    }
+
+    public void onListResult(View view) {
+        //方式一：
+       /* EasyHttp.get("http://news-at.zhihu.com/api/3/sections")
+                .execute(new CallBackProxy<TestApiResult5<List<SectionItem>>, List<SectionItem>>(new SimpleCallBack<List<SectionItem>>() {
+                    @Override
+                    public void onError(ApiException e) {
+                        showToast(e.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(List<SectionItem> sectionItems) {
+                        showToast(sectionItems.toString());
+                    }
+                }) {
+                });*/
+        //方式二：
+        /*Flowable<List<SectionItem>> flowable = EasyHttp.get("http://news-at.zhihu.com/api/3/sections")
+                .execute(new CallClazzProxy<TestApiResult5<List<SectionItem>>, List<SectionItem>>(new TypeToken<List<SectionItem>>() {
+                }.getType()) {
+                });
+        flowable.subscribe(new Consumer<List<SectionItem>>() {
+            @Override
+            public void accept(@NonNull List<SectionItem> sectionItems) throws Exception {
+                showToast(sectionItems.toString());
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(@NonNull Throwable throwable) throws Exception {
+                showToast(throwable.getMessage());
+            }
+        });*/
+        //方式三：
+        Flowable<List<SectionItem>> flowable = EasyHttp.get("http://news-at.zhihu.com/api/3/sections")
+                .execute(new CallClazzProxy<TestApiResult5<List<SectionItem>>, List<SectionItem>>(new TypeToken<List<SectionItem>>() {
+                }.getType()) {
+                });
+        flowable.subscribe(new ProgressSubscriber<List<SectionItem>>(MainActivity.this, mProgressDialog) {
+            @Override
+            public void onError(ApiException e) {
+                super.onError(e);
+                showToast(e.getMessage());
+            }
+
+            @Override
+            public void onNext(List<SectionItem> sectionItems) {
+                showToast(sectionItems.toString());
+            }
+        });
+    }
+
+    public void onScene(View view) {
+        Intent intent = new Intent(MainActivity.this, SceneActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    private void showToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 }

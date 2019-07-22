@@ -21,7 +21,7 @@ import com.flyang.netlib.body.ProgressResponseCallBack;
 import com.flyang.netlib.body.RequestBodyUtils;
 import com.flyang.netlib.body.UploadProgressRequestBody;
 import com.flyang.netlib.model.HttpParams;
-import com.flyang.netlib.utils.Utils;
+import com.flyang.util.data.PreconditionUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -79,14 +79,14 @@ public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseReq
      */
     public R upString(String string) {
         this.string = string;
-        this.mediaType = okhttp3.MediaType.parse("text/plain");
+        this.mediaType = MediaType.parse("text/plain");
         return (R) this;
     }
 
     public R upString(String string, String mediaType) {
         this.string = string;
-        Utils.checkNotNull(mediaType, "mediaType==null");
-        this.mediaType = okhttp3.MediaType.parse(mediaType);
+        PreconditionUtils.checkNotNull(mediaType, "mediaType==null");
+        this.mediaType = MediaType.parse(mediaType);
         return (R) this;
     }
 
@@ -159,7 +159,7 @@ public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseReq
         if (this.requestBody != null) { //自定义的请求体
             return apiManager.postBody(url, this.requestBody);
         } else if (this.json != null) {//上传的Json
-            RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), this.json);
+            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), this.json);
             return apiManager.postJson(url, body);
         } else if (this.object != null) {//自定义的请求object
             return apiManager.postBody(url, object);
@@ -167,7 +167,7 @@ public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseReq
             RequestBody body = RequestBody.create(mediaType, this.string);
             return apiManager.postBody(url, body);
         } else if (this.bs != null) {//上传的字节数据
-            RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/octet-stream"), this.bs);
+            RequestBody body = RequestBody.create(MediaType.parse("application/octet-stream"), this.bs);
             return apiManager.postBody(url, body);
         }
         if (params.fileParamsMap.isEmpty()) {
@@ -221,7 +221,7 @@ public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseReq
     private MultipartBody.Part addFile(String key, HttpParams.FileWrapper fileWrapper) {
         //MediaType.parse("application/octet-stream", file)
         RequestBody requestBody = getRequestBody(fileWrapper);
-        Utils.checkNotNull(requestBody, "requestBody==null fileWrapper.file must is File/InputStream/byte[]");
+        PreconditionUtils.checkNotNull(requestBody, "requestBody==null fileWrapper.file must is File/InputStream/byte[]");
         //包装RequestBody，在其内部实现上传进度监听
         if (fileWrapper.responseCallBack != null) {
             UploadProgressRequestBody uploadProgressRequestBody = new UploadProgressRequestBody(requestBody, fileWrapper.responseCallBack);

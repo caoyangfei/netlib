@@ -16,6 +16,7 @@
 
 package com.flyang.netlib.func;
 
+
 import com.flyang.netlib.exception.ApiException;
 import com.flyang.netlib.exception.ServerException;
 import com.flyang.netlib.model.ApiResult;
