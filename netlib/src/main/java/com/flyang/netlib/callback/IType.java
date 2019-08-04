@@ -19,10 +19,11 @@ package com.flyang.netlib.callback;
 import java.lang.reflect.Type;
 
 /**
- * <p>描述：获取类型接口</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/31 14:46 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName IType
+ * @date 2019/7/29
+ * ------------- Description -------------
+ * 获取类型接口
  */
 public interface IType<T> {
     Type getType();

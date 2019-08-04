@@ -26,7 +26,7 @@ import com.flyang.netlib.func.CacheResultFunc;
 import com.flyang.netlib.func.RetryExceptionFunc;
 import com.flyang.netlib.model.ApiResult;
 import com.flyang.netlib.subsciber.CallBackSubsciber;
-import com.flyang.netlib.utils.RxUtil;
+import com.flyang.netlib.utils.RxSchedulers;
 import com.google.gson.reflect.TypeToken;
 
 import org.reactivestreams.Publisher;
@@ -39,10 +39,11 @@ import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
 
 /**
- * <p>描述：get请求</p>
- * 作者： zhouyou<br>
- * 日期： 2017/4/28 14:28 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName GetRequest
+ * @date 2019/7/23
+ * ------------- Description -------------
+ * get请求
  */
 @SuppressWarnings(value = {"unchecked", "deprecation"})
 public class GetRequest extends BaseRequest<GetRequest> {
@@ -63,7 +64,7 @@ public class GetRequest extends BaseRequest<GetRequest> {
     public <T> Flowable<T> execute(CallClazzProxy<? extends ApiResult<T>, T> proxy) {
         return build().generateRequest()
                 .map(new ApiResultFunc(proxy.getType()))
-                .compose(isSyncRequest ? RxUtil._main() : RxUtil._io_main())
+                .compose(isSyncRequest ? RxSchedulers._main() : RxSchedulers._io_main())
                 .compose(rxCache.transformer(cacheMode, proxy.getCallType()))
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay))
                 .compose(new FlowableTransformer() {
@@ -80,7 +81,7 @@ public class GetRequest extends BaseRequest<GetRequest> {
     }
 
     public <T> Disposable execute(CallBackProxy<? extends ApiResult<T>, T> proxy) {
-        Flowable<CacheResult<T>> flowable = build().toObservable(apiManager.get(url, params.urlParamsMap), proxy);
+        Flowable<CacheResult<T>> flowable = build().toFlowable(apiManager.get(url, params.urlParamsMap), proxy);
         if (CacheResult.class != proxy.getCallBack().getRawType()) {
             return flowable.compose(new FlowableTransformer<CacheResult<T>, T>() {
                 @Override
@@ -93,10 +94,10 @@ public class GetRequest extends BaseRequest<GetRequest> {
         }
     }
 
-    private <T> Flowable<CacheResult<T>> toObservable(Flowable flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
+    private <T> Flowable<CacheResult<T>> toFlowable(Flowable flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
         return flowable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
         }.getType()))
-                .compose(isSyncRequest ? RxUtil._main() : RxUtil._io_main())
+                .compose(isSyncRequest ? RxSchedulers._main() : RxSchedulers._io_main())
                 .compose(rxCache.transformer(cacheMode, proxy.getCallBack().getType()))
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
     }

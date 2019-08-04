@@ -19,12 +19,12 @@ package com.flyang.netlib.request;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.flyang.netlib.EasyHttp;
+import com.flyang.netlib.FlyangHttp;
 import com.flyang.netlib.api.ApiService;
 import com.flyang.netlib.cache.RxCache;
-import com.flyang.netlib.cache.converter.IDiskConverter;
+import com.flyang.netlib.cache.converter.CacheType;
 import com.flyang.netlib.cache.model.CacheMode;
-import com.flyang.netlib.https.HttpsUtils;
+import com.flyang.netlib.https.HttpsSslManager;
 import com.flyang.netlib.interceptor.BaseDynamicInterceptor;
 import com.flyang.netlib.interceptor.CacheInterceptor;
 import com.flyang.netlib.interceptor.CacheInterceptorOffline;
@@ -32,7 +32,7 @@ import com.flyang.netlib.interceptor.HeadersInterceptor;
 import com.flyang.netlib.interceptor.NoCacheInterceptor;
 import com.flyang.netlib.model.HttpHeaders;
 import com.flyang.netlib.model.HttpParams;
-import com.flyang.netlib.utils.RxUtil;
+import com.flyang.netlib.utils.RxSchedulers;
 import com.flyang.util.data.PreconditionUtils;
 import com.flyang.util.log.LogUtils;
 
@@ -59,23 +59,23 @@ import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 
-import static com.flyang.netlib.EasyHttp.getRetrofitBuilder;
-import static com.flyang.netlib.EasyHttp.getRxCache;
-
+import static com.flyang.netlib.FlyangHttp.getRetrofitBuilder;
+import static com.flyang.netlib.FlyangHttp.getRxCache;
 
 /**
- * <p>描述：所有请求的基类</p>
- * 作者： zhouyou<br>
- * 日期： 2017/4/28 17:19 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName BaseRequest
+ * @date 2019/7/23
+ * ------------- Description -------------
+ * 所有请求的基类
  */
 @SuppressWarnings(value = {"unchecked", "deprecation"})
 public abstract class BaseRequest<R extends BaseRequest> {
     protected Cache cache = null;
     protected CacheMode cacheMode = CacheMode.NO_CACHE;                    //默认无缓存
-    protected long cacheTime = -1;                                         //缓存时间
+    protected int cacheTime = -1;                                         //缓存时间
     protected String cacheKey;                                             //缓存Key
-    protected IDiskConverter diskConverter;                                //设置Rxcache磁盘转换器
+    protected CacheType cacheType;                                          //设置Rxcache缓存类型
     protected String baseUrl;                                              //BaseUrl
     protected String url;                                                  //请求url
     protected long readTimeOut;                                            //读超时
@@ -99,7 +99,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
     private boolean accessToken = false;                                   //是否需要追加token
     protected HttpUrl httpUrl;
     protected Proxy proxy;
-    protected HttpsUtils.SSLParams sslParams;
+    protected HttpsSslManager.SSLParams sslParams;
     protected HostnameVerifier hostnameVerifier;
     protected List<Converter.Factory> converterFactories = new ArrayList<>();
     protected List<CallAdapter.Factory> adapterFactories = new ArrayList<>();
@@ -108,8 +108,8 @@ public abstract class BaseRequest<R extends BaseRequest> {
 
     public BaseRequest(String url) {
         this.url = url;
-        context = EasyHttp.getContext();
-        EasyHttp config = EasyHttp.getInstance();
+        context = FlyangHttp.getContext();
+        FlyangHttp config = FlyangHttp.getInstance();
         this.baseUrl = config.getBaseUrl();
         if (!TextUtils.isEmpty(this.baseUrl)) {
             httpUrl = HttpUrl.parse(baseUrl);
@@ -171,8 +171,8 @@ public abstract class BaseRequest<R extends BaseRequest> {
         return (R) this;
     }
 
-    public R cacheTime(long cacheTime) {
-        if (cacheTime <= -1) cacheTime = EasyHttp.DEFAULT_CACHE_NEVER_EXPIRE;
+    public R cacheTime(int cacheTime) {
+        if (cacheTime <= -1) cacheTime = FlyangHttp.DEFAULT_CACHE_NEVER_EXPIRE;
         this.cacheTime = cacheTime;
         return (R) this;
     }
@@ -257,8 +257,8 @@ public abstract class BaseRequest<R extends BaseRequest> {
     /**
      * 设置缓存的转换器
      */
-    public R cacheDiskConverter(IDiskConverter converter) {
-        this.diskConverter = PreconditionUtils.checkNotNull(converter, "converter == null");
+    public R cacheCacheType(CacheType cacheType) {
+        this.cacheType = PreconditionUtils.checkNotNull(cacheType, "converter == null");
         return (R) this;
     }
 
@@ -274,7 +274,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
      * https的全局自签名证书
      */
     public R certificates(InputStream... certificates) {
-        this.sslParams = HttpsUtils.getSslSocketFactory(null, null, certificates);
+        this.sslParams = HttpsSslManager.getSslSocketFactory(null, null, certificates);
         return (R) this;
     }
 
@@ -282,7 +282,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
      * https双向认证证书
      */
     public R certificates(InputStream bksFile, String password, InputStream... certificates) {
-        this.sslParams = HttpsUtils.getSslSocketFactory(bksFile, password, certificates);
+        this.sslParams = HttpsSslManager.getSslSocketFactory(bksFile, password, certificates);
         return (R) this;
     }
 
@@ -370,7 +370,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
      * 移除缓存（key）
      */
     public void removeCache(String key) {
-        getRxCache().remove(key).compose(RxUtil.<Boolean>io_main())
+        getRxCache().remove(key).compose(RxSchedulers.<Boolean>io_main())
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(@NonNull Boolean aBoolean) throws Exception {
@@ -390,7 +390,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
     private OkHttpClient.Builder generateOkClient() {
         if (readTimeOut <= 0 && writeTimeOut <= 0 && connectTimeout <= 0 && sslParams == null
                 && cookies.size() == 0 && hostnameVerifier == null && proxy == null && headers.isEmpty()) {
-            OkHttpClient.Builder builder = EasyHttp.getOkHttpClientBuilder();
+            OkHttpClient.Builder builder = FlyangHttp.getOkHttpClientBuilder();
             for (Interceptor interceptor : builder.interceptors()) {
                 if (interceptor instanceof BaseDynamicInterceptor) {
                     ((BaseDynamicInterceptor) interceptor).sign(sign).timeStamp(timeStamp).accessToken(accessToken);
@@ -398,7 +398,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
             }
             return builder;
         } else {
-            final OkHttpClient.Builder newClientBuilder = EasyHttp.getOkHttpClient().newBuilder();
+            final OkHttpClient.Builder newClientBuilder = FlyangHttp.getOkHttpClient().newBuilder();
             if (readTimeOut > 0)
                 newClientBuilder.readTimeout(readTimeOut, TimeUnit.MILLISECONDS);
             if (writeTimeOut > 0)
@@ -409,7 +409,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
             if (sslParams != null)
                 newClientBuilder.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager);
             if (proxy != null) newClientBuilder.proxy(proxy);
-            if (cookies.size() > 0) EasyHttp.getCookieJar().addCookies(cookies);
+            if (cookies.size() > 0) FlyangHttp.getCookieJar().addCookies(cookies);
 
             //添加头  头添加放在最前面方便其他拦截器可能会用到
             newClientBuilder.addInterceptor(new HeadersInterceptor(headers));
@@ -482,7 +482,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
      * 根据当前的请求参数，生成对应的RxCache和Cache
      */
     private RxCache.Builder generateRxCache() {
-        final RxCache.Builder rxCacheBuilder = EasyHttp.getRxCacheBuilder();
+        final RxCache.Builder rxCacheBuilder = FlyangHttp.getRxCacheBuilder();
         switch (cacheMode) {
             case NO_CACHE://不使用缓存
                 final NoCacheInterceptor NOCACHEINTERCEPTOR = new NoCacheInterceptor();
@@ -491,19 +491,19 @@ public abstract class BaseRequest<R extends BaseRequest> {
                 break;
             case DEFAULT://使用Okhttp的缓存
                 if (this.cache == null) {
-                    File cacheDirectory = EasyHttp.getCacheDirectory();
+                    File cacheDirectory = FlyangHttp.getCacheDirectory();
                     if (cacheDirectory == null) {
-                        cacheDirectory = new File(EasyHttp.getContext().getCacheDir(), "okhttp-cache");
+                        cacheDirectory = new File(FlyangHttp.getContext().getCacheDir(), "okhttp-cache");
                     } else {
                         if (cacheDirectory.isDirectory() && !cacheDirectory.exists()) {
                             cacheDirectory.mkdirs();
                         }
                     }
-                    this.cache = new Cache(cacheDirectory, Math.max(5 * 1024 * 1024, EasyHttp.getCacheMaxSize()));
+                    this.cache = new Cache(cacheDirectory, Math.max(5 * 1024 * 1024, FlyangHttp.getCacheMaxSize()));
                 }
                 String cacheControlValue = String.format("max-age=%d", Math.max(-1, cacheTime));
-                final CacheInterceptor REWRITE_CACHE_CONTROL_INTERCEPTOR = new CacheInterceptor(EasyHttp.getContext(), cacheControlValue);
-                final CacheInterceptorOffline REWRITE_CACHE_CONTROL_INTERCEPTOR_OFFLINE = new CacheInterceptorOffline(EasyHttp.getContext(), cacheControlValue);
+                final CacheInterceptor REWRITE_CACHE_CONTROL_INTERCEPTOR = new CacheInterceptor(FlyangHttp.getContext(), cacheControlValue);
+                final CacheInterceptorOffline REWRITE_CACHE_CONTROL_INTERCEPTOR_OFFLINE = new CacheInterceptorOffline(FlyangHttp.getContext(), cacheControlValue);
                 networkInterceptors.add(REWRITE_CACHE_CONTROL_INTERCEPTOR);
                 networkInterceptors.add(REWRITE_CACHE_CONTROL_INTERCEPTOR_OFFLINE);
                 interceptors.add(REWRITE_CACHE_CONTROL_INTERCEPTOR_OFFLINE);
@@ -515,14 +515,14 @@ public abstract class BaseRequest<R extends BaseRequest> {
             case CACHEANDREMOTE:
             case CACHEANDREMOTEDISTINCT:
                 interceptors.add(new NoCacheInterceptor());
-                if (diskConverter == null) {
+                if (cacheType == null) {
                     final RxCache.Builder tempRxCacheBuilder = rxCacheBuilder;
                     tempRxCacheBuilder.cachekey(PreconditionUtils.checkNotNull(cacheKey, "cacheKey == null"))
                             .cacheTime(cacheTime);
                     return tempRxCacheBuilder;
                 } else {
                     final RxCache.Builder cacheBuilder = getRxCache().newBuilder();
-                    cacheBuilder.diskConverter(diskConverter)
+                    cacheBuilder.cacheType(cacheType)
                             .cachekey(PreconditionUtils.checkNotNull(cacheKey, "cacheKey == null"))
                             .cacheTime(cacheTime);
                     return cacheBuilder;

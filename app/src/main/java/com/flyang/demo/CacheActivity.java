@@ -24,8 +24,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.flyang.demo.model.SkinTestResult;
-import com.flyang.netlib.EasyHttp;
-import com.flyang.netlib.cache.converter.SerializableDiskConverter;
+import com.flyang.netlib.FlyangHttp;
+import com.flyang.netlib.cache.converter.CacheType;
 import com.flyang.netlib.cache.model.CacheMode;
 import com.flyang.netlib.cache.model.CacheResult;
 import com.flyang.netlib.callback.SimpleCallBack;
@@ -103,7 +103,7 @@ public class CacheActivity extends AppCompatActivity implements View.OnClickList
      * new SimpleCallBack<String>()//返回字符串<br>
      */
     private void requestCahce() {
-        EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .readTimeOut(30 * 1000)//测试局部读超时30s
                 .cacheMode(cacheMode)
                 .cacheKey(this.getClass().getSimpleName())//缓存key
@@ -111,7 +111,7 @@ public class CacheActivity extends AppCompatActivity implements View.OnClickList
                 .cacheTime(5 * 60)//缓存时间300s，默认-1永久缓存  okhttp和自定义缓存都起作用
                 //.okCache(new Cache());//okhttp缓存，模式为默认模式（CacheMode.DEFAULT）才生效
                 //.cacheDiskConverter(new GsonDiskConverter())//默认使用的是 new SerializableDiskConverter();
-                .cacheDiskConverter(new SerializableDiskConverter())//默认使用的是 new SerializableDiskConverter();
+                .cacheCacheType(CacheType.Serializable)//默认使用的是 new SerializableDiskConverter();
                 .timeStamp(true)
                 .execute(new SimpleCallBack<CacheResult<SkinTestResult>>() {
 
@@ -148,14 +148,14 @@ public class CacheActivity extends AppCompatActivity implements View.OnClickList
      * execute(CacheResult<SkinTestResult> clazz)<br>
      */
     private void requestCahce2() {
-        EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .readTimeOut(30 * 1000)//测试局部读超时30s
                 .cacheMode(cacheMode)
                 .cacheKey(this.getClass().getSimpleName())//缓存key
                 .retryCount(5)//重试次数
                 .cacheTime(5 * 60)//缓存时间300s，默认-1永久缓存
                 //.cacheDiskConverter(new GsonDiskConverter())//默认使用的是 new SerializableDiskConverter();
-                .cacheDiskConverter(new SerializableDiskConverter())//默认使用的是 new SerializableDiskConverter();
+                .cacheCacheType(CacheType.Serializable)//默认使用的是 new SerializableDiskConverter();
                 .timeStamp(true)
                 .execute(SkinTestResult.class)
                 .subscribe(new Consumer<SkinTestResult>() {
@@ -170,24 +170,24 @@ public class CacheActivity extends AppCompatActivity implements View.OnClickList
      * 移除缓存
      */
     public void onRemoveCache(View view) {
-        EasyHttp.removeCache(this.getClass().getSimpleName());
+        FlyangHttp.removeCache(this.getClass().getSimpleName());
     }
 
     /**
      * 清空缓存
      */
     public void onClearCache(View view) {
-        EasyHttp.clearCache();
+        FlyangHttp.clearCache();
     }
 
     /**
      * 根据key获取缓存
      */
     public void onLoadCache(View view) {
-        Flowable<SkinTestResult> flowable = EasyHttp.getRxCacheBuilder()
+        Flowable<SkinTestResult> flowable = FlyangHttp.getRxCacheBuilder()
                 //获取缓存需要指定下转换器，默认就是SerializableDiskConverter 这里可以不用写
                 //就是你网络请求用哪个转换器存储的缓存，那么读取时也要采用对应的转换器读取
-                .diskConverter(new SerializableDiskConverter()).build()
+                .cacheType(CacheType.Serializable).build()
                 //这个表示读取缓存根据时间,读取指定时间内的缓存，例如读取:5*60s之内的缓存
                 //.load(new TypeToken<SkinTestResult>() {}.getType(), this.getClass().getSimpleName(), 5 * 60)
                 //这个表示读取缓存不根据时间只要有缓存就读取

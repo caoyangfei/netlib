@@ -19,7 +19,7 @@ package com.flyang.netlib.func;
 import android.text.TextUtils;
 
 import com.flyang.netlib.model.ApiResult;
-import com.flyang.netlib.utils.Utils;
+import com.flyang.netlib.utils.HttpUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -38,10 +38,13 @@ import okhttp3.ResponseBody;
 
 
 /**
- * <p>描述：定义了ApiResult结果转换Func</p>
- * 作者： zhouyou<br>
- * 日期： 2017/3/15 16:52 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName ApiResultFunc
+ * @date 2019/7/23
+ * ------------- Description -------------
+ * ApiResult结果转换Func
+ * <p>
+ * 返回结果解析
  */
 @SuppressWarnings("unchecked")
 public class ApiResultFunc<T> implements Function<ResponseBody, ApiResult<T>> {
@@ -64,8 +67,8 @@ public class ApiResultFunc<T> implements Function<ResponseBody, ApiResult<T>> {
             final Class<T> cls = (Class) ((ParameterizedType) type).getRawType();
             if (ApiResult.class.isAssignableFrom(cls)) {
                 final Type[] params = ((ParameterizedType) type).getActualTypeArguments();
-                final Class clazz = Utils.getClass(params[0], 0);
-                final Class rawType = Utils.getClass(type, 0);
+                final Class clazz = HttpUtils.getClass(params[0], 0);
+                final Class rawType = HttpUtils.getClass(type, 0);
                 try {
                     String json = responseBody.string();
                     //增加是List<String>判断错误的问题
@@ -100,7 +103,7 @@ public class ApiResultFunc<T> implements Function<ResponseBody, ApiResult<T>> {
         } else {//默认Apiresult
             try {
                 final String json = responseBody.string();
-                final Class<T> clazz = Utils.getClass(type, 0);
+                final Class<T> clazz = HttpUtils.getClass(type, 0);
                 if (clazz.equals(String.class)) {
                     //apiResult.setData((T) json);
                     //apiResult.setCode(0);

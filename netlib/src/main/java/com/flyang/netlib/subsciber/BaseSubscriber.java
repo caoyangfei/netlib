@@ -19,6 +19,7 @@ package com.flyang.netlib.subsciber;
 import android.content.Context;
 
 import com.flyang.netlib.exception.ApiException;
+import com.flyang.netlib.utils.HttpUtils;
 import com.flyang.util.log.LogUtils;
 
 import java.lang.ref.WeakReference;
@@ -26,7 +27,6 @@ import java.lang.ref.WeakReference;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.subscribers.DisposableSubscriber;
 
-import static com.flyang.netlib.utils.Utils.isNetworkAvailable;
 
 
 /**
@@ -47,7 +47,7 @@ public abstract class BaseSubscriber<T> extends DisposableSubscriber<T> {
     @Override
     protected void onStart() {
         LogUtils.e("-->http is onStart");
-        if (contextWeakReference != null && contextWeakReference.get() != null && !isNetworkAvailable(contextWeakReference.get())) {
+        if (contextWeakReference != null && contextWeakReference.get() != null && !HttpUtils.isNetworkAvailable(contextWeakReference.get())) {
             //Toast.makeText(context, "无网络，读取缓存数据", Toast.LENGTH_SHORT).show();
             onComplete();
         }

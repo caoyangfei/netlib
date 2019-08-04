@@ -27,7 +27,7 @@ import com.flyang.netlib.func.RetryExceptionFunc;
 import com.flyang.netlib.model.ApiResult;
 import com.flyang.netlib.subsciber.CallBackSubsciber;
 import com.flyang.netlib.transformer.HandleErrTransformer;
-import com.flyang.netlib.utils.RxUtil;
+import com.flyang.netlib.utils.RxSchedulers;
 import com.flyang.util.data.PreconditionUtils;
 import com.google.gson.reflect.TypeToken;
 
@@ -40,12 +40,13 @@ import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
 
 /**
- * <p>描述：自定义请求，例如你有自己的ApiService</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/15 17:04 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName CustomRequest
+ * @date 2019/7/23
+ * ------------- Description -------------
+ * 自定义请求，例如你有自己的ApiService
  */
-@SuppressWarnings(value={"unchecked", "deprecation"})
+@SuppressWarnings(value = {"unchecked", "deprecation"})
 public class CustomRequest extends BaseRequest<CustomRequest> {
     public CustomRequest() {
         super("");
@@ -62,12 +63,8 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
      * @param service 自定义的apiservice class
      */
     public <T> T create(final Class<T> service) {
-        checkvalidate();
-        return retrofit.create(service);
-    }
-
-    private void checkvalidate() {
         PreconditionUtils.checkNotNull(retrofit, "请先在调用build()才能使用");
+        return retrofit.create(service);
     }
 
     /**
@@ -75,8 +72,8 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
      * 举例：如果你给的是一个Observable<ApiResult<AuthModel>> 那么返回的<T>是一个ApiResult<AuthModel>
      */
     public <T> Flowable<T> call(Flowable<T> flowable) {
-        checkvalidate();
-        return flowable.compose(RxUtil.io_main())
+        PreconditionUtils.checkNotNull(retrofit, "请先在调用build()才能使用");
+        return flowable.compose(RxSchedulers.io_main())
                 .compose(new HandleErrTransformer())
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
     }
@@ -86,20 +83,20 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
     }
 
     public <R> void call(Flowable flowable, Subscriber<R> subscriber) {
-        flowable.compose(RxUtil.io_main())
+        flowable.compose(RxSchedulers.io_main())
                 .subscribe(subscriber);
     }
 
 
     /**
-     * 调用call返回一个Observable,针对ApiResult的业务<T>
+     * Flowable,针对ApiResult的业务<T>
      * 举例：如果你给的是一个Observable<ApiResult<AuthModel>> 那么返回的<T>是AuthModel
      */
     public <T> Flowable<T> apiCall(Flowable<ApiResult<T>> flowable) {
-        checkvalidate();
+        PreconditionUtils.checkNotNull(retrofit, "请先在调用build()才能使用");
         return flowable
                 .map(new HandleFuc<T>())
-                .compose(RxUtil.<T>io_main())
+                .compose(RxSchedulers.<T>io_main())
                 .compose(new HandleErrTransformer<T>())
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
     }
@@ -123,11 +120,11 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
         }
     }
 
-    @SuppressWarnings(value={"unchecked", "deprecation"})
+    @SuppressWarnings(value = {"unchecked", "deprecation"})
     private <T> Flowable<CacheResult<T>> toObservable(Flowable flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
         return flowable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
         }.getType()))
-                .compose(isSyncRequest ? RxUtil._main() : RxUtil._io_main())
+                .compose(isSyncRequest ? RxSchedulers._main() : RxSchedulers._io_main())
                 .compose(rxCache.transformer(cacheMode, proxy.getCallBack().getType()))
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
     }

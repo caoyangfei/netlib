@@ -31,10 +31,11 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
 /**
- * <p>描述：下载请求</p>
- * 作者： zhouyou<br>
- * 日期： 2017/4/28 17:20 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName DownloadRequest
+ * @date 2019/7/23
+ * ------------- Description -------------
+ * 下载请求
  */
 @SuppressWarnings(value = {"unchecked", "deprecation"})
 public class DownloadRequest extends BaseRequest<DownloadRequest> {

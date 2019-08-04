@@ -34,7 +34,7 @@ import com.flyang.demo.customapi.test4.GwclBean;
 import com.flyang.demo.customapi.test9.FriendsListBean;
 import com.flyang.demo.customapi.test9.MyResult;
 import com.flyang.demo.customapi.testN.HttpManager;
-import com.flyang.netlib.EasyHttp;
+import com.flyang.netlib.FlyangHttp;
 import com.flyang.netlib.cache.model.CacheMode;
 import com.flyang.netlib.cache.model.CacheResult;
 import com.flyang.netlib.callback.CallBackProxy;
@@ -70,7 +70,7 @@ public class CustomApiActivity extends AppCompatActivity {
     
     public void onTestOne(View view){
         //方式一
-        EasyHttp.get("/mobile/get")
+        FlyangHttp.get("/mobile/get")
                 .baseUrl("http://apis.juhe.cn")
                 .readTimeOut(30 * 1000)//局部定义读超时
                 .writeTimeOut(30 * 1000)
@@ -116,7 +116,7 @@ public class CustomApiActivity extends AppCompatActivity {
     
     public void onTestTwo(View view){
         //http://japi.juhe.cn/joke/content/list.from?key=f5236a9fb8fc75fac0a4d9b8c27a4e90&page=1&pagesize=10&sort=asc&time=1418745237
-        EasyHttp.get("http://japi.juhe.cn/joke/content/list.from")
+        FlyangHttp.get("http://japi.juhe.cn/joke/content/list.from")
                 .params("key", "f5236a9fb8fc75fac0a4d9b8c27a4e90")
                 .params("page", "1")
                 .params("pagesize", "10")
@@ -139,7 +139,7 @@ public class CustomApiActivity extends AppCompatActivity {
     }
     
     public void onTestThree(View view){
-        EasyHttp.post("http://xxx.xx.xx/dlydbg/api/user/login")
+        FlyangHttp.post("http://xxx.xx.xx/dlydbg/api/user/login")
                 //{"version":"2.5.0","phone":"13012463189","imei":"6789098763343","imsi":"6675343576887","gwkl":"dl_sj1192"}
                 .upJson("{\"\":\"2.5.0\",\"\":\"\",\"\":\"\",\"\":\"\",\"gwkl\":\"\"}")
                 .execute(new CallBackProxy<TestApiResult3<List<String>>, List<String>>(new ProgressDialogCallBack<List<String>>(mProgressDialog) {
@@ -158,7 +158,7 @@ public class CustomApiActivity extends AppCompatActivity {
     }
     
     public void onTestFour(View view){
-        EasyHttp.post("api/")
+        FlyangHttp.post("api/")
                 .baseUrl("http://xxx.xx.xx/dlydbg/")
                 .upJson("{\"\":\"\",\"\":\"\",\"\":\"\",\"\":\"\",\"\":\"\",\"version\":\"1.0.0\"}")
                 .cacheMode(CacheMode.CACHEANDREMOTE)
@@ -205,7 +205,7 @@ public class CustomApiActivity extends AppCompatActivity {
      * 自定义请求返回集合
      */
     public void onTestFive(View view){
-        EasyHttp.get("https://api.91kaiteng.com/v1/user/Frineds")
+        FlyangHttp.get("https://api.91kaiteng.com/v1/user/Frineds")
                 .params("token", "5b305fbeaa331")
                 .params("keyword", "")
                 .execute(new CallBackProxy<MyResult<List<FriendsListBean>>, List<FriendsListBean>>(new SimpleCallBack<List<FriendsListBean>>() {
@@ -223,7 +223,7 @@ public class CustomApiActivity extends AppCompatActivity {
     }
     
     public void onTestSix(View view){
-        EasyHttp.get("http://www.wanandroid.com/article/list/0/json")
+        FlyangHttp.get("http://www.wanandroid.com/article/list/0/json")
                 .execute(new CallBackProxy<TestResultApi10<ArticleBean>, ArticleBean>(new SimpleCallBack<ArticleBean>() {
                     @Override
                     public void onError(ApiException e) {

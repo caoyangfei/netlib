@@ -18,7 +18,7 @@ package com.flyang.netlib.interceptor;
 
 import android.content.Context;
 
-import com.flyang.netlib.utils.Utils;
+import com.flyang.netlib.utils.HttpUtils;
 import com.flyang.util.log.LogUtils;
 
 import java.io.IOException;
@@ -65,7 +65,7 @@ public class CacheInterceptorOffline extends CacheInterceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        if (!Utils.isNetworkAvailable(context)) {
+        if (!HttpUtils.isNetworkAvailable(context)) {
             LogUtils.i(" no network load cache:"+ request.cacheControl().toString());
            /* request = request.newBuilder()
                     .removeHeader("Pragma")

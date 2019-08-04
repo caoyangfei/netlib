@@ -16,11 +16,13 @@
 
 package com.flyang.netlib.body;
 
+
 /**
- * <p>描述：上传进度回调接口</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/10 16:34 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName ProgressResponseCallBack
+ * @date 2019/7/29
+ * ------------- Description -------------
+ * 上传进度回调接口
  */
 public interface ProgressResponseCallBack {
     /**

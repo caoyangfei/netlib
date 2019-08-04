@@ -39,12 +39,13 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 /**
- * <p>描述：Https相关的工具类</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/15 16:55 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName HttpsSslManager
+ * @date 2019/7/25
+ * ------------- Description -------------
+ * 签名证书
  */
-public class HttpsUtils {
+public class HttpsSslManager {
 
     public static class SSLParams {
         public SSLSocketFactory sSLSocketFactory;

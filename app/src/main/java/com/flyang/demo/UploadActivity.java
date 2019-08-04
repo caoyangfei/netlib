@@ -26,7 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
-import com.flyang.netlib.EasyHttp;
+import com.flyang.netlib.FlyangHttp;
 import com.flyang.netlib.body.UIProgressResponseCallBack;
 import com.flyang.netlib.callback.ProgressDialogCallBack;
 import com.flyang.netlib.exception.ApiException;
@@ -83,7 +83,7 @@ public class UploadActivity extends AppCompatActivity {
             }
         };
         File file = new File(Environment.getExternalStorageDirectory().getPath()+"/1.jpg");
-        EasyHttp.post("/v1/user/uploadAvatar")
+        FlyangHttp.post("/v1/user/uploadAvatar")
                 //如果有文件名字可以不用再传Type,会自动解析到是image/*
                 .params("avatar", file, file.getName(), listener)
                 //.params("avatar", file, file.getName(),MediaType.parse("image/*"), listener)
@@ -117,7 +117,7 @@ public class UploadActivity extends AppCompatActivity {
         };
 
         final InputStream inputStream = getResources().getAssets().open("1.jpg");
-        EasyHttp.post("/v1/user/uploadAvatar")
+        FlyangHttp.post("/v1/user/uploadAvatar")
                 .params("avatar", inputStream, "clife.png", listener)
                 .accessToken(true)
                 .timeStamp(true)
@@ -158,7 +158,7 @@ public class UploadActivity extends AppCompatActivity {
         //"streamfile.png" 表示图片名称
         //MediaType.parse("image/*") 类型 表示上传的是图片
         //listener 上传进度回调监听
-        EasyHttp.post("/v1/user/uploadAvatar")
+        FlyangHttp.post("/v1/user/uploadAvatar")
                 //.params("avatar",bytes,"streamfile.png",MediaType.parse("image/*"),listener)
                 //如果有文件名字可以不用再传Type,会自动解析到是image/*
                 .params("avatar", bytes, "streamfile.png", listener)
@@ -191,7 +191,7 @@ public class UploadActivity extends AppCompatActivity {
                 }
             }
         };
-        EasyHttp.post("AppYuFaKu/uploadHeadImg")
+        FlyangHttp.post("AppYuFaKu/uploadHeadImg")
                 .baseUrl("http://www.izaodao.com/Api/")
                 .params("uid", "4811420")
                 .params("auth_key", "21f8d9bcc50c6ac1ae1020ce12f5f5a7")
@@ -224,7 +224,7 @@ public class UploadActivity extends AppCompatActivity {
                 }
             }
         };
-        EasyHttp.post("http://106.14.83.28:89/index.php?s=/Home/user/dj_add_care")
+        FlyangHttp.post("http://106.14.83.28:89/index.php?s=/Home/user/dj_add_care")
                 .params("uid", "1")
                 .params("title", "冷小菜")
                 .params("content", "我发个哈哈哈哈哈哈哈哈")
@@ -260,7 +260,7 @@ public class UploadActivity extends AppCompatActivity {
                 }
             }
         };
-        EasyHttp.post("index.php/Home/index/uploadImg")
+        FlyangHttp.post("index.php/Home/index/uploadImg")
                 .baseUrl("http://106.15.42.39")
                 .params("img", file, file.getName(), mUIProgressResponseCallBack)
                 .execute(new ProgressDialogCallBack<String>(mProgressDialog, true, true) {

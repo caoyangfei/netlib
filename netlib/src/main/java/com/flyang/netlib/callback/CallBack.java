@@ -18,15 +18,16 @@ package com.flyang.netlib.callback;
 
 
 import com.flyang.netlib.exception.ApiException;
-import com.flyang.netlib.utils.Utils;
+import com.flyang.netlib.utils.HttpUtils;
 
 import java.lang.reflect.Type;
 
 /**
- * <p>描述：网络请求回调</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/28 16:54<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName CallBack
+ * @date 2019/7/29
+ * ------------- Description -------------
+ * 网络请求回调
  */
 public abstract class CallBack<T> implements IType<T> {
     public abstract void onStart();
@@ -39,10 +40,10 @@ public abstract class CallBack<T> implements IType<T> {
 
     @Override
     public Type getType() {//获取需要解析的泛型T类型
-        return Utils.findNeedClass(getClass());
+        return HttpUtils.findNeedClass(getClass());
     }
 
     public Type getRawType() {//获取需要解析的泛型T raw类型
-        return Utils.findRawType(getClass());
+        return HttpUtils.findRawType(getClass());
     }
 }

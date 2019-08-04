@@ -22,11 +22,10 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.flyang.netlib.cache.RxCache;
-import com.flyang.netlib.cache.converter.IDiskConverter;
-import com.flyang.netlib.cache.converter.SerializableDiskConverter;
+import com.flyang.netlib.cache.converter.CacheType;
 import com.flyang.netlib.cache.model.CacheMode;
 import com.flyang.netlib.cookie.CookieManger;
-import com.flyang.netlib.https.HttpsUtils;
+import com.flyang.netlib.https.HttpsSslManager;
 import com.flyang.netlib.interceptor.HttpLoggingInterceptor;
 import com.flyang.netlib.model.HttpHeaders;
 import com.flyang.netlib.model.HttpParams;
@@ -36,7 +35,8 @@ import com.flyang.netlib.request.DownloadRequest;
 import com.flyang.netlib.request.GetRequest;
 import com.flyang.netlib.request.PostRequest;
 import com.flyang.netlib.request.PutRequest;
-import com.flyang.netlib.utils.RxUtil;
+import com.flyang.netlib.utils.RxSchedulers;
+import com.flyang.util.app.ApplicationUtils;
 import com.flyang.util.data.PreconditionUtils;
 import com.flyang.util.log.LogUtils;
 
@@ -62,25 +62,28 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 /**
- * <p>描述：网络请求入口类</p>
- * 主要功能：</br>
+ * @author caoyangfei
+ * @ClassName FlyangHttp
+ * @date 2019/7/23
+ * ------------- Description -------------
+ * 网络请求入口类
+ * <br>
+ * 功能：全局设置
  * 1.全局设置超时时间
- * 2.支持请求错误重试相关参数，包括重试次数、重试延时时间</br>
- * 3.支持缓存支持6种缓存模式、时间、大小、缓存目录</br>
- * 4.支持支持GET、post、delete、put请求</br>
- * 5.支持支持自定义请求</br>
- * 6.支持文件上传、下载</br>
- * 7.支持全局公共请求头</br>
- * 8.支持全局公共参数</br>
- * 9.支持okhttp相关参数，包括拦截器</br>
- * 10.支持Retrofit相关参数</br>
- * 11.支持Cookie管理</br>
- * 作者： zhouyou<br>
- * 日期： 2017/4/25 15:25 <br>
- * 版本： v1.0<br>
+ * 2.支持请求错误重试相关参数，包括重试次数、重试延时时间
+ * 3.支持缓存支持6种缓存模式、时间、大小、缓存目录
+ * 4.支持支持GET、post、delete、put请求
+ * 5.支持支持自定义请求
+ * 6.支持文件上传、下载
+ * 7.支持全局公共请求头
+ * 8.支持全局公共参数
+ * 9.支持okhttp相关参数，包括拦截器
+ * 10.支持Retrofit相关参数
+ * 11.支持Cookie管理
+ * </br>
  */
-public final class EasyHttp {
-    private static Application sContext;
+public final class FlyangHttp {
+    private static Application sContext = ApplicationUtils.getApp();
     public static final int DEFAULT_MILLISECONDS = 60000;             //默认的超时时间
     private static final int DEFAULT_RETRY_COUNT = 3;                 //默认重试次数
     private static final int DEFAULT_RETRY_INCREASEDELAY = 0;         //默认重试叠加时间
@@ -88,7 +91,7 @@ public final class EasyHttp {
     public static final int DEFAULT_CACHE_NEVER_EXPIRE = -1;          //缓存过期时间，默认永久缓存
     private Cache mCache = null;                                      //Okhttp缓存对象
     private CacheMode mCacheMode = CacheMode.NO_CACHE;                //缓存类型
-    private long mCacheTime = -1;                                     //缓存时间
+    private int mCacheTime = -1;                                      //缓存时间
     private File mCacheDirectory;                                     //缓存目录
     private long mCacheMaxSize;                                       //缓存大小
     private String mBaseUrl;                                          //全局BaseUrl
@@ -101,9 +104,9 @@ public final class EasyHttp {
     private Retrofit.Builder retrofitBuilder;                         //Retrofit请求Builder
     private RxCache.Builder rxCacheBuilder;                           //RxCache请求的Builder
     private CookieManger cookieJar;                                   //Cookie管理
-    private volatile static EasyHttp singleton = null;
+    private volatile static FlyangHttp singleton = null;
 
-    private EasyHttp() {
+    private FlyangHttp() {
         okHttpClientBuilder = new OkHttpClient.Builder();
         okHttpClientBuilder.hostnameVerifier(new DefaultHostnameVerifier());
         okHttpClientBuilder.connectTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
@@ -112,15 +115,15 @@ public final class EasyHttp {
         retrofitBuilder = new Retrofit.Builder();
         retrofitBuilder.addCallAdapterFactory(RxJava2CallAdapterFactory.create());//增加RxJava2CallAdapterFactory
         rxCacheBuilder = new RxCache.Builder().init(sContext)
-                .diskConverter(new SerializableDiskConverter());      //目前只支持Serializable和Gson缓存其它可以自己扩展
+                .cacheType(CacheType.Serializable);      //目前只支持Serializable和Gson缓存其它可以自己扩展
     }
 
-    public static EasyHttp getInstance() {
+    public static FlyangHttp getInstance() {
         testInitialize();
         if (singleton == null) {
-            synchronized (EasyHttp.class) {
+            synchronized (FlyangHttp.class) {
                 if (singleton == null) {
-                    singleton = new EasyHttp();
+                    singleton = new FlyangHttp();
                 }
             }
         }
@@ -144,7 +147,7 @@ public final class EasyHttp {
 
     private static void testInitialize() {
         if (sContext == null)
-            throw new ExceptionInInitializerError("请先在全局Application中调用 EasyHttp.init() 初始化！");
+            throw new ExceptionInInitializerError("请先在全局Application中调用 FlyangHttp.init() 初始化！");
     }
 
     public static OkHttpClient getOkHttpClient() {
@@ -183,7 +186,7 @@ public final class EasyHttp {
     /**
      * 调试模式,默认打开所有的异常调试
      */
-    public EasyHttp debug(String tag) {
+    public FlyangHttp debug(String tag) {
         debug(tag, true);
         return this;
     }
@@ -193,9 +196,9 @@ public final class EasyHttp {
      * 一般来说,这些异常是由于不标准的数据格式,或者特殊需要主动产生的,
      * 并不是框架错误,如果不想每次打印,这里可以关闭异常显示
      */
-    public EasyHttp debug(String tag, boolean isPrintException) {
-        String tempTag = TextUtils.isEmpty(tag)?"RxEasyHttp_":tag;
-        if(isPrintException){
+    public FlyangHttp debug(String tag, boolean isPrintException) {
+        String tempTag = TextUtils.isEmpty(tag) ? "RxEasyHttp_" : tag;
+        if (isPrintException) {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(tempTag, isPrintException);
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             okHttpClientBuilder.addInterceptor(loggingInterceptor);
@@ -219,7 +222,7 @@ public final class EasyHttp {
     /**
      * https的全局访问规则
      */
-    public EasyHttp setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+    public FlyangHttp setHostnameVerifier(HostnameVerifier hostnameVerifier) {
         okHttpClientBuilder.hostnameVerifier(hostnameVerifier);
         return this;
     }
@@ -227,8 +230,8 @@ public final class EasyHttp {
     /**
      * https的全局自签名证书
      */
-    public EasyHttp setCertificates(InputStream... certificates) {
-        HttpsUtils.SSLParams sslParams = HttpsUtils.getSslSocketFactory(null, null, certificates);
+    public FlyangHttp setCertificates(InputStream... certificates) {
+        HttpsSslManager.SSLParams sslParams = HttpsSslManager.getSslSocketFactory(null, null, certificates);
         okHttpClientBuilder.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager);
         return this;
     }
@@ -236,8 +239,8 @@ public final class EasyHttp {
     /**
      * https双向认证证书
      */
-    public EasyHttp setCertificates(InputStream bksFile, String password, InputStream... certificates) {
-        HttpsUtils.SSLParams sslParams = HttpsUtils.getSslSocketFactory(bksFile, password, certificates);
+    public FlyangHttp setCertificates(InputStream bksFile, String password, InputStream... certificates) {
+        HttpsSslManager.SSLParams sslParams = HttpsSslManager.getSslSocketFactory(bksFile, password, certificates);
         okHttpClientBuilder.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager);
         return this;
     }
@@ -245,7 +248,7 @@ public final class EasyHttp {
     /**
      * 全局cookie存取规则
      */
-    public EasyHttp setCookieStore(CookieManger cookieManager) {
+    public FlyangHttp setCookieStore(CookieManger cookieManager) {
         cookieJar = cookieManager;
         okHttpClientBuilder.cookieJar(cookieJar);
         return this;
@@ -261,7 +264,7 @@ public final class EasyHttp {
     /**
      * 全局读取超时时间
      */
-    public EasyHttp setReadTimeOut(long readTimeOut) {
+    public FlyangHttp setReadTimeOut(long readTimeOut) {
         okHttpClientBuilder.readTimeout(readTimeOut, TimeUnit.MILLISECONDS);
         return this;
     }
@@ -269,7 +272,7 @@ public final class EasyHttp {
     /**
      * 全局写入超时时间
      */
-    public EasyHttp setWriteTimeOut(long writeTimeout) {
+    public FlyangHttp setWriteTimeOut(long writeTimeout) {
         okHttpClientBuilder.writeTimeout(writeTimeout, TimeUnit.MILLISECONDS);
         return this;
     }
@@ -277,7 +280,7 @@ public final class EasyHttp {
     /**
      * 全局连接超时时间
      */
-    public EasyHttp setConnectTimeout(long connectTimeout) {
+    public FlyangHttp setConnectTimeout(long connectTimeout) {
         okHttpClientBuilder.connectTimeout(connectTimeout, TimeUnit.MILLISECONDS);
         return this;
     }
@@ -285,7 +288,7 @@ public final class EasyHttp {
     /**
      * 超时重试次数
      */
-    public EasyHttp setRetryCount(int retryCount) {
+    public FlyangHttp setRetryCount(int retryCount) {
         if (retryCount < 0) throw new IllegalArgumentException("retryCount must > 0");
         mRetryCount = retryCount;
         return this;
@@ -301,7 +304,7 @@ public final class EasyHttp {
     /**
      * 超时重试延迟时间
      */
-    public EasyHttp setRetryDelay(int retryDelay) {
+    public FlyangHttp setRetryDelay(int retryDelay) {
         if (retryDelay < 0) throw new IllegalArgumentException("retryDelay must > 0");
         mRetryDelay = retryDelay;
         return this;
@@ -317,7 +320,7 @@ public final class EasyHttp {
     /**
      * 超时重试延迟叠加时间
      */
-    public EasyHttp setRetryIncreaseDelay(int retryIncreaseDelay) {
+    public FlyangHttp setRetryIncreaseDelay(int retryIncreaseDelay) {
         if (retryIncreaseDelay < 0)
             throw new IllegalArgumentException("retryIncreaseDelay must > 0");
         mRetryIncreaseDelay = retryIncreaseDelay;
@@ -334,7 +337,7 @@ public final class EasyHttp {
     /**
      * 全局的缓存模式
      */
-    public EasyHttp setCacheMode(CacheMode cacheMode) {
+    public FlyangHttp setCacheMode(CacheMode cacheMode) {
         mCacheMode = cacheMode;
         return this;
     }
@@ -349,7 +352,7 @@ public final class EasyHttp {
     /**
      * 全局的缓存过期时间
      */
-    public EasyHttp setCacheTime(long cacheTime) {
+    public FlyangHttp setCacheTime(int cacheTime) {
         if (cacheTime <= -1) cacheTime = DEFAULT_CACHE_NEVER_EXPIRE;
         mCacheTime = cacheTime;
         return this;
@@ -358,14 +361,14 @@ public final class EasyHttp {
     /**
      * 获取全局的缓存过期时间
      */
-    public static long getCacheTime() {
+    public static int getCacheTime() {
         return getInstance().mCacheTime;
     }
 
     /**
      * 全局的缓存大小,默认50M
      */
-    public EasyHttp setCacheMaxSize(long maxSize) {
+    public FlyangHttp setCacheMaxSize(long maxSize) {
         mCacheMaxSize = maxSize;
         return this;
     }
@@ -377,20 +380,11 @@ public final class EasyHttp {
         return getInstance().mCacheMaxSize;
     }
 
-    /**
-     * 全局设置缓存的版本，默认为1，缓存的版本号
-     */
-    public EasyHttp setCacheVersion(int cacheersion) {
-        if (cacheersion < 0)
-            throw new IllegalArgumentException("cacheersion must > 0");
-        rxCacheBuilder.appVersion(cacheersion);
-        return this;
-    }
 
     /**
      * 全局设置缓存的路径，默认是应用包下面的缓存
      */
-    public EasyHttp setCacheDirectory(File directory) {
+    public FlyangHttp setCacheDirectory(File directory) {
         mCacheDirectory = PreconditionUtils.checkNotNull(directory, "directory == null");
         rxCacheBuilder.diskDir(directory);
         return this;
@@ -406,15 +400,15 @@ public final class EasyHttp {
     /**
      * 全局设置缓存的转换器
      */
-    public EasyHttp setCacheDiskConverter(IDiskConverter converter) {
-        rxCacheBuilder.diskConverter(PreconditionUtils.checkNotNull(converter, "converter == null"));
+    public FlyangHttp setCacheCacheType(CacheType cacheType) {
+        rxCacheBuilder.cacheType(PreconditionUtils.checkNotNull(cacheType, "converter == null"));
         return this;
     }
 
     /**
      * 全局设置OkHttp的缓存,默认是3天
      */
-    public EasyHttp setHttpCache(Cache cache) {
+    public FlyangHttp setHttpCache(Cache cache) {
         this.mCache = cache;
         return this;
     }
@@ -429,7 +423,7 @@ public final class EasyHttp {
     /**
      * 添加全局公共请求参数
      */
-    public EasyHttp addCommonParams(HttpParams commonParams) {
+    public FlyangHttp addCommonParams(HttpParams commonParams) {
         if (mCommonParams == null) mCommonParams = new HttpParams();
         mCommonParams.put(commonParams);
         return this;
@@ -452,7 +446,7 @@ public final class EasyHttp {
     /**
      * 添加全局公共请求参数
      */
-    public EasyHttp addCommonHeaders(HttpHeaders commonHeaders) {
+    public FlyangHttp addCommonHeaders(HttpHeaders commonHeaders) {
         if (mCommonHeaders == null) mCommonHeaders = new HttpHeaders();
         mCommonHeaders.put(commonHeaders);
         return this;
@@ -461,7 +455,7 @@ public final class EasyHttp {
     /**
      * 添加全局拦截器
      */
-    public EasyHttp addInterceptor(Interceptor interceptor) {
+    public FlyangHttp addInterceptor(Interceptor interceptor) {
         okHttpClientBuilder.addInterceptor(PreconditionUtils.checkNotNull(interceptor, "interceptor == null"));
         return this;
     }
@@ -469,7 +463,7 @@ public final class EasyHttp {
     /**
      * 添加全局网络拦截器
      */
-    public EasyHttp addNetworkInterceptor(Interceptor interceptor) {
+    public FlyangHttp addNetworkInterceptor(Interceptor interceptor) {
         okHttpClientBuilder.addNetworkInterceptor(PreconditionUtils.checkNotNull(interceptor, "interceptor == null"));
         return this;
     }
@@ -477,7 +471,7 @@ public final class EasyHttp {
     /**
      * 全局设置代理
      */
-    public EasyHttp setOkproxy(Proxy proxy) {
+    public FlyangHttp setOkproxy(Proxy proxy) {
         okHttpClientBuilder.proxy(PreconditionUtils.checkNotNull(proxy, "proxy == null"));
         return this;
     }
@@ -485,7 +479,7 @@ public final class EasyHttp {
     /**
      * 全局设置请求的连接池
      */
-    public EasyHttp setOkconnectionPool(ConnectionPool connectionPool) {
+    public FlyangHttp setOkconnectionPool(ConnectionPool connectionPool) {
         okHttpClientBuilder.connectionPool(PreconditionUtils.checkNotNull(connectionPool, "connectionPool == null"));
         return this;
     }
@@ -493,7 +487,7 @@ public final class EasyHttp {
     /**
      * 全局为Retrofit设置自定义的OkHttpClient
      */
-    public EasyHttp setOkclient(OkHttpClient client) {
+    public FlyangHttp setOkclient(OkHttpClient client) {
         retrofitBuilder.client(PreconditionUtils.checkNotNull(client, "client == null"));
         return this;
     }
@@ -501,7 +495,7 @@ public final class EasyHttp {
     /**
      * 全局设置Converter.Factory,默认GsonConverterFactory.create()
      */
-    public EasyHttp addConverterFactory(Converter.Factory factory) {
+    public FlyangHttp addConverterFactory(Converter.Factory factory) {
         retrofitBuilder.addConverterFactory(PreconditionUtils.checkNotNull(factory, "factory == null"));
         return this;
     }
@@ -509,7 +503,7 @@ public final class EasyHttp {
     /**
      * 全局设置CallAdapter.Factory,默认RxJavaCallAdapterFactory.create()
      */
-    public EasyHttp addCallAdapterFactory(CallAdapter.Factory factory) {
+    public FlyangHttp addCallAdapterFactory(CallAdapter.Factory factory) {
         retrofitBuilder.addCallAdapterFactory(PreconditionUtils.checkNotNull(factory, "factory == null"));
         return this;
     }
@@ -517,7 +511,7 @@ public final class EasyHttp {
     /**
      * 全局设置Retrofit callbackExecutor
      */
-    public EasyHttp setCallbackExecutor(Executor executor) {
+    public FlyangHttp setCallbackExecutor(Executor executor) {
         retrofitBuilder.callbackExecutor(PreconditionUtils.checkNotNull(executor, "executor == null"));
         return this;
     }
@@ -525,7 +519,7 @@ public final class EasyHttp {
     /**
      * 全局设置Retrofit对象Factory
      */
-    public EasyHttp setCallFactory(okhttp3.Call.Factory factory) {
+    public FlyangHttp setCallFactory(okhttp3.Call.Factory factory) {
         retrofitBuilder.callFactory(PreconditionUtils.checkNotNull(factory, "factory == null"));
         return this;
     }
@@ -533,7 +527,7 @@ public final class EasyHttp {
     /**
      * 全局设置baseurl
      */
-    public EasyHttp setBaseUrl(String baseUrl) {
+    public FlyangHttp setBaseUrl(String baseUrl) {
         mBaseUrl = PreconditionUtils.checkNotNull(baseUrl, "baseUrl == null");
         return this;
     }
@@ -597,7 +591,7 @@ public final class EasyHttp {
      */
     @SuppressLint("CheckResult")
     public static void clearCache() {
-        getRxCache().clear().compose(RxUtil.<Boolean>io_main())
+        getRxCache().clear().compose(RxSchedulers.<Boolean>io_main())
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(@NonNull Boolean aBoolean) throws Exception {
@@ -616,7 +610,7 @@ public final class EasyHttp {
      */
     @SuppressLint("CheckResult")
     public static void removeCache(String key) {
-        getRxCache().remove(key).compose(RxUtil.<Boolean>io_main()).subscribe(new Consumer<Boolean>() {
+        getRxCache().remove(key).compose(RxSchedulers.<Boolean>io_main()).subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
                 LogUtils.i("removeCache success!!!");

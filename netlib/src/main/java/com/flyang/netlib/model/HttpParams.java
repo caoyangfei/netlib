@@ -18,12 +18,11 @@ package com.flyang.netlib.model;
 
 
 import com.flyang.netlib.body.ProgressResponseCallBack;
+import com.flyang.netlib.utils.RequestBodyUtils;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.net.FileNameMap;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -87,15 +86,15 @@ public class HttpParams implements Serializable {
     }
 
     public <T extends File> void put(String key, T file, String fileName, ProgressResponseCallBack responseCallBack) {
-        put(key, file, fileName, guessMimeType(fileName), responseCallBack);
+        put(key, file, fileName, RequestBodyUtils.guessMediaType(fileName), responseCallBack);
     }
 
     public <T extends InputStream> void put(String key, T file, String fileName, ProgressResponseCallBack responseCallBack) {
-        put(key, file, fileName, guessMimeType(fileName), responseCallBack);
+        put(key, file, fileName, RequestBodyUtils.guessMediaType(fileName), responseCallBack);
     }
 
     public void put(String key, byte[] bytes, String fileName, ProgressResponseCallBack responseCallBack) {
-        put(key, bytes, fileName, guessMimeType(fileName), responseCallBack);
+        put(key, bytes, fileName, RequestBodyUtils.guessMediaType(fileName), responseCallBack);
     }
 
     public void put(String key, FileWrapper fileWrapper) {
@@ -148,16 +147,6 @@ public class HttpParams implements Serializable {
     public void clear() {
         urlParamsMap.clear();
         fileParamsMap.clear();
-    }
-
-    private MediaType guessMimeType(String path) {
-        FileNameMap fileNameMap = URLConnection.getFileNameMap();
-        path = path.replace("#", "");   //解决文件名中含有#号异常的问题
-        String contentType = fileNameMap.getContentTypeFor(path);
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
-        return MediaType.parse(contentType);
     }
 
     /**

@@ -18,9 +18,9 @@ package com.flyang.netlib.request;
 
 
 import com.flyang.netlib.body.ProgressResponseCallBack;
-import com.flyang.netlib.body.RequestBodyUtils;
 import com.flyang.netlib.body.UploadProgressRequestBody;
 import com.flyang.netlib.model.HttpParams;
+import com.flyang.netlib.utils.RequestBodyUtils;
 import com.flyang.util.data.PreconditionUtils;
 
 import java.io.File;
@@ -38,15 +38,20 @@ import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 
 /**
- * <p>描述：body请求的基类</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/22 17:13 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName BaseBodyRequest
+ * @date 2019/7/23
+ * ------------- Description -------------
+ * body请求的基类
+ * <p>
+ * {@link DeleteRequest
+ * @link PostRequest
+ * @link PutRequest}
  */
-@SuppressWarnings(value={"unchecked", "deprecation"})
+@SuppressWarnings(value = {"unchecked", "deprecation"})
 public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseRequest<R> {
     protected String string;                                   //上传的文本内容
-    protected MediaType mediaType;                                   //上传的文本内容
+    protected MediaType mediaType;                             //上传的文本内容
     protected String json;                                     //上传的Json
     protected byte[] bs;                                       //上传的字节数据
     protected Object object;                                   //上传的对象
@@ -185,7 +190,7 @@ public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseReq
         List<MultipartBody.Part> parts = new ArrayList<>();
         //拼接参数键值对
         for (Map.Entry<String, String> mapEntry : params.urlParamsMap.entrySet()) {
-            parts.add(MultipartBody.Part.createFormData(mapEntry.getKey(),mapEntry.getValue()));
+            parts.add(MultipartBody.Part.createFormData(mapEntry.getKey(), mapEntry.getValue()));
         }
         //拼接文件
         for (Map.Entry<String, List<HttpParams.FileWrapper>> entry : params.fileParamsMap.entrySet()) {
@@ -219,7 +224,6 @@ public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseReq
 
     //文件方式
     private MultipartBody.Part addFile(String key, HttpParams.FileWrapper fileWrapper) {
-        //MediaType.parse("application/octet-stream", file)
         RequestBody requestBody = getRequestBody(fileWrapper);
         PreconditionUtils.checkNotNull(requestBody, "requestBody==null fileWrapper.file must is File/InputStream/byte[]");
         //包装RequestBody，在其内部实现上传进度监听
@@ -236,12 +240,11 @@ public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseReq
     private RequestBody getRequestBody(HttpParams.FileWrapper fileWrapper) {
         RequestBody requestBody = null;
         if (fileWrapper.file instanceof File) {
-            requestBody = RequestBody.create(fileWrapper.contentType, (File) fileWrapper.file);
+            requestBody = RequestBodyUtils.createFile(fileWrapper.contentType, (File) fileWrapper.file);
         } else if (fileWrapper.file instanceof InputStream) {
-            //requestBody = RequestBodyUtils.create(RequestBodyUtils.MEDIA_TYPE_MARKDOWN, (InputStream) fileWrapper.file);
             requestBody = RequestBodyUtils.create(fileWrapper.contentType, (InputStream) fileWrapper.file);
         } else if (fileWrapper.file instanceof byte[]) {
-            requestBody = RequestBody.create(fileWrapper.contentType, (byte[]) fileWrapper.file);
+            requestBody = RequestBodyUtils.createByte(fileWrapper.contentType, (byte[]) fileWrapper.file);
         }
         return requestBody;
     }

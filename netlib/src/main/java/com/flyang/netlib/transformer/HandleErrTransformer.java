@@ -25,10 +25,11 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
 
 /**
- * <p>描述：错误转换Transformer</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/15 17:09 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName HandleErrTransformer
+ * @date 2019/7/29
+ * ------------- Description -------------
+ * 错误转换Transformer
  */
 public class HandleErrTransformer<T> implements FlowableTransformer<T, T> {
     @Override

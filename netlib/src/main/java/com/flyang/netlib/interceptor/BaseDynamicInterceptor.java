@@ -17,7 +17,7 @@
 package com.flyang.netlib.interceptor;
 
 
-import com.flyang.netlib.utils.HttpUtil;
+import com.flyang.netlib.utils.HttpUtils;
 import com.flyang.util.data.PreconditionUtils;
 import com.flyang.util.log.LogUtils;
 
@@ -39,21 +39,25 @@ import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.flyang.netlib.utils.HttpUtil.UTF8;
+import static com.flyang.netlib.utils.HttpUtils.UTF8;
 
 
 /**
- * <p>描述：动态拦截器</p>
- * 主要功能是针对参数：<br>
- * 1.可以获取到全局公共参数和局部参数，统一进行签名sign<br>
- * 2.可以自定义动态添加参数，类似时间戳timestamp是动态变化的，token（登录了才有），参数签名等<br>
- * 3.参数值是经过UTF-8编码的<br>
- * 4.默认提供询问是否动态签名（签名需要自定义），动态添加时间戳等<br>
- * 作者： zhouyou<br>
- * 日期： 2017/5/3 15:32 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName BaseDynamicInterceptor
+ * @date 2019/7/23
+ * ------------- Description -------------
+ * 动态拦截器
+ * <p>
+ * <br>
+ * 主要功能是针对参数：
+ * 1.可以获取到全局公共参数和局部参数，统一进行签名sign
+ * 2.可以自定义动态添加参数，类似时间戳timestamp是动态变化的，token（登录了才有），参数签名等
+ * 3.参数值是经过UTF-8编码的
+ * 4.默认提供询问是否动态签名（签名需要自定义），动态添加时间戳等
+ * </br>
  */
-@SuppressWarnings(value={"unchecked", "deprecation"})
+@SuppressWarnings(value = {"unchecked", "deprecation"})
 public abstract class BaseDynamicInterceptor<R extends BaseDynamicInterceptor> implements Interceptor {
     private HttpUrl httpUrl;
 
@@ -160,7 +164,7 @@ public abstract class BaseDynamicInterceptor<R extends BaseDynamicInterceptor> i
                 bodyBuilder.addEncoded(entry.getKey(), value);
                 //Logc.i(entry.getKey() + " -> " + value);
             }
-            String url = HttpUtil.createUrlFromParams(httpUrl.url().toString(), newParams);
+            String url = HttpUtils.createUrlFromParams(httpUrl.url().toString(), newParams);
             LogUtils.i(url);
             formBody = bodyBuilder.build();
             request = request.newBuilder().post(formBody).build();

@@ -43,7 +43,7 @@ import com.flyang.demo.model.LoginInfo;
 import com.flyang.demo.token.TokenManager;
 import com.flyang.demo.utils.MD5;
 import com.flyang.demo.utils.Validator;
-import com.flyang.netlib.EasyHttp;
+import com.flyang.netlib.FlyangHttp;
 import com.flyang.netlib.callback.ProgressDialogCallBack;
 import com.flyang.netlib.exception.ApiException;
 import com.flyang.netlib.subsciber.IProgressDialog;
@@ -143,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
                 return dialog;
             }
         };
-        EasyHttp.post(ComParamContact.Login.PATH)
+        FlyangHttp.post(ComParamContact.Login.PATH)
                 .params(ComParamContact.Login.ACCOUNT, name)
                 .params(ComParamContact.Login.PASSWORD, MD5.encrypt4login(pass, AppConstant.APP_SECRET))
                 .sign(true)

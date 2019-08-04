@@ -21,88 +21,76 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Looper;
 
-import com.flyang.util.data.PreconditionUtils;
+import com.flyang.util.log.LogUtils;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.RequestBody;
 
 /**
- * <p>描述：工具类</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/20 10:33<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName HttpUtil
+ * @date 2019/7/23
+ * ------------- Description -------------
+ * http工具类
  */
-public class Utils {
+public class HttpUtils {
+
+    public static final Charset UTF8 = Charset.forName("UTF-8");
+
+    /**
+     * URL拼接参数
+     *
+     * @param url
+     * @param params
+     * @return
+     */
+    public static String createUrlFromParams(String url, Map<String, String> params) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append(url);
+            if (url.indexOf('&') > 0 || url.indexOf('?') > 0) sb.append("&");
+            else sb.append("?");
+            for (Map.Entry<String, String> urlParams : params.entrySet()) {
+                String urlValues = urlParams.getValue();
+                //对参数进行 utf-8 编码,防止头信息传中文
+                //String urlValue = URLEncoder.encode(urlValues, UTF8.name());
+                sb.append(urlParams.getKey()).append("=").append(urlValues).append("&");
+            }
+            sb.deleteCharAt(sb.length() - 1);
+            return sb.toString();
+        } catch (Exception e) {
+            LogUtils.e(e.getMessage());
+        }
+        return url;
+    }
+
+    /**
+     * 检查是不是主线程
+     *
+     * @return
+     */
     public static boolean checkMain() {
         return Thread.currentThread() == Looper.getMainLooper().getThread();
     }
 
-    public static RequestBody createJson(String jsonString) {
-        PreconditionUtils.checkNotNull(jsonString, "json not null!");
-        return RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), jsonString);
-    }
-
     /**
-     * @param name
-     * @return
-     */
-    public static RequestBody createFile(String name) {
-        PreconditionUtils.checkNotNull(name, "name not null!");
-        return RequestBody.create(okhttp3.MediaType.parse("multipart/form-data; charset=utf-8"), name);
-    }
-
-    /**
-     * @param file
-     * @return
-     */
-    public static RequestBody createFile(File file) {
-        PreconditionUtils.checkNotNull(file, "file not null!");
-        return RequestBody.create(okhttp3.MediaType.parse("multipart/form-data; charset=utf-8"), file);
-    }
-
-    /**
-     * @param file
-     * @return
-     */
-    public static RequestBody createImage(File file) {
-        PreconditionUtils.checkNotNull(file, "file not null!");
-        return RequestBody.create(okhttp3.MediaType.parse("image/jpg; charset=utf-8"), file);
-    }
-
-    public static void close(Closeable close) {
-        if (close != null) {
-            try {
-                closeThrowException(close);
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
-    public static void closeThrowException(Closeable close) throws IOException {
-        if (close != null) {
-            close.close();
-        }
-    }
-
-    /**
-     * find the type by interfaces
+     * 按接口获取类型
      *
      * @param cls
      * @param <R>
      * @return
      */
     public static <R> Type findNeedType(Class<R> cls) {
-        List<Type> typeList = Utils.getMethodTypes(cls);
+        List<Type> typeList = getMethodTypes(cls);
         if (typeList == null || typeList.isEmpty()) {
             return RequestBody.class;
         }
@@ -110,7 +98,11 @@ public class Utils {
     }
 
     /**
-     * MethodHandler
+     * 获取接口类型集合
+     *
+     * @param cls
+     * @param <T>
+     * @return
      */
     public static <T> List<Type> getMethodTypes(Class<T> cls) {
         Type typeOri = cls.getGenericSuperclass();
@@ -130,44 +122,56 @@ public class Utils {
         return needtypes;
     }
 
+    /**
+     * @param type
+     * @param i
+     * @return
+     */
     public static Class getClass(Type type, int i) {
-        if (type instanceof ParameterizedType) { // 处理泛型类型     
+        if (type instanceof ParameterizedType) { // 处理泛型类型
             return getGenericClass((ParameterizedType) type, i);
         } else if (type instanceof TypeVariable) {
-            return getClass(((TypeVariable) type).getBounds()[0], 0); // 处理泛型擦拭对象     
-        } else {// class本身也是type，强制转型     
+            return getClass(((TypeVariable) type).getBounds()[0], 0); // 处理泛型擦拭对象
+        } else {// class本身也是type，强制转型
             return (Class) type;
         }
     }
 
     public static Type getType(Type type, int i) {
-        if (type instanceof ParameterizedType) { // 处理泛型类型     
+        if (type instanceof ParameterizedType) { // 处理泛型类型
             return getGenericType((ParameterizedType) type, i);
         } else if (type instanceof TypeVariable) {
-            return getType(((TypeVariable) type).getBounds()[0], 0); // 处理泛型擦拭对象     
-        } else {// class本身也是type，强制转型     
+            return getType(((TypeVariable) type).getBounds()[0], 0); // 处理泛型擦拭对象
+        } else {// class本身也是type，强制转型
             return type;
         }
     }
 
     public static Type getParameterizedType(Type type, int i) {
-        if (type instanceof ParameterizedType) { // 处理泛型类型    
+        if (type instanceof ParameterizedType) { // 处理泛型类型
             Type genericType = ((ParameterizedType) type).getActualTypeArguments()[i];
             return genericType;
         } else if (type instanceof TypeVariable) {
-            return getType(((TypeVariable) type).getBounds()[0], 0); // 处理泛型擦拭对象     
-        } else {// class本身也是type，强制转型     
+            return getType(((TypeVariable) type).getBounds()[0], 0); // 处理泛型擦拭对象
+        } else {// class本身也是type，强制转型
             return type;
         }
     }
 
+    /**
+     * 获取范型Class
+     *
+     * @param parameterizedType
+     * @param i
+     * @return
+     */
     public static Class getGenericClass(ParameterizedType parameterizedType, int i) {
         Type genericClass = parameterizedType.getActualTypeArguments()[i];
-        if (genericClass instanceof ParameterizedType) { // 处理多级泛型     
+        if (genericClass instanceof ParameterizedType) { // 处理多级泛型
             return (Class) ((ParameterizedType) genericClass).getRawType();
-        } else if (genericClass instanceof GenericArrayType) { // 处理数组泛型     
+        } else if (genericClass instanceof GenericArrayType) { // 处理数组泛型
             return (Class) ((GenericArrayType) genericClass).getGenericComponentType();
-        } else if (genericClass instanceof TypeVariable) { // 处理泛型擦拭对象     
+        } else if (genericClass instanceof TypeVariable) { // 处理泛型擦拭对象
             return getClass(((TypeVariable) genericClass).getBounds()[0], 0);
         } else {
             return (Class) genericClass;
@@ -176,11 +180,11 @@ public class Utils {
 
     public static Type getGenericType(ParameterizedType parameterizedType, int i) {
         Type genericType = parameterizedType.getActualTypeArguments()[i];
-        if (genericType instanceof ParameterizedType) { // 处理多级泛型     
+        if (genericType instanceof ParameterizedType) { // 处理多级泛型
             return ((ParameterizedType) genericType).getRawType();
-        } else if (genericType instanceof GenericArrayType) { // 处理数组泛型     
+        } else if (genericType instanceof GenericArrayType) { // 处理数组泛型
             return ((GenericArrayType) genericType).getGenericComponentType();
-        } else if (genericType instanceof TypeVariable) { // 处理泛型擦拭对象     
+        } else if (genericType instanceof TypeVariable) { // 处理泛型擦拭对象
             return getClass(((TypeVariable) genericType).getBounds()[0], 0);
         } else {
             return genericType;

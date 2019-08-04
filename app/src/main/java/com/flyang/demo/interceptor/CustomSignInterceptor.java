@@ -29,7 +29,7 @@ import java.net.URLDecoder;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static com.flyang.netlib.utils.HttpUtil.UTF8;
+import static com.flyang.netlib.utils.HttpUtils.UTF8;
 
 
 /**

@@ -30,12 +30,14 @@ import okio.Okio;
 import okio.Sink;
 
 /**
- * <p>描述：上传请求体</p>
- * 1.具有上传进度回调通知功能<br>
- * 2.防止频繁回调，上层无用的刷新<br>
- * 作者： zhouyou<br>
- * 日期： 2016/12/23 16:38 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName UploadProgressRequestBody
+ * @date 2019/7/29
+ * ------------- Description -------------
+ * 上传请求
+ * <p>
+ * 1.具有上传进度回调通知功能
+ * 2.防止频繁回调，上层无用的刷新
  */
 public class UploadProgressRequestBody extends RequestBody {
 

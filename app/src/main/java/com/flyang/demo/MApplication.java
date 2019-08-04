@@ -22,8 +22,8 @@ import android.content.Context;
 import com.flyang.demo.constant.AppConstant;
 import com.flyang.demo.interceptor.CustomSignInterceptor;
 import com.flyang.demo.utils.SystemInfoUtils;
-import com.flyang.netlib.EasyHttp;
-import com.flyang.netlib.cache.converter.SerializableDiskConverter;
+import com.flyang.netlib.FlyangHttp;
+import com.flyang.netlib.cache.converter.CacheType;
 import com.flyang.netlib.model.HttpHeaders;
 import com.flyang.netlib.model.HttpParams;
 import com.flyang.util.log.LogUtils;
@@ -39,18 +39,18 @@ public class MApplication extends Application {
     public void onCreate() {
         super.onCreate();
         app = this;
-        EasyHttp.init(this);
+        FlyangHttp.init(this);
 
         //这里涉及到安全我把url去掉了，demo都是调试通的
         String Url = "http://www.xxx.com";
-        EasyHttp.getInstance().setBaseUrl(Url);
+        FlyangHttp.getInstance().setBaseUrl(Url);
         //设置请求头
         HttpHeaders headers = new HttpHeaders();
         headers.put("User-Agent", SystemInfoUtils.getUserAgent(this, AppConstant.APPID));
         //设置请求参数
         HttpParams params = new HttpParams();
         params.put("appId", AppConstant.APPID);
-        EasyHttp.getInstance()
+        FlyangHttp.getInstance()
                 .debug("RxEasyHttp", BuildConfig.DEBUG)
                 .setReadTimeOut(60 * 1000)
                 .setWriteTimeOut(60 * 1000)
@@ -59,9 +59,8 @@ public class MApplication extends Application {
                 .setRetryDelay(500)//每次延时500ms重试
                 .setRetryIncreaseDelay(500)//每次延时叠加500ms
                 .setBaseUrl(Url)
-                .setCacheDiskConverter(new SerializableDiskConverter())//默认缓存使用序列化转化
+                .setCacheCacheType(CacheType.Serializable)//默认缓存使用序列化转化
                 .setCacheMaxSize(50 * 1024 * 1024)//设置缓存大小为50M
-                .setCacheVersion(1)//缓存版本为1
                 .setHostnameVerifier(new UnSafeHostnameVerifier(Url))//全局访问规则
                 .setCertificates()//信任所有证书
                 //.addConverterFactory(GsonConverterFactory.create(gson))//本框架没有采用Retrofit的Gson转化，所以不用配置

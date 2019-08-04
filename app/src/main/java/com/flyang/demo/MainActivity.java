@@ -38,7 +38,7 @@ import com.flyang.demo.model.SectionItem;
 import com.flyang.demo.model.SkinTestResult;
 import com.flyang.demo.utils.FileUtils;
 import com.flyang.demo.utils.MD5;
-import com.flyang.netlib.EasyHttp;
+import com.flyang.netlib.FlyangHttp;
 import com.flyang.netlib.callback.CallBack;
 import com.flyang.netlib.callback.CallClazzProxy;
 import com.flyang.netlib.callback.ProgressDialogCallBack;
@@ -49,7 +49,7 @@ import com.flyang.netlib.request.CustomRequest;
 import com.flyang.netlib.subsciber.BaseSubscriber;
 import com.flyang.netlib.subsciber.IProgressDialog;
 import com.flyang.netlib.subsciber.ProgressSubscriber;
-import com.flyang.netlib.utils.RxUtil;
+import com.flyang.netlib.utils.RxSchedulers;
 import com.flyang.util.log.LogUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             public void subscribe(FlowableEmitter<String> emitter) throws Exception {
                 FileUtils.getFileFromAsset(MainActivity.this, "1.jpg");
             }
-        }, BackpressureStrategy.BUFFER).compose(RxUtil.<String>io_main()).subscribe(new Consumer<String>() {
+        }, BackpressureStrategy.BUFFER).compose(RxSchedulers.<String>io_main()).subscribe(new Consumer<String>() {
             @Override
             public void accept(@NonNull String s) throws Exception {
 
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onGet(View view) {
-        EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .readTimeOut(30 * 1000)//局部定义读超时 ,可以不用定义
                 .writeTimeOut(30 * 1000)
                 .connectTimeout(30 * 1000)
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
      * post请求
      */
     public void onPost(View view) {
-        EasyHttp.post("v1/app/chairdressing/news/favorite")
+        FlyangHttp.post("v1/app/chairdressing/news/favorite")
                 .params("newsId", "552")
                 .accessToken(true)
                 .timeStamp(true)
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         apiInfoBean.setApiKey("12345");
         apiInfoBean.setApiName("zhou-you");
         apiInfo.setApiInfo(apiInfoBean);
-        EasyHttp.post("client/shipper/getCarType")
+        FlyangHttp.post("client/shipper/getCarType")
                 .baseUrl("http://WuXiaolong.me/")
                 //如果是body的方式提交object，必须要加GsonConverterFactory.create()
                 //他的本质就是把object转成json给到服务器，所以必须要加Gson Converter
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
      * post提交json
      */
     public void onPostJson(View view) {
-        EasyHttp.post("api/")
+        FlyangHttp.post("api/")
                 .baseUrl("http://xxxx.xx.xx/dlydbg/")
                 .upJson("{\"\":\"\",\"\":\"\",\"\":\"\",\"swry_dm\":\"127053096\",\"version\":\"1.0.0\"}")
                 //这里不想解析，简单只是为了做演示 直接返回String
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void onPut(View view) {
         //http://api.youdui.org/api/v1/cart/1500996?count=4
-        EasyHttp.put("http://api.youdui.org/api/v1/cart/1500996")
+        FlyangHttp.put("http://api.youdui.org/api/v1/cart/1500996")
                 .removeParam("appId")
                 .params("count", "4")
                 .execute(new SimpleCallBack<String>() {
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDelete(View view) {
         //测试请用自己的URL，这里为了安全去掉了地址
         //这里采用的是delete请求提交json的方式，可以选择其他需要的方式
-        EasyHttp.delete("https://www.xxx.com/v1/user/Frined")
+        FlyangHttp.delete("https://www.xxx.com/v1/user/Frined")
                 .upJson("{\"uid\":\"10008\",\"token\":\"5b305fbeaa331\"}\n")
                 .execute(new SimpleCallBack<String>() {
                     @Override
@@ -274,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void onCallBack(View view) {
         //支持CallBack<SkinTestResult>、CallBack<String>回调
-        Disposable mDisposable = EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        Disposable mDisposable = FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .timeStamp(true)
                 .execute(new CallBack<SkinTestResult>() {
                     @Override
@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void onSimpleCallBack(View view) {
         //支持SimpleCallBack<SkinTestResult>、SimpleCallBack<String>回调
-        EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .timeStamp(true)
                 .execute(new SimpleCallBack<SkinTestResult>() {
                     @Override
@@ -334,7 +334,7 @@ public class MainActivity extends AppCompatActivity {
      * 带有加载进度框的回调，支持是否可以取消对话框，取消对话框时可以自动取消网络请求，不需要再手动取消。
      */
     public void onProgressDialogCallBack(View view) {
-        EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .timeStamp(true)
                 .execute(new ProgressDialogCallBack<SkinTestResult>(mProgressDialog, true, true) {
                     @Override
@@ -355,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
      * 在需要取消网络请求的地方调用,一般在onDestroy()中
      */
     public void onSubscription(View view) {
-        Disposable disposable = EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        Disposable disposable = FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .timeStamp(true)
                 .execute(new SimpleCallBack<SkinTestResult>() {
 
@@ -379,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
      * 本例不讲怎么结合简单订阅下输出结果，结合需要看具体场景
      */
     public void onObservable(View view) {
-        Flowable<SkinTestResult> flowable = EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        Flowable<SkinTestResult> flowable = FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .timeStamp(true)
                 .execute(SkinTestResult.class);
 
@@ -400,7 +400,7 @@ public class MainActivity extends AppCompatActivity {
      * 带有进度框的订阅者，对话框消失，可以自动取消掉网络请求
      */
     public void onProgressSubscriber(View view) {
-        Flowable<SkinTestResult> flowable = EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        Flowable<SkinTestResult> flowable = FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .timeStamp(true)
                 .execute(SkinTestResult.class);
 
@@ -443,7 +443,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                         .readTimeOut(30 * 1000)//局部定义读超时
                         .writeTimeOut(30 * 1000)
                         .connectTimeout(30 * 1000)
@@ -476,7 +476,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 LogUtils.i("====同步请求==========");
-                EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                         .readTimeOut(30 * 1000)//局部定义读超时
                         .writeTimeOut(30 * 1000)
                         .connectTimeout(30 * 1000)
@@ -523,7 +523,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCustomCall(View view) {
         final String name = "18688994275";
         final String pass = "123456";
-        final CustomRequest request = EasyHttp.custom().addConverterFactory(GsonConverterFactory.create(new Gson()))
+        final CustomRequest request = FlyangHttp.custom().addConverterFactory(GsonConverterFactory.create(new Gson()))
                 .sign(true)
                 .timeStamp(true)
                 .params(ComParamContact.Login.ACCOUNT, name)
@@ -549,7 +549,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCustomApiCall(View view) {
         final String name = "18688994275";
         final String pass = "123456";
-        final CustomRequest request = EasyHttp.custom()
+        final CustomRequest request = FlyangHttp.custom()
                 .addConverterFactory(GsonConverterFactory.create(new Gson()))
                 .sign(true)
                 .timeStamp(true)
@@ -610,7 +610,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
         //方式三：
-        Flowable<List<SectionItem>> flowable = EasyHttp.get("http://news-at.zhihu.com/api/3/sections")
+        Flowable<List<SectionItem>> flowable = FlyangHttp.get("http://news-at.zhihu.com/api/3/sections")
                 .execute(new CallClazzProxy<TestApiResult5<List<SectionItem>>, List<SectionItem>>(new TypeToken<List<SectionItem>>() {
                 }.getType()) {
                 });

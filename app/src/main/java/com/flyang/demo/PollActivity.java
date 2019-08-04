@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import com.flyang.demo.customapi.test6.Content;
 import com.flyang.demo.customapi.test6.TestApiResult6;
-import com.flyang.netlib.EasyHttp;
+import com.flyang.netlib.FlyangHttp;
 import com.flyang.netlib.callback.CallClazzProxy;
 import com.flyang.netlib.exception.ApiException;
 import com.flyang.netlib.subsciber.BaseSubscriber;
@@ -53,7 +53,7 @@ public class PollActivity extends AppCompatActivity {
                 Flowable<Content> contentFlowable = Flowable.timer(5, TimeUnit.SECONDS).flatMap(new Function<Long, Publisher<Content>>() {
                     @Override
                     public Publisher<Content> apply(Long aLong) throws Exception {
-                        Flowable<Content> contentFlowable = EasyHttp.get("/ajax.php")
+                        Flowable<Content> contentFlowable = FlyangHttp.get("/ajax.php")
                                 .baseUrl("http://fy.iciba.com")
                                 .params("a", "fy")
                                 .params("f", "auto")
@@ -98,7 +98,7 @@ public class PollActivity extends AppCompatActivity {
         ifdisposable = Flowable.interval(0, 5, TimeUnit.SECONDS).flatMap(new Function<Long, Publisher<Content>>() {
             @Override
             public Publisher<Content> apply(Long aLong) throws Exception {
-                return EasyHttp.get("/ajax.php")
+                return FlyangHttp.get("/ajax.php")
                         .baseUrl("http://fy.iciba.com")
                         .params("a", "fy")
                         .params("f", "auto")
@@ -135,7 +135,7 @@ public class PollActivity extends AppCompatActivity {
         filterdisposable = Flowable.interval(0, 5, TimeUnit.SECONDS).flatMap(new Function<Long, Publisher<Content>>() {
             @Override
             public Publisher<Content> apply(Long aLong) throws Exception {
-                return EasyHttp.get("/ajax.php")
+                return FlyangHttp.get("/ajax.php")
                         .baseUrl("http://fy.iciba.com")
                         .params("a", "fy")
                         .params("f", "auto")
@@ -168,10 +168,10 @@ public class PollActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        EasyHttp.cancelSubscription(polldisposable);
-        EasyHttp.cancelSubscription(countdisposable);
-        EasyHttp.cancelSubscription(ifdisposable);
-        EasyHttp.cancelSubscription(filterdisposable);
+        FlyangHttp.cancelSubscription(polldisposable);
+        FlyangHttp.cancelSubscription(countdisposable);
+        FlyangHttp.cancelSubscription(ifdisposable);
+        FlyangHttp.cancelSubscription(filterdisposable);
         super.onDestroy();
     }
 

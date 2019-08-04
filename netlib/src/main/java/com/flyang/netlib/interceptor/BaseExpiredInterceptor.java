@@ -30,7 +30,7 @@ import okhttp3.ResponseBody;
 import okio.Buffer;
 import okio.BufferedSource;
 
-import static com.flyang.netlib.utils.HttpUtil.UTF8;
+import static com.flyang.netlib.utils.HttpUtils.UTF8;
 
 
 /**

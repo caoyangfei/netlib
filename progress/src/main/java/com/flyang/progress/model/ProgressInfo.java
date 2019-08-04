@@ -18,22 +18,13 @@ package com.flyang.progress.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * ================================================
- * {@link ProgressInfo} 用于存储与进度有关的变量,已实现 {@link Parcelable}
- * <p>
- * Created by JessYan on 07/06/2017 12:09
- * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
- * <a href="https://github.com/JessYanCoding">Follow me</a>
- * ================================================
- */
 
 /**
  * @author caoyangfei
  * @ClassName ProgressInfo
  * @date 2019/7/20
  * ------------- Description -------------
- * 进度
+ * 进度有关的变量,已实现 {@link Parcelable}
  */
 public class ProgressInfo implements Parcelable {
     private long currentBytes; //当前已上传或下载的总长度

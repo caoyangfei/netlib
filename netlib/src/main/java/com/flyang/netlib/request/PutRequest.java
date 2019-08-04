@@ -25,7 +25,7 @@ import com.flyang.netlib.func.CacheResultFunc;
 import com.flyang.netlib.func.RetryExceptionFunc;
 import com.flyang.netlib.model.ApiResult;
 import com.flyang.netlib.subsciber.CallBackSubsciber;
-import com.flyang.netlib.utils.RxUtil;
+import com.flyang.netlib.utils.RxSchedulers;
 import com.google.gson.reflect.TypeToken;
 
 import org.reactivestreams.Publisher;
@@ -38,11 +38,13 @@ import io.reactivex.disposables.Disposable;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
+
 /**
- * <p>描述：Put请求</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/22 16:30 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName PutRequest
+ * @date 2019/7/23
+ * ------------- Description -------------
+ * Put请求
  */
 public class PutRequest extends BaseBodyRequest<PutRequest> {
     public PutRequest(String url) {
@@ -63,7 +65,7 @@ public class PutRequest extends BaseBodyRequest<PutRequest> {
     public <T> Flowable<T> execute(CallClazzProxy<? extends ApiResult<T>, T> proxy) {
         return build().generateRequest()
                 .map(new ApiResultFunc(proxy.getType()))
-                .compose(isSyncRequest ? RxUtil._main() : RxUtil._io_main())
+                .compose(isSyncRequest ? RxSchedulers._main() : RxSchedulers._io_main())
                 .compose(rxCache.transformer(cacheMode, proxy.getCallType()))
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay))
                 .compose(new FlowableTransformer() {
@@ -98,7 +100,7 @@ public class PutRequest extends BaseBodyRequest<PutRequest> {
     private <T> Flowable<CacheResult<T>> toObservable(Flowable flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
         return flowable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
         }.getType()))
-                .compose(isSyncRequest ? RxUtil._main() : RxUtil._io_main())
+                .compose(isSyncRequest ? RxSchedulers._main() : RxSchedulers._io_main())
                 .compose(rxCache.transformer(cacheMode, proxy.getCallBack().getType()))
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
     }

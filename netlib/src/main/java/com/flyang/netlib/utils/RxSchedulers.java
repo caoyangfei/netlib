@@ -35,18 +35,22 @@ import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author caoyangfei
- * @ClassName RxUtil
+ * @ClassName RxSchedulers
  * @date 2019/7/22
  * ------------- Description -------------
  * RXjava线程工具类
  */
-public class RxUtil {
+public class RxSchedulers {
 
+    /**
+     * @param <T>
+     * @return
+     */
     public static <T> FlowableTransformer<T, T> io_main() {
         return new FlowableTransformer<T, T>() {
             @Override
-            public Publisher<T> apply(Flowable<T> upstream) {
-                return upstream
+            public Publisher<T> apply(Flowable<T> flowable) {
+                return flowable
                         .subscribeOn(Schedulers.io())
                         .unsubscribeOn(Schedulers.io())
                         .doOnSubscribe(new Consumer<Subscription>() {
@@ -66,12 +70,18 @@ public class RxUtil {
         };
     }
 
+    /**
+     * 切换到I/O线程
+     *
+     * @param <T>
+     * @return
+     */
     public static <T> FlowableTransformer<ApiResult<T>, T> _io_main() {
         return new FlowableTransformer<ApiResult<T>, T>() {
 
             @Override
-            public Publisher<T> apply(Flowable<ApiResult<T>> upstream) {
-                return upstream
+            public Publisher<T> apply(Flowable<ApiResult<T>> flowable) {
+                return flowable
                         .subscribeOn(Schedulers.io())
                         .unsubscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -94,14 +104,19 @@ public class RxUtil {
         };
     }
 
-
+    /**
+     * 切换到主线程
+     *
+     * @param <T>
+     * @return
+     */
     public static <T> FlowableTransformer<ApiResult<T>, T> _main() {
         return new FlowableTransformer<ApiResult<T>, T>() {
 
             @Override
-            public Publisher<T> apply(Flowable<ApiResult<T>> upstream) {
-                return upstream
-                        //.observeOn(AndroidSchedulers.mainThread())
+            public Publisher<T> apply(Flowable<ApiResult<T>> flowable) {
+                return flowable
+                        .observeOn(AndroidSchedulers.mainThread())
                         .map(new HandleFuc<T>())
                         .doOnSubscribe(new Consumer<Subscription>() {
                             @Override

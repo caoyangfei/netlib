@@ -20,14 +20,16 @@ import android.content.Context;
 import android.os.Environment;
 import android.os.StatFs;
 
-import com.flyang.netlib.cache.converter.IDiskConverter;
-import com.flyang.netlib.cache.converter.SerializableDiskConverter;
-import com.flyang.netlib.cache.core.CacheCore;
-import com.flyang.netlib.cache.core.LruDiskCache;
+import com.flyang.netlib.cache.converter.CacheFactory;
+import com.flyang.netlib.cache.converter.CacheType;
 import com.flyang.netlib.cache.model.CacheMode;
 import com.flyang.netlib.cache.model.CacheResult;
 import com.flyang.netlib.cache.stategy.IStrategy;
-import com.flyang.netlib.utils.Utils;
+import com.flyang.netlib.utils.HttpUtils;
+import com.flyang.util.cache.CacheDiskUtils;
+import com.flyang.util.cache.CacheDoubleStaticUtils;
+import com.flyang.util.cache.CacheDoubleUtils;
+import com.flyang.util.cache.CacheMemoryUtils;
 import com.flyang.util.data.PreconditionUtils;
 import com.flyang.util.log.LogUtils;
 
@@ -45,46 +47,36 @@ import io.reactivex.FlowableTransformer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.exceptions.Exceptions;
 
-
 /**
- * <p>描述：缓存统一入口类</p>
+ * @author caoyangfei
+ * @ClassName RxCache
+ * @date 2019/7/24
+ * ------------- Description -------------
+ * 缓存
  * <p>
- * <p>主要实现技术：Rxjava+DiskLruCache(jakewharton大神开源的LRU库)</p>
+ * 1.可以独立使用，单独用RxCache来存储数据
+ * 2.采用transformer与网络请求结合，可以实现网络缓存功能,本地硬缓存
+ * 3.可以保存缓存 （异步）
+ * 4.可以读取缓存（异步）
+ * 6.根据key删除缓存
+ * 7.清空缓存（异步）
+ * 8.缓存Key会自动进行MD5加密
+ * 9.其它参数设置：缓存磁盘大小、缓存key、缓存时间、缓存类型、缓存目录
+ * </p>
  * <p>
- * <p>
- * 主要功能：<br>
- * 1.可以独立使用，单独用RxCache来存储数据<br>
- * 2.采用transformer与网络请求结合，可以实现网络缓存功能,本地硬缓存<br>
- * 3.可以保存缓存 （异步）<br>
- * 4.可以读取缓存（异步）<br>
- * 5.可以判断缓存是否存在<br>
- * 6.根据key删除缓存<br>
- * 7.清空缓存（异步）<br>
- * 8.缓存Key会自动进行MD5加密<br>
- * 9.其它参数设置：缓存磁盘大小、缓存key、缓存时间、缓存存储的转换器、缓存目录、缓存Version<br>
- * <p>
- * <p>
- * 使用说明：<br>
- * RxCache rxCache = new RxCache.Builder(this)<br>
- * .appVersion(1)//不设置，默认为1</br>
- * .diskDir(new File(getCacheDir().getPath() + File.separator + "data-cache"))//不设置，默认使用缓存路径<br>
- * .diskConverter(new SerializableDiskConverter())//目前只支持Serializable缓存<br>
- * .diskMax(20*1024*1024)//不设置， 默为认50MB<br>
- * .build();</br>
- * </P>
- * 作者： zhouyou<br>
- * 日期： 2016/12/24 10:35<br>
- * 版本： v2.0<br>
+ * RxCache rxCache = new RxCache.Builder(this)
+ * .diskDir(new File(getCacheDir().getPath() + File.separator + "data-cache"))//不设置，默认使用缓存路径
+ * .diskConverter(new SerializableDiskConverter())//目前只支持Serializable缓存
+ * .diskMax(20*1024*1024)//不设置， 默为认50MB
+ * .build();
  */
 public final class RxCache {
     private final Context context;
-    private final CacheCore cacheCore;                                  //缓存的核心管理类
     private final String cacheKey;                                      //缓存的key
-    private final long cacheTime;                                       //缓存的时间 单位:秒
-    private final IDiskConverter diskConverter;                         //缓存的转换器
+    private final int cacheTime;                                        //缓存的时间 单位:秒
     private final File diskDir;                                         //缓存的磁盘目录，默认是缓存目录
-    private final int appVersion;                                       //缓存的版本
     private final long diskMaxSize;                                     //缓存的磁盘大小
+    private final CacheType cacheType;                                  //缓存类型
 
     public RxCache() {
         this(new Builder());
@@ -95,10 +87,12 @@ public final class RxCache {
         this.cacheKey = builder.cachekey;
         this.cacheTime = builder.cacheTime;
         this.diskDir = builder.diskDir;
-        this.appVersion = builder.appVersion;
         this.diskMaxSize = builder.diskMaxSize;
-        this.diskConverter = builder.diskConverter;
-        cacheCore = new CacheCore(new LruDiskCache(diskConverter, diskDir, appVersion, diskMaxSize));
+        this.cacheType = builder.cacheType;
+
+        CacheMemoryUtils cacheMemoryUtils = CacheMemoryUtils.getInstance(cacheKey, 256);
+        CacheDiskUtils cacheDiskUtils = CacheDiskUtils.getInstance(diskDir, diskMaxSize, Integer.MAX_VALUE);
+        CacheDoubleStaticUtils.setDefaultCacheDoubleUtils(CacheDoubleUtils.getInstance(cacheMemoryUtils, cacheDiskUtils));
     }
 
     public Builder newBuilder() {
@@ -122,7 +116,7 @@ public final class RxCache {
                 if (type instanceof ParameterizedType) {//自定义ApiResult
                     Class<T> cls = (Class) ((ParameterizedType) type).getRawType();
                     if (CacheResult.class.isAssignableFrom(cls)) {
-                        tempType = Utils.getParameterizedType(type, 0);
+                        tempType = HttpUtils.getParameterizedType(type, 0);
                     }
                 }
                 return strategy.execute(RxCache.this, RxCache.this.cacheKey, RxCache.this.cacheTime, upstream, tempType);
@@ -177,7 +171,8 @@ public final class RxCache {
         return Flowable.create(new SimpleSubscribe<T>() {
             @Override
             T execute() throws Throwable {
-                return cacheCore.load(type, key, time);
+                return CacheFactory.load(key, cacheType, type);
+//                return cacheCore.load(type, key, time);
             }
         }, BackpressureStrategy.BUFFER);
     }
@@ -192,21 +187,9 @@ public final class RxCache {
         return Flowable.create(new SimpleSubscribe<Boolean>() {
             @Override
             Boolean execute() throws Throwable {
-                cacheCore.save(key, value);
+                CacheFactory.write(key, value, cacheType, cacheTime);
+//                cacheCore.save(key, value);
                 return true;
-            }
-        }, BackpressureStrategy.BUFFER);
-    }
-
-    /**
-     * 是否包含
-     */
-    public Flowable<Boolean> containsKey(final String key) {
-        return Flowable.create(new SimpleSubscribe<Boolean>() {
-
-            @Override
-            Boolean execute() throws Throwable {
-                return cacheCore.containsKey(key);
             }
         }, BackpressureStrategy.BUFFER);
     }
@@ -219,7 +202,9 @@ public final class RxCache {
 
             @Override
             Boolean execute() throws Throwable {
-                return cacheCore.remove(key);
+                CacheFactory.remove(key);
+//                return cacheCore.remove(key);
+                return true;
             }
         }, BackpressureStrategy.BUFFER);
     }
@@ -231,7 +216,8 @@ public final class RxCache {
         return Flowable.create(new SimpleSubscribe<Boolean>() {
             @Override
             Boolean execute() throws Throwable {
-                return cacheCore.clear();
+                CacheFactory.clear();
+                return true;
             }
         }, BackpressureStrategy.BUFFER);
     }
@@ -260,21 +246,10 @@ public final class RxCache {
         return context;
     }
 
-    public CacheCore getCacheCore() {
-        return cacheCore;
-    }
-
-    public IDiskConverter getDiskConverter() {
-        return diskConverter;
-    }
-
     public File getDiskDir() {
         return diskDir;
     }
 
-    public int getAppVersion() {
-        return appVersion;
-    }
 
     public long getDiskMaxSize() {
         return diskMaxSize;
@@ -283,42 +258,30 @@ public final class RxCache {
     public static final class Builder {
         private static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
         private static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
-        public static final long CACHE_NEVER_EXPIRE = -1;//永久不过期
-        private int appVersion;
+        public static final int CACHE_NEVER_EXPIRE = -1;//永久不过期
         private long diskMaxSize;
         private File diskDir;
-        private IDiskConverter diskConverter;
         private Context context;
         private String cachekey;
-        private long cacheTime;
+        private int cacheTime;
+        private CacheType cacheType = CacheType.Serializable;                         //缓存的转换器
 
         public Builder() {
-            diskConverter = new SerializableDiskConverter();
             cacheTime = CACHE_NEVER_EXPIRE;
-            appVersion = 1;
         }
 
         public Builder(RxCache rxCache) {
             this.context = rxCache.context;
-            this.appVersion = rxCache.appVersion;
             this.diskMaxSize = rxCache.diskMaxSize;
             this.diskDir = rxCache.diskDir;
-            this.diskConverter = rxCache.diskConverter;
             this.context = rxCache.context;
             this.cachekey = rxCache.cacheKey;
             this.cacheTime = rxCache.cacheTime;
+            this.cacheType = rxCache.cacheType;
         }
 
         public Builder init(Context context) {
             this.context = context;
-            return this;
-        }
-
-        /**
-         * 不设置，默认为1
-         */
-        public Builder appVersion(int appVersion) {
-            this.appVersion = appVersion;
             return this;
         }
 
@@ -334,11 +297,6 @@ public final class RxCache {
         }
 
 
-        public Builder diskConverter(IDiskConverter converter) {
-            this.diskConverter = converter;
-            return this;
-        }
-
         /**
          * 不设置， 默为认50MB
          */
@@ -352,8 +310,13 @@ public final class RxCache {
             return this;
         }
 
-        public Builder cacheTime(long cacheTime) {
+        public Builder cacheTime(int cacheTime) {
             this.cacheTime = cacheTime;
+            return this;
+        }
+
+        public Builder cacheType(CacheType cacheType) {
+            this.cacheType = cacheType;
             return this;
         }
 
@@ -365,15 +328,10 @@ public final class RxCache {
             if (!this.diskDir.exists()) {
                 this.diskDir.mkdirs();
             }
-            if (this.diskConverter == null) {
-                this.diskConverter = new SerializableDiskConverter();
-            }
             if (diskMaxSize <= 0) {
                 diskMaxSize = calculateDiskCacheSize(diskDir);
             }
             cacheTime = Math.max(CACHE_NEVER_EXPIRE, this.cacheTime);
-
-            appVersion = Math.max(1, this.appVersion);
 
             return new RxCache(this);
         }

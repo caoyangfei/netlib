@@ -17,10 +17,11 @@
 package com.flyang.netlib.cache.model;
 
 /**
- * <p>描述：网络请求策略</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/24 10:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName CacheMode
+ * @date 2019/7/29
+ * ------------- Description -------------
+ * 网络请求策略
  */
 public enum CacheMode {
     /**

@@ -8,7 +8,7 @@ import com.flyang.demo.model.LoginCache;
 import com.flyang.demo.model.LoginInfo;
 import com.flyang.demo.token.TokenManager;
 import com.flyang.demo.utils.DateTimeUtils;
-import com.flyang.netlib.EasyHttp;
+import com.flyang.netlib.FlyangHttp;
 import com.flyang.netlib.callback.SimpleCallBack;
 import com.flyang.netlib.exception.ApiException;
 import com.flyang.netlib.interceptor.BaseExpiredInterceptor;
@@ -46,8 +46,7 @@ public class MyTokenInterceptor extends BaseExpiredInterceptor {
                     || code == ComParamContact.Code.REFRESH_TOKEN_EXPIRED
                     || code == ComParamContact.Code.OTHER_PHONE_LOGINED
                     || code == ComParamContact.Code.ERROR_SIGN
-                    || code == ComParamContact.Code.TIMESTAMP_ERROR
-                    ) {
+                    || code == ComParamContact.Code.TIMESTAMP_ERROR) {
                 return true;
             }
         }
@@ -97,7 +96,7 @@ public class MyTokenInterceptor extends BaseExpiredInterceptor {
 
     //同步请求refreshToken
     public void refreshToken() throws IOException {
-        EasyHttp.post(ComParamContact.Token.PATH)
+        FlyangHttp.post(ComParamContact.Token.PATH)
                 .params(ComParamContact.Common.REFRESH_TOKEN, TokenManager.getInstance().getAuthModel().getRefreshToken())
                 .sign(false)
                 .accessToken(false)
@@ -286,7 +285,7 @@ public class MyTokenInterceptor extends BaseExpiredInterceptor {
             authModel = null;
             return;
         }
-        EasyHttp.post(ComParamContact.Login.PATH)
+        FlyangHttp.post(ComParamContact.Login.PATH)
                 .params(ComParamContact.Login.ACCOUNT, loginInfo.getUsername())
                 .params(ComParamContact.Login.PASSWORD, loginInfo.getPassword())
                 .sign(true)

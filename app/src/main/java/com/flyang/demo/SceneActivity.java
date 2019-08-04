@@ -20,7 +20,7 @@ import com.flyang.demo.model.AuthModel;
 import com.flyang.demo.model.SectionItem;
 import com.flyang.demo.model.SkinTestResult;
 import com.flyang.demo.utils.MD5;
-import com.flyang.netlib.EasyHttp;
+import com.flyang.netlib.FlyangHttp;
 import com.flyang.netlib.callback.CallClazzProxy;
 import com.flyang.netlib.exception.ApiException;
 import com.flyang.netlib.subsciber.BaseSubscriber;
@@ -71,7 +71,7 @@ public class SceneActivity extends AppCompatActivity {
             @Override
             public Publisher<SkinTestResult> apply(Long aLong) throws Exception {
                 Log.i("test", "=====" + aLong);
-                return EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                return FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                         .timeStamp(true)
                         .execute(SkinTestResult.class);
             }
@@ -102,7 +102,7 @@ public class SceneActivity extends AppCompatActivity {
     //嵌套请求->一个接口的请求依赖另一个API请求返回的数据
     public void onNestedRequest(View view) {
         //例如：先登录获取token后，再去请求另一个接口
-        Flowable<AuthModel> login = EasyHttp.post(ComParamContact.Login.PATH)
+        Flowable<AuthModel> login = FlyangHttp.post(ComParamContact.Login.PATH)
                 .params(ComParamContact.Login.ACCOUNT, "18688994275")
                 .params(ComParamContact.Login.PASSWORD, MD5.encrypt4login("123456", AppConstant.APP_SECRET))
                 .sign(true)
@@ -110,7 +110,7 @@ public class SceneActivity extends AppCompatActivity {
         login.flatMap(new Function<AuthModel, Publisher<SkinTestResult>>() {
             @Override
             public Publisher<SkinTestResult> apply(AuthModel authModel) throws Exception {
-                return EasyHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+                return FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                         .params("accessToken", authModel.getAccessToken())//这个地方只是举例，并不一定是需要accessToken
                         .timeStamp(true)
                         .execute(SkinTestResult.class);
@@ -133,14 +133,14 @@ public class SceneActivity extends AppCompatActivity {
     public void onZipRequest(View view) {
         //使用zip操作符合并等待多个网络请求完成后，再刷新界面
         //例如下面：数据来自3个不同的接口
-        Flowable<ResultBean> mobileObservable = EasyHttp.get("http://apis.juhe.cn/mobile/get")
+        Flowable<ResultBean> mobileObservable = FlyangHttp.get("http://apis.juhe.cn/mobile/get")
                 .params("phone", "18688994275")
                 .params("dtype", "json")
                 .params("key", "5682c1f44a7f486e40f9720d6c97ffe4")
                 .execute(new CallClazzProxy<TestApiResult1<ResultBean>, ResultBean>(ResultBean.class) {
                 });
 
-        Flowable<Content> searchObservable = EasyHttp.get("/ajax.php")
+        Flowable<Content> searchObservable = FlyangHttp.get("/ajax.php")
                 .baseUrl("http://fy.iciba.com")
                 .params("a", "fy")
                 .params("f", "auto")
@@ -150,7 +150,7 @@ public class SceneActivity extends AppCompatActivity {
                 .execute(new CallClazzProxy<TestApiResult6<Content>, Content>(Content.class) {
                 });
 
-        Flowable<List<SectionItem>> listObservable = EasyHttp.get("http://news-at.zhihu.com/api/3/sections")
+        Flowable<List<SectionItem>> listObservable = FlyangHttp.get("http://news-at.zhihu.com/api/3/sections")
                 .execute(new CallClazzProxy<TestApiResult5<List<SectionItem>>, List<SectionItem>>(new TypeToken<List<SectionItem>>() {
                 }.getType()) {
                 });
@@ -189,7 +189,7 @@ public class SceneActivity extends AppCompatActivity {
         Flowable<ResultBean> mobileObservable = Flowable.timer(5, TimeUnit.SECONDS).flatMap(new Function<Long, Publisher<ResultBean>>() {
             @Override
             public Publisher<ResultBean> apply(Long aLong) throws Exception {
-                return EasyHttp.get("http://apis.juhe.cn/mobile/get")
+                return FlyangHttp.get("http://apis.juhe.cn/mobile/get")
                         .params("phone", "18688994275")
                         .params("dtype", "json")
                         .params("key", "5682c1f44a7f486e40f9720d6c97ffe4")
@@ -198,7 +198,7 @@ public class SceneActivity extends AppCompatActivity {
             }
         });
 
-        Flowable<Content> searchObservable = EasyHttp.get("/ajax.php")
+        Flowable<Content> searchObservable = FlyangHttp.get("/ajax.php")
                 .baseUrl("http://fy.iciba.com")
                 .params("a", "fy")
                 .params("f", "auto")

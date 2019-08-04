@@ -16,11 +16,13 @@
 
 package com.flyang.netlib.callback;
 
+
 /**
- * <p>描述：下载进度回调（主线程，可以直接操作UI）</p>
- * 作者： zhouyou<br>
- * 日期： 2017/4/28 16:28 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName DownloadProgressCallBack
+ * @date 2019/7/29
+ * ------------- Description -------------
+ * 下载进度回调（主线程，可以直接操作UI
  */
 public abstract class DownloadProgressCallBack<T> extends CallBack<T> {
     public DownloadProgressCallBack() {
@@ -28,7 +30,7 @@ public abstract class DownloadProgressCallBack<T> extends CallBack<T> {
 
     @Override
     public void onSuccess(T response) {
-        
+
     }
 
     public abstract void update(long bytesRead, long contentLength, boolean done);
@@ -37,6 +39,6 @@ public abstract class DownloadProgressCallBack<T> extends CallBack<T> {
 
     @Override
     public void onCompleted() {
-        
+
     }
 }

@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.flyang.netlib.EasyHttp;
+import com.flyang.netlib.FlyangHttp;
 
 import io.reactivex.subscribers.DisposableSubscriber;
 
@@ -82,7 +82,7 @@ public class SearchActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        EasyHttp.cancelSubscription(mDisposable);
+        FlyangHttp.cancelSubscription(mDisposable);
         super.onDestroy();
     }
 }

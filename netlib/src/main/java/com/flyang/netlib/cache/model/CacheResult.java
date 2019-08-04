@@ -20,10 +20,11 @@ package com.flyang.netlib.cache.model;
 import java.io.Serializable;
 
 /**
- * <p>描述：缓存对象</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/24 10:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName CacheResult
+ * @date 2019/7/29
+ * ------------- Description -------------
+ * 缓存对象
  */
 public class CacheResult<T> implements Serializable {
     public boolean isFromCache;
