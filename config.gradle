@@ -11,10 +11,30 @@ ext {
 
     isAlone = false
 
-    utilVersion = "1.2.1.2019_beta_11"
+    //本地
+//    utilVersion = "2.1.1.2019_beta_01"
+//
+//    dep = [
+//            util              : "com.flyang.common:util:$utilVersion",
+//
+//            //第三方依赖库
+//            logginginterceptor: 'com.squareup.okhttp3:logging-interceptor:3.12.2',
+//            okhttp            : 'com.squareup.okhttp3:okhttp:3.12.2',
+//            disklrucache      : 'com.jakewharton:disklrucache:2.0.2',
+//            //RXjava
+//            rxjava            : 'io.reactivex.rxjava2:rxjava:2.2.10',
+//            rxandroid         : 'io.reactivex.rxjava2:rxandroid:2.1.1',
+//            retrofit          : 'com.squareup.retrofit2:retrofit:2.5.0',
+//            convertergson     : 'com.squareup.retrofit2:converter-gson:2.5.0',
+//            adapterrxjava     : 'com.squareup.retrofit2:adapter-rxjava2:2.5.0',
+//
+//    ]
+
+    //GitHub
+    utilVersion = "1.1.1.2019_02"
 
     dep = [
-            util              : "com.flyang.common:util:$utilVersion",
+            util              : "com.github.caoyangfei:utillib:$utilVersion",
 
             //第三方依赖库
             logginginterceptor: 'com.squareup.okhttp3:logging-interceptor:3.12.2',
@@ -26,7 +46,6 @@ ext {
             retrofit          : 'com.squareup.retrofit2:retrofit:2.5.0',
             convertergson     : 'com.squareup.retrofit2:converter-gson:2.5.0',
             adapterrxjava     : 'com.squareup.retrofit2:adapter-rxjava2:2.5.0',
-
     ]
 }
 
