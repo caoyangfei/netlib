@@ -73,10 +73,10 @@ import static com.flyang.netlib.FlyangHttp.getRxCache;
 @SuppressWarnings(value = {"unchecked", "deprecation"})
 public abstract class BaseRequest<R extends BaseRequest> {
     protected Cache cache = null;
-    protected CacheMode cacheMode = CacheMode.NO_CACHE;                    //默认无缓存
-    protected int cacheTime = -1;                                         //缓存时间
+    protected CacheMode cacheMode;                                         //默认无缓存
+    protected int cacheTime = -1;                                          //缓存时间
     protected String cacheKey;                                             //缓存Key
-    protected CacheType cacheType;                                          //设置Rxcache缓存类型
+    protected CacheType cacheType;                                         //设置Rxcache缓存类型
     protected String baseUrl;                                              //BaseUrl
     protected String url;                                                  //请求url
     protected long readTimeOut;                                            //读超时
@@ -167,8 +167,8 @@ public abstract class BaseRequest<R extends BaseRequest> {
     /**
      * 缓存模式
      *
-     * @param cacheMode
-     * @return
+     * @param cacheMode 缓存模式
+     * @return this
      */
     public R cacheMode(CacheMode cacheMode) {
         this.cacheMode = cacheMode;
@@ -183,8 +183,8 @@ public abstract class BaseRequest<R extends BaseRequest> {
     /**
      * 缓存时间
      *
-     * @param cacheTime
-     * @return
+     * @param cacheTime 秒
+     * @return this
      */
     public R cacheTime(int cacheTime) {
         if (cacheTime <= -1) cacheTime = FlyangHttp.DEFAULT_CACHE_NEVER_EXPIRE;
@@ -195,8 +195,8 @@ public abstract class BaseRequest<R extends BaseRequest> {
     /**
      * 设置baseUrl
      *
-     * @param baseUrl
-     * @return
+     * @param baseUrl 基础Url
+     * @return this
      */
     public R baseUrl(String baseUrl) {
         this.baseUrl = baseUrl;

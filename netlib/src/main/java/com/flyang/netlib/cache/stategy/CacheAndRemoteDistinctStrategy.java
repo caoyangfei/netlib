@@ -33,7 +33,9 @@ import okio.ByteString;
  * @ClassName CacheAndRemoteDistinctStrategy
  * @date 2019/7/22
  * ------------- Description -------------
- * 先显示缓存，再请求网络(反射使用)
+ * 先使用缓存，不管是否存在，仍然请求网络，会先把缓存回调给你，
+ * 等网络请求回来发现数据是一样的就不会再返回，否则再返回
+ * （这样做的目的是防止数据是一样的你也需要刷新界面）(反射使用)
  */
 public final class CacheAndRemoteDistinctStrategy extends BaseStrategy {
     @Override
