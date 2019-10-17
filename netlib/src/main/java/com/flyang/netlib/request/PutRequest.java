@@ -69,8 +69,8 @@ public class PutRequest extends BaseBodyRequest<PutRequest> {
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay))
                 .compose(new ObservableTransformer() {
                     @Override
-                    public ObservableSource apply(Observable upstream) {
-                        return upstream.map(new CacheResultFunc<T>());
+                    public ObservableSource apply(Observable observable) {
+                        return observable.map(new CacheResultFunc<T>());
                     }
                 });
     }
@@ -86,8 +86,8 @@ public class PutRequest extends BaseBodyRequest<PutRequest> {
         if (CacheResult.class != proxy.getCallBack().getRawType()) {
             return observable.compose(new ObservableTransformer<CacheResult<T>, T>() {
                 @Override
-                public ObservableSource<T> apply(Observable<CacheResult<T>> upstream) {
-                    return upstream.map(new CacheResultFunc<T>());
+                public ObservableSource<T> apply(Observable<CacheResult<T>> observable) {
+                    return observable.map(new CacheResultFunc<T>());
                 }
             }).subscribeWith(new CallBackSubsciber<T>(context, proxy.getCallBack()));
         } else {

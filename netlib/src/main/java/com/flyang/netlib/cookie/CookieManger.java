@@ -25,12 +25,12 @@ import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 
-
 /**
- * <p>描述：cookie管理器</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/20 10:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName CookieManger
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * cookie管理器
  */
 public class CookieManger implements CookieJar {
 

@@ -32,10 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import okhttp3.MediaType;
 
 /**
- * <p>描述：普通参数</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/2 16:58 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName HttpParams
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 普通参数
  */
 public class HttpParams implements Serializable {
     /**

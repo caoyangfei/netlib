@@ -37,10 +37,11 @@ import java.util.Set;
 import java.util.TimeZone;
 
 /**
- * <p>描述：头部参数</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/2 16:58 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName HttpHeaders
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 头部参数
  */
 public class HttpHeaders implements Serializable {
     public static final String FORMAT_HTTP_DATA = "EEE, dd MMM y HH:mm:ss 'GMT'";
@@ -101,14 +102,14 @@ public class HttpHeaders implements Serializable {
 
     public void put(HttpHeaders headers) {
         if (headers != null) {
-            if (headers.headersMap != null && !headers.headersMap.isEmpty()){
-               Set<Map.Entry<String, String>> set = headers.headersMap.entrySet();
+            if (headers.headersMap != null && !headers.headersMap.isEmpty()) {
+                Set<Map.Entry<String, String>> set = headers.headersMap.entrySet();
                 for (Map.Entry<String, String> map : set) {
                     headersMap.remove(map.getKey());
-                    headersMap.put(map.getKey(),map.getValue());
+                    headersMap.put(map.getKey(), map.getValue());
                 }
             }
-                
+
         }
     }
 

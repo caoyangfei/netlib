@@ -58,8 +58,8 @@ public class DeleteRequest extends BaseBodyRequest<DeleteRequest> {
         if (CacheResult.class != proxy.getCallBack().getRawType()) {
             return observable.compose(new ObservableTransformer<CacheResult<T>, T>() {
                 @Override
-                public ObservableSource<T> apply(@NonNull Observable<CacheResult<T>> upstream) {
-                    return upstream.map(new CacheResultFunc<T>());
+                public ObservableSource<T> apply(@NonNull Observable<CacheResult<T>> observable) {
+                    return observable.map(new CacheResultFunc<T>());
                 }
             }).subscribeWith(new CallBackSubsciber<T>(context, proxy.getCallBack()));
         } else {

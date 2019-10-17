@@ -17,10 +17,11 @@
 package com.flyang.netlib.subsciber;
 
 /**
- * <p>描述：进度框取消监听</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/15 17:09 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName ProgressCancelListener
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 进度框取消监听
  */
 public interface ProgressCancelListener {
     void onCancelProgress();

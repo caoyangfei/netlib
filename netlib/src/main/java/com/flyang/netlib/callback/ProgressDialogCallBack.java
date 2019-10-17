@@ -33,6 +33,17 @@ import io.reactivex.disposables.Disposable;
  * 日期： 2017/4/24 15:35 <br>
  * 版本： v1.0<br>
  */
+
+/**
+ * @author caoyangfei
+ * @ClassName ProgressDialogCallBack
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 可以自定义带有加载进度框的回调
+ * <p>
+ * 1.可以自定义带有加载进度框的回调,是否需要显示，是否可以取消
+ * 2.取消对话框会自动取消掉网络请求
+ */
 public abstract class ProgressDialogCallBack<T> extends CallBack<T> implements ProgressCancelListener {
     private IProgressDialog progressDialog;
     private Dialog mDialog;

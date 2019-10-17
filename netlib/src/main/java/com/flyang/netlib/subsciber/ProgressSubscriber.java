@@ -22,20 +22,16 @@ import android.content.DialogInterface;
 
 import com.flyang.netlib.exception.ApiException;
 
-
 /**
- * <p>描述： 实现带有进度的订阅</p>
+ * @author caoyangfei
+ * @ClassName ProgressSubscriber
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 带有进度的订阅
  * <p>
- * 1.支持自定义加载进度框<br>
- * 2.支持对话框取消时可以自动终止本次请求，取消订阅。<br>
- * <p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/19 16:46<br>
- * <p>
- * 修改者：zhouyou<br>
- * 日期： 2017/04/19 15:56<br>
- * 修改内容：支持自定义对话框<br>
- * 版本： v2.0<br>
+ * 1.支持自定义加载进度框
+ * 2.支持对话框取消时可以自动终止本次请求，取消订阅。
+ * 3.支持自定义对话框
  */
 public abstract class ProgressSubscriber<T> extends BaseSubscriber<T> implements ProgressCancelListener {
     private IProgressDialog progressDialog;
@@ -46,7 +42,7 @@ public abstract class ProgressSubscriber<T> extends BaseSubscriber<T> implements
     /**
      * 默认不显示弹出框，不可以取消
      *
-     * @param context  上下文
+     * @param context 上下文
      */
     public ProgressSubscriber(Context context) {
         super(context);
@@ -56,7 +52,7 @@ public abstract class ProgressSubscriber<T> extends BaseSubscriber<T> implements
     /**
      * 自定义加载进度框
      *
-     * @param context 上下文
+     * @param context        上下文
      * @param progressDialog 自定义对话框
      */
     public ProgressSubscriber(Context context, IProgressDialog progressDialog) {
@@ -68,10 +64,10 @@ public abstract class ProgressSubscriber<T> extends BaseSubscriber<T> implements
     /**
      * 自定义加载进度框,可以设置是否显示弹出框，是否可以取消
      *
-     * @param context 上下文 
+     * @param context        上下文
      * @param progressDialog 对话框
-     * @param isShowProgress  是否显示对话框
-     * @param isCancel  对话框是否可以取消
+     * @param isShowProgress 是否显示对话框
+     * @param isCancel       对话框是否可以取消
      */
     public ProgressSubscriber(Context context, IProgressDialog progressDialog, boolean isShowProgress, boolean isCancel) {
         super(context);

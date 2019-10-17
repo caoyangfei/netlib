@@ -24,10 +24,11 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 
 /**
- * <p>描述：异常转换处理</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/15 16:55 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName HttpResponseFunc
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 异常转换处理
  */
 public class HttpResponseFunc<T> implements Function<Throwable, Observable<T>> {
     @Override

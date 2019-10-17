@@ -17,10 +17,11 @@
 package com.flyang.netlib.exception;
 
 /**
- * <p>描述：处理服务器异常</p>
- * 作者： zhouyou<br>
- * 日期： 2016/9/15 16:51 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName ServerException
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 处理服务器异常
  */
 public class ServerException extends RuntimeException {
     private int errCode;

@@ -27,20 +27,20 @@ import java.lang.ref.WeakReference;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.observers.DisposableObserver;
 
-
-
 /**
- * <p>描述：订阅的基类</p>
- * 1.可以防止内存泄露。<br>
- * 2.在onStart()没有网络时直接onCompleted();<br>
- * 3.统一处理了异常<br>
- * 作者： zhouyou<br>
- * 日期： 2016/12/20 10:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName BaseSubscriber
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 订阅基类
+ * <p>
+ * 1.防止内存泄露。
+ * 2.在onStart()没有网络时直接onCompleted();
+ * 3.统一处理异常
  */
 public abstract class BaseSubscriber<T> extends DisposableObserver<T> {
     public WeakReference<Context> contextWeakReference;
-    
+
     public BaseSubscriber() {
     }
 

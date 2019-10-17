@@ -22,11 +22,13 @@ import com.flyang.netlib.cache.model.CacheResult;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 
+
 /**
- * <p>描述：缓存结果转换</p>
- * 作者： zhouyou<br>
- * 日期： 2017/4/21 10:53 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName CacheResultFunc
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 缓存结果转换
  */
 public class CacheResultFunc<T> implements Function<CacheResult<T>, T> {
     @Override

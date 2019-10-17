@@ -37,11 +37,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 
+
 /**
- * <p>描述：cookie存储器</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/19 16:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName PersistentCookieStore
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * cookie存储
  */
 public class PersistentCookieStore {
     private static final String COOKIE_PREFS = "Cookies_Prefs";
@@ -75,37 +77,19 @@ public class PersistentCookieStore {
         return cookie.name() + "@" + cookie.domain();
     }
 
-    /*public void add(HttpUrl url, Cookie cookie) {
-        String name = getCookieToken(cookie);
-        if (cookie.persistent()) {
-            if (!cookies.containsKey(url.host())) {
-                cookies.put(url.host(), new ConcurrentHashMap<String, Cookie>());
-            }
-            cookies.get(url.host()).put(name, cookie);
-            SharedPreferences.Editor prefsWriter = cookiePrefs.edit();
-            prefsWriter.putString(url.host(), TextUtils.join(",", cookies.get(url.host()).keySet()));
-            prefsWriter.putString(name, encodeCookie(new SerializableOkHttpCookies(cookie)));
-            prefsWriter.apply();
-        } else {
-            if (cookies.containsKey(url.host())) {
-                cookies.get(url.host()).remove(name);
-            }
-        }
-    }*/
-
     public void add(HttpUrl url, Cookie cookie) {
         String name = getCookieToken(cookie);
         // 添加 host key. 否则有可能抛空.
         if (!cookies.containsKey(url.host())) {
             cookies.put(url.host(), new ConcurrentHashMap<String, Cookie>());
         }
-       // 删除已经有的.
+        // 删除已经有的.
         if (cookies.containsKey(url.host())) {
             cookies.get(url.host()).remove(name);
         }
         // 添加新的进去
         cookies.get(url.host()).put(name, cookie);
-       // 是否保存到 SP 中
+        // 是否保存到 SP 中
         if (cookie.persistent()) {
             SharedPreferences.Editor prefsWriter = cookiePrefs.edit();
             prefsWriter.putString(url.host(), TextUtils.join(",", cookies.get(url.host()).keySet()));

@@ -31,11 +31,13 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 
+
 /**
- * <p>描述：网络请求错误重试条件</p>
- * 作者： zhouyou<br>
- * 日期： 2017/4/12 17:52 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName RetryExceptionFunc
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 网络请求错误重试条件
  */
 public class RetryExceptionFunc implements Function<Observable<? extends Throwable>, Observable<?>> {
     /* retry次数*/

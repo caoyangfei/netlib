@@ -36,10 +36,11 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 
 /**
- * <p>描述：定义一个下载的订阅者</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/19 16:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName DownloadSubscriber
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 下载的订阅者
  */
 public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> extends BaseSubscriber<ResponseBody> {
     private Context context;

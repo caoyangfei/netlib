@@ -19,10 +19,11 @@ package com.flyang.netlib.subsciber;
 import android.app.Dialog;
 
 /**
- * <p>描述：自定义对话框的dialog</p>
- * 作者： zhouyou<br>
- * 日期： 2017/4/19 14:37 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName IProgressDialog
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 自定义对话框的dialog
  */
 public interface IProgressDialog {
     Dialog getDialog();

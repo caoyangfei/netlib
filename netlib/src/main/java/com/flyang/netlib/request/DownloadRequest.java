@@ -67,11 +67,11 @@ public class DownloadRequest extends BaseRequest<DownloadRequest> {
     public <T> Disposable execute(CallBack<T> callBack) {
         return (Disposable) build().generateRequest().compose(new ObservableTransformer<ResponseBody, ResponseBody>() {
             @Override
-            public ObservableSource<ResponseBody> apply(@NonNull Observable<ResponseBody> upstream) {
+            public ObservableSource<ResponseBody> apply(@NonNull Observable<ResponseBody> observable) {
                 if (isSyncRequest) {
-                    return upstream;//.observeOn(AndroidSchedulers.mainThread());
+                    return observable;//.observeOn(AndroidSchedulers.mainThread());
                 } else {
-                    return upstream.subscribeOn(Schedulers.io())
+                    return observable.subscribeOn(Schedulers.io())
                             .unsubscribeOn(Schedulers.io())
                             .observeOn(Schedulers.computation());
                 }

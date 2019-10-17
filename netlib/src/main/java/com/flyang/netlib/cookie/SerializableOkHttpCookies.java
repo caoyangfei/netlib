@@ -24,10 +24,11 @@ import java.io.Serializable;
 import okhttp3.Cookie;
 
 /**
- * <p>描述：对存储的cookie进行序列化</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/20 16:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName SerializableOkHttpCookies
+ * @date 2019/10/17
+ * ------------- Description -------------
+ * 存储的cookie序列化
  */
 public class SerializableOkHttpCookies implements Serializable {
 
@@ -76,6 +77,6 @@ public class SerializableOkHttpCookies implements Serializable {
         builder = builder.path(path);
         builder = secure ? builder.secure() : builder;
         builder = httpOnly ? builder.httpOnly() : builder;
-        clientCookies =builder.build();
+        clientCookies = builder.build();
     }
 }
