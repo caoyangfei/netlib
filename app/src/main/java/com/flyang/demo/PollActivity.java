@@ -13,15 +13,14 @@ import com.flyang.netlib.callback.CallClazzProxy;
 import com.flyang.netlib.exception.ApiException;
 import com.flyang.netlib.subsciber.BaseSubscriber;
 
-import org.reactivestreams.Publisher;
-
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
-import io.reactivex.subscribers.DisposableSubscriber;
 
 /**
  * <p>描述：轮询请求</p>
@@ -30,7 +29,7 @@ import io.reactivex.subscribers.DisposableSubscriber;
  * 版本： v1.0<br>
  */
 public class PollActivity extends AppCompatActivity {
-    DisposableSubscriber polldisposable, countdisposable, ifdisposable, filterdisposable;
+    Disposable polldisposable, countdisposable, ifdisposable, filterdisposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,13 +46,13 @@ public class PollActivity extends AppCompatActivity {
         //interval(0,5, TimeUnit.SECONDS)
         //interval(5, TimeUnit.SECONDS)两个参数的这个5就表示，初始延时5秒开始执行请求，轮询也是5s
         //自己根据需要选择合适的interval方法
-        polldisposable = Flowable.interval(0, 1, TimeUnit.SECONDS).flatMap(new Function<Long, Publisher<Content>>() {
+        polldisposable = Observable.interval(0, 1, TimeUnit.SECONDS).flatMap(new Function<Long, ObservableSource<Content>>() {
             @Override
-            public Publisher<Content> apply(Long aLong) throws Exception {
-                Flowable<Content> contentFlowable = Flowable.timer(5, TimeUnit.SECONDS).flatMap(new Function<Long, Publisher<Content>>() {
+            public ObservableSource<Content> apply(@NonNull Long aLong) throws Exception {
+                return Observable.timer(5, TimeUnit.SECONDS).flatMap(new Function<Long, ObservableSource<Content>>() {
                     @Override
-                    public Publisher<Content> apply(Long aLong) throws Exception {
-                        Flowable<Content> contentFlowable = FlyangHttp.get("/ajax.php")
+                    public ObservableSource<Content> apply(@NonNull Long aLong) throws Exception {
+                        return FlyangHttp.get("/ajax.php")
                                 .baseUrl("http://fy.iciba.com")
                                 .params("a", "fy")
                                 .params("f", "auto")
@@ -61,16 +60,14 @@ public class PollActivity extends AppCompatActivity {
                                 .params("w", "hello world")
                                 //采用代理
                                 .execute(new CallClazzProxy<TestApiResult6<Content>, Content>(Content.class) {
-                                }).onErrorResumeNext(new Function<Throwable, Publisher<? extends Content>>() {
+                                }).onErrorResumeNext(new Function<Throwable, ObservableSource<? extends Content>>() {
                                     @Override
-                                    public Publisher<? extends Content> apply(Throwable throwable) throws Exception {
-                                        return Flowable.empty();
+                                    public ObservableSource<? extends Content> apply(@NonNull Throwable throwable) throws Exception {
+                                        return Observable.empty();
                                     }
                                 });
-                        return contentFlowable;
                     }
                 });
-                return contentFlowable;
             }
         }).subscribeWith(new BaseSubscriber<Content>() {
             @Override
@@ -95,9 +92,9 @@ public class PollActivity extends AppCompatActivity {
         //interval(0,5, TimeUnit.SECONDS)
         //interval(5, TimeUnit.SECONDS)两个参数表示那个这个5就表示，初始延时5秒开始执行请求
         //自己根据需要选择合适的interval方法
-        ifdisposable = Flowable.interval(0, 5, TimeUnit.SECONDS).flatMap(new Function<Long, Publisher<Content>>() {
+        ifdisposable = Observable.interval(0, 5, TimeUnit.SECONDS).flatMap(new Function<Long, ObservableSource<Content>>() {
             @Override
-            public Publisher<Content> apply(Long aLong) throws Exception {
+            public ObservableSource<Content> apply(@NonNull Long aLong) throws Exception {
                 return FlyangHttp.get("/ajax.php")
                         .baseUrl("http://fy.iciba.com")
                         .params("a", "fy")
@@ -132,9 +129,9 @@ public class PollActivity extends AppCompatActivity {
     //过滤轮询->就是在轮询的过程中，如果发现不满足条件的数据就不返回给订阅者刷新界面等操作
     //此种操作可以配合任意类型的轮询
     public void onPollFilter(View view) {
-        filterdisposable = Flowable.interval(0, 5, TimeUnit.SECONDS).flatMap(new Function<Long, Publisher<Content>>() {
+        filterdisposable = Observable.interval(0, 5, TimeUnit.SECONDS).flatMap(new Function<Long, ObservableSource<Content>>() {
             @Override
-            public Publisher<Content> apply(Long aLong) throws Exception {
+            public ObservableSource<Content> apply(@NonNull Long aLong) throws Exception {
                 return FlyangHttp.get("/ajax.php")
                         .baseUrl("http://fy.iciba.com")
                         .params("a", "fy")
@@ -163,7 +160,6 @@ public class PollActivity extends AppCompatActivity {
                 showToast(content.toString());
             }
         });
-
     }
 
     @Override

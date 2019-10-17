@@ -28,10 +28,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * <p>描述：配置公共头部</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/19 16:46<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName HeadersInterceptor
+ * @date 2019/10/16
+ * ------------- Description -------------
+ * 公共头部拦截器
  */
 public class HeadersInterceptor implements Interceptor {
 

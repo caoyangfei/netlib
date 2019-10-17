@@ -25,7 +25,7 @@ import com.flyang.util.log.LogUtils;
 import java.lang.ref.WeakReference;
 
 import io.reactivex.annotations.NonNull;
-import io.reactivex.subscribers.DisposableSubscriber;
+import io.reactivex.observers.DisposableObserver;
 
 
 
@@ -38,7 +38,7 @@ import io.reactivex.subscribers.DisposableSubscriber;
  * 日期： 2016/12/20 10:35<br>
  * 版本： v2.0<br>
  */
-public abstract class BaseSubscriber<T> extends DisposableSubscriber<T> {
+public abstract class BaseSubscriber<T> extends DisposableObserver<T> {
     public WeakReference<Context> contextWeakReference;
     
     public BaseSubscriber() {

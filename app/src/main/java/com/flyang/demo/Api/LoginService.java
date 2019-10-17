@@ -22,7 +22,7 @@ import com.flyang.netlib.model.ApiResult;
 
 import java.util.Map;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
@@ -31,5 +31,5 @@ import retrofit2.http.Path;
 public interface LoginService {
     @POST("{path}")
     @FormUrlEncoded
-    Flowable<ApiResult<AuthModel>> login(@Path("path") String path, @FieldMap Map<String, String> map);
+    Observable<ApiResult<AuthModel>> login(@Path("path") String path, @FieldMap Map<String, String> map);
 }

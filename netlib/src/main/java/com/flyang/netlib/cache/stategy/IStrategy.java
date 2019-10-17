@@ -22,7 +22,7 @@ import com.flyang.netlib.cache.model.CacheResult;
 
 import java.lang.reflect.Type;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 
 /**
  * @author caoyangfei
@@ -52,6 +52,6 @@ public interface IStrategy {
      * @param type      要转换的目标对象
      * @return 返回带缓存的Observable流对象
      */
-    <T> Flowable<CacheResult<T>> execute(RxCache rxCache, String cacheKey, long cacheTime, Flowable<T> source, Type type);
+    <T> Observable<CacheResult<T>> execute(RxCache rxCache, String cacheKey, long cacheTime, Observable<T> source, Type type);
 
 }

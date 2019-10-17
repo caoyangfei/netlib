@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -28,13 +27,12 @@ import com.flyang.netlib.subsciber.IProgressDialog;
 import com.flyang.netlib.subsciber.ProgressSubscriber;
 import com.google.gson.reflect.TypeToken;
 
-import org.reactivestreams.Publisher;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Function3;
@@ -67,10 +65,9 @@ public class SceneActivity extends AppCompatActivity {
     public void onDeferredRequest(View view) {
         showToast("开启定时");
         //延迟5s请求
-        Flowable.timer(5, TimeUnit.SECONDS).flatMap(new Function<Long, Publisher<SkinTestResult>>() {
+        Observable.timer(5, TimeUnit.SECONDS).flatMap(new Function<Long, ObservableSource<SkinTestResult>>() {
             @Override
-            public Publisher<SkinTestResult> apply(Long aLong) throws Exception {
-                Log.i("test", "=====" + aLong);
+            public ObservableSource<SkinTestResult> apply(Long aLong) throws Exception {
                 return FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                         .timeStamp(true)
                         .execute(SkinTestResult.class);
@@ -102,14 +99,14 @@ public class SceneActivity extends AppCompatActivity {
     //嵌套请求->一个接口的请求依赖另一个API请求返回的数据
     public void onNestedRequest(View view) {
         //例如：先登录获取token后，再去请求另一个接口
-        Flowable<AuthModel> login = FlyangHttp.post(ComParamContact.Login.PATH)
+        Observable<AuthModel> login = FlyangHttp.post(ComParamContact.Login.PATH)
                 .params(ComParamContact.Login.ACCOUNT, "18688994275")
                 .params(ComParamContact.Login.PASSWORD, MD5.encrypt4login("123456", AppConstant.APP_SECRET))
                 .sign(true)
                 .timeStamp(true).execute(AuthModel.class);
-        login.flatMap(new Function<AuthModel, Publisher<SkinTestResult>>() {
+        login.flatMap(new Function<AuthModel, ObservableSource<SkinTestResult>>() {
             @Override
-            public Publisher<SkinTestResult> apply(AuthModel authModel) throws Exception {
+            public ObservableSource<SkinTestResult> apply(AuthModel authModel) throws Exception {
                 return FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                         .params("accessToken", authModel.getAccessToken())//这个地方只是举例，并不一定是需要accessToken
                         .timeStamp(true)
@@ -133,14 +130,14 @@ public class SceneActivity extends AppCompatActivity {
     public void onZipRequest(View view) {
         //使用zip操作符合并等待多个网络请求完成后，再刷新界面
         //例如下面：数据来自3个不同的接口
-        Flowable<ResultBean> mobileObservable = FlyangHttp.get("http://apis.juhe.cn/mobile/get")
+        Observable<ResultBean> mobileObservable = FlyangHttp.get("http://apis.juhe.cn/mobile/get")
                 .params("phone", "18688994275")
                 .params("dtype", "json")
                 .params("key", "5682c1f44a7f486e40f9720d6c97ffe4")
                 .execute(new CallClazzProxy<TestApiResult1<ResultBean>, ResultBean>(ResultBean.class) {
                 });
 
-        Flowable<Content> searchObservable = FlyangHttp.get("/ajax.php")
+        Observable<Content> searchObservable = FlyangHttp.get("/ajax.php")
                 .baseUrl("http://fy.iciba.com")
                 .params("a", "fy")
                 .params("f", "auto")
@@ -150,13 +147,13 @@ public class SceneActivity extends AppCompatActivity {
                 .execute(new CallClazzProxy<TestApiResult6<Content>, Content>(Content.class) {
                 });
 
-        Flowable<List<SectionItem>> listObservable = FlyangHttp.get("http://news-at.zhihu.com/api/3/sections")
+        Observable<List<SectionItem>> listObservable = FlyangHttp.get("http://news-at.zhihu.com/api/3/sections")
                 .execute(new CallClazzProxy<TestApiResult5<List<SectionItem>>, List<SectionItem>>(new TypeToken<List<SectionItem>>() {
                 }.getType()) {
                 });
         //new Function3最后一个参数这里用的是List<Object>，表示将3个返回的结果，放在同一个集合最终一次性返回，你也可以指定返回其它你需要的数据类型并不一定是List<Object>
         //假如这三个接口返回的都是TestBean,那么就可以直接用具体的List<TestBean>,不需要用List<Object>
-        Flowable.zip(mobileObservable, searchObservable, listObservable, new Function3<ResultBean, Content, List<SectionItem>, List<Object>>() {
+        Observable.zip(mobileObservable, searchObservable, listObservable, new Function3<ResultBean, Content, List<SectionItem>, List<Object>>() {
             @Override
             public List<Object> apply(@NonNull ResultBean resultbean, @NonNull Content content, @NonNull List<SectionItem> sectionItems) throws Exception {
                 //将接收到的3个数据先暂存起来，一次性发给订阅者
@@ -186,9 +183,9 @@ public class SceneActivity extends AppCompatActivity {
         //拼接两个/多个Observable的输出，不保证顺序，按照事件产生的顺序发送给订阅者
 
         //这个请求故意延时5秒再发送-最后测试结果发现，并不是searchObservable等待mobileObservable5秒后再发送
-        Flowable<ResultBean> mobileObservable = Flowable.timer(5, TimeUnit.SECONDS).flatMap(new Function<Long, Publisher<ResultBean>>() {
+        Observable<ResultBean> mobileObservable = Observable.timer(5, TimeUnit.SECONDS).flatMap(new Function<Long, ObservableSource<ResultBean>>() {
             @Override
-            public Publisher<ResultBean> apply(Long aLong) throws Exception {
+            public ObservableSource<ResultBean> apply(Long aLong) throws Exception {
                 return FlyangHttp.get("http://apis.juhe.cn/mobile/get")
                         .params("phone", "18688994275")
                         .params("dtype", "json")
@@ -198,7 +195,7 @@ public class SceneActivity extends AppCompatActivity {
             }
         });
 
-        Flowable<Content> searchObservable = FlyangHttp.get("/ajax.php")
+        Observable<Content> searchObservable = FlyangHttp.get("/ajax.php")
                 .baseUrl("http://fy.iciba.com")
                 .params("a", "fy")
                 .params("f", "auto")
@@ -212,7 +209,7 @@ public class SceneActivity extends AppCompatActivity {
         //mergeDelayError：合并的请求，如果有一个接口报错了，会延迟错误处理，后面的接口会继续执行没有被中断。
         //使用时根据需要选用merge/mergeDelayError
         //Flowable.merge(searchObservable,mobileObservable).subscribe(new BaseSubscriber<Object>() {
-        Flowable.mergeDelayError(searchObservable, mobileObservable).subscribe(new BaseSubscriber<Object>() {
+        Observable.mergeDelayError(searchObservable, mobileObservable).subscribe(new BaseSubscriber<Object>() {
             @Override
             public void onError(ApiException e) {
                 showToast(e.getMessage());

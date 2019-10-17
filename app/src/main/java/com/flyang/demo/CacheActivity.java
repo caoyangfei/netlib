@@ -34,7 +34,7 @@ import com.flyang.netlib.subsciber.BaseSubscriber;
 import com.flyang.util.log.LogUtils;
 import com.google.gson.reflect.TypeToken;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 
 
@@ -184,7 +184,7 @@ public class CacheActivity extends AppCompatActivity implements View.OnClickList
      * 根据key获取缓存
      */
     public void onLoadCache(View view) {
-        Flowable<SkinTestResult> flowable = FlyangHttp.getRxCacheBuilder()
+        Observable<SkinTestResult> observable = FlyangHttp.getRxCacheBuilder()
                 //获取缓存需要指定下转换器，默认就是SerializableDiskConverter 这里可以不用写
                 //就是你网络请求用哪个转换器存储的缓存，那么读取时也要采用对应的转换器读取
                 .cacheType(CacheType.Serializable).build()
@@ -193,7 +193,7 @@ public class CacheActivity extends AppCompatActivity implements View.OnClickList
                 //这个表示读取缓存不根据时间只要有缓存就读取
                 .load(new TypeToken<SkinTestResult>() {
                 }.getType(), this.getClass().getSimpleName());
-        flowable.subscribe(new BaseSubscriber<SkinTestResult>() {
+        observable.subscribe(new BaseSubscriber<SkinTestResult>() {
             @Override
             public void onError(ApiException e) {
                 showToast("获取缓存失败:" + e.getMessage());

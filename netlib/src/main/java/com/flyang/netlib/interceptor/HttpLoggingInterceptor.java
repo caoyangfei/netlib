@@ -34,13 +34,12 @@ import okhttp3.ResponseBody;
 import okhttp3.internal.http.HttpHeaders;
 import okio.Buffer;
 
-
 /**
- * <p>描述：设置日志拦截器</p>
- * 提供了详细、易懂的日志打印<br>
- * 作者： zhouyou<br>
- * 日期： 2016/12/19 16:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName HttpLoggingInterceptor
+ * @date 2019/10/16
+ * ------------- Description -------------
+ * 日志拦截器
  */
 public class HttpLoggingInterceptor implements Interceptor {
 
@@ -48,7 +47,6 @@ public class HttpLoggingInterceptor implements Interceptor {
 
     private volatile Level level = Level.NONE;
     private Logger logger;
-    private String tag;
     private boolean isLogEnable = false;
 
     public enum Level {
@@ -63,12 +61,10 @@ public class HttpLoggingInterceptor implements Interceptor {
     }
 
     public HttpLoggingInterceptor(String tag) {
-        this.tag = tag;
         logger = Logger.getLogger(tag);
     }
 
     public HttpLoggingInterceptor(String tag, boolean isLogEnable) {
-        this.tag = tag;
         this.isLogEnable = isLogEnable;
         logger = Logger.getLogger(tag);
     }
@@ -104,12 +100,17 @@ public class HttpLoggingInterceptor implements Interceptor {
         }
         long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
 
-        //Logc.e(tag, "+++++++++++++++++++++++++++end+++++++++++耗时:" + tookMs + "毫秒");
-
         //响应日志拦截
         return logForResponse(response, tookMs);
     }
 
+    /**
+     * 请求接口
+     *
+     * @param request
+     * @param connection
+     * @throws IOException
+     */
     private void logForRequest(Request request, Connection connection) throws IOException {
         log("-------------------------------request-------------------------------");
         boolean logBody = (level == Level.BODY);
@@ -119,7 +120,7 @@ public class HttpLoggingInterceptor implements Interceptor {
         Protocol protocol = connection != null ? connection.protocol() : Protocol.HTTP_1_1;
 
         try {
-            String requestStartMessage = "--> " + request.method() + ' ' + URLDecoder.decode(request.url().url().toString(),UTF8.name()) + ' ' + protocol;
+            String requestStartMessage = "--> " + request.method() + ' ' + URLDecoder.decode(request.url().url().toString(), UTF8.name()) + ' ' + protocol;
             log(requestStartMessage);
 
             if (logHeaders) {
@@ -144,6 +145,13 @@ public class HttpLoggingInterceptor implements Interceptor {
         }
     }
 
+    /**
+     * 请求结果响应
+     *
+     * @param response
+     * @param tookMs
+     * @return
+     */
     private Response logForResponse(Response response, long tookMs) {
         log("-------------------------------response-------------------------------");
         Response.Builder builder = response.newBuilder();
@@ -153,7 +161,7 @@ public class HttpLoggingInterceptor implements Interceptor {
         boolean logHeaders = (level == Level.BODY || level == Level.HEADERS);
 
         try {
-            log("<-- " + clone.code() + ' ' + clone.message() + ' ' +URLDecoder.decode(clone.request().url().url().toString(),UTF8.name()) + " (" + tookMs + "ms）");
+            log("<-- " + clone.code() + ' ' + clone.message() + ' ' + URLDecoder.decode(clone.request().url().url().toString(), UTF8.name()) + " (" + tookMs + "ms）");
             if (logHeaders) {
                 log(" ");
                 Headers headers = clone.headers();
@@ -213,7 +221,7 @@ public class HttpLoggingInterceptor implements Interceptor {
                 charset = contentType.charset(UTF8);
             }
             String result = buffer.readString(charset);
-            log("\tbody:" + URLDecoder.decode(replacer(result),UTF8.name()));
+            log("\tbody:" + URLDecoder.decode(replacer(result), UTF8.name()));
         } catch (Exception e) {
             e.printStackTrace();
         }

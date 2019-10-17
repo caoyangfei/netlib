@@ -32,13 +32,14 @@ import okio.BufferedSource;
 
 import static com.flyang.netlib.utils.HttpUtils.UTF8;
 
-
 /**
- * <p>描述：判断响应是否有效的处理</p>
- * 继承后扩展各种无效响应处理：包括token过期、账号异地登录、时间戳过期、签名sign错误等<br>
- * 作者： zhouyou<br>
- * 日期： 2017/5/4 19:11 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName BaseExpiredInterceptor
+ * @date 2019/10/16
+ * ------------- Description -------------
+ * 判断响应是否有效的处理
+ * <p>
+ * 继承扩展无效响应处理：包括token过期、账号异地登录、时间戳过期、签名sign错误等
  */
 public abstract class BaseExpiredInterceptor implements Interceptor {
     @Override

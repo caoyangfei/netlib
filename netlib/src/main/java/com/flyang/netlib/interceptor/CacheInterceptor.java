@@ -27,10 +27,11 @@ import okhttp3.Interceptor;
 import okhttp3.Response;
 
 /**
- * <p>描述：设置缓存功能</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/19 16:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName CacheInterceptor
+ * @date 2019/10/16
+ * ------------- Description -------------
+ * 设置缓存功能
  */
 public class CacheInterceptor implements Interceptor {
 
@@ -62,7 +63,7 @@ public class CacheInterceptor implements Interceptor {
         Response originalResponse = chain.proceed(chain.request());
         String cacheControl = originalResponse.header("Cache-Control");
         //String cacheControl = request.cacheControl().toString();
-        LogUtils.e( maxStaleOnline + "s load cache:" + cacheControl);
+        LogUtils.e(maxStaleOnline + "s load cache:" + cacheControl);
         if (TextUtils.isEmpty(cacheControl) || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
                 cacheControl.contains("must-revalidate") || cacheControl.contains("max-age") || cacheControl.contains("max-stale")) {
             return originalResponse.newBuilder()

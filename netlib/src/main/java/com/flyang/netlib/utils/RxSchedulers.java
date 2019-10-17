@@ -22,12 +22,11 @@ import com.flyang.netlib.func.HttpResponseFunc;
 import com.flyang.netlib.model.ApiResult;
 import com.flyang.util.log.LogUtils;
 
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscription;
-
-import io.reactivex.Flowable;
-import io.reactivex.FlowableTransformer;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -43,20 +42,24 @@ import io.reactivex.schedulers.Schedulers;
 public class RxSchedulers {
 
     /**
+     * 切换到I/O线程
+     * <p>
+     * 仅仅切换I/O线程
+     *
      * @param <T>
      * @return
      */
-    public static <T> FlowableTransformer<T, T> io_main() {
-        return new FlowableTransformer<T, T>() {
+    public static <T> ObservableTransformer<T, T> io_main() {
+        return new ObservableTransformer<T, T>() {
             @Override
-            public Publisher<T> apply(Flowable<T> flowable) {
-                return flowable
+            public ObservableSource<T> apply(Observable<T> observable) {
+                return observable
                         .subscribeOn(Schedulers.io())
                         .unsubscribeOn(Schedulers.io())
-                        .doOnSubscribe(new Consumer<Subscription>() {
+                        .doOnSubscribe(new Consumer<Disposable>() {
                             @Override
-                            public void accept(Subscription subscription) throws Exception {
-                                LogUtils.i("+++doOnSubscribe+++");
+                            public void accept(Disposable disposable) throws Exception {
+                                LogUtils.i("+++doOnSubscribe+++" + disposable.isDisposed());
                             }
                         })
                         .doFinally(new Action() {
@@ -72,25 +75,27 @@ public class RxSchedulers {
 
     /**
      * 切换到I/O线程
+     * <p>
+     * 转换数据，取出{@link ApiResult#getData()}对象
      *
      * @param <T>
      * @return
      */
-    public static <T> FlowableTransformer<ApiResult<T>, T> _io_main() {
-        return new FlowableTransformer<ApiResult<T>, T>() {
+    public static <T> ObservableTransformer<ApiResult<T>, T> _io_main() {
+        return new ObservableTransformer<ApiResult<T>, T>() {
 
             @Override
-            public Publisher<T> apply(Flowable<ApiResult<T>> flowable) {
-                return flowable
+            public ObservableSource<T> apply(Observable<ApiResult<T>> observable) {
+                return observable
                         .subscribeOn(Schedulers.io())
                         .unsubscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
+                        //TODO 取出ApiResult#getData()
                         .map(new HandleFuc<T>())
-                        .doOnSubscribe(new Consumer<Subscription>() {
+                        .doOnSubscribe(new Consumer<Disposable>() {
                             @Override
-                            public void accept(Subscription subscription) throws Exception {
-
-                                LogUtils.i("+++doOnSubscribe+++");
+                            public void accept(Disposable disposable) throws Exception {
+                                LogUtils.i("+++doOnSubscribe+++" + disposable.isDisposed());
                             }
                         })
                         .doFinally(new Action() {
@@ -110,18 +115,18 @@ public class RxSchedulers {
      * @param <T>
      * @return
      */
-    public static <T> FlowableTransformer<ApiResult<T>, T> _main() {
-        return new FlowableTransformer<ApiResult<T>, T>() {
+    public static <T> ObservableTransformer<ApiResult<T>, T> _main() {
+        return new ObservableTransformer<ApiResult<T>, T>() {
 
             @Override
-            public Publisher<T> apply(Flowable<ApiResult<T>> flowable) {
-                return flowable
+            public ObservableSource<T> apply(Observable<ApiResult<T>> observable) {
+                return observable
                         .observeOn(AndroidSchedulers.mainThread())
                         .map(new HandleFuc<T>())
-                        .doOnSubscribe(new Consumer<Subscription>() {
+                        .doOnSubscribe(new Consumer<Disposable>() {
                             @Override
-                            public void accept(Subscription subscription) throws Exception {
-                                LogUtils.i("+++doOnSubscribe+++");
+                            public void accept(Disposable disposable) throws Exception {
+                                LogUtils.i("+++doOnSubscribe+++" + disposable.isDisposed());
                             }
                         })
                         .doFinally(new Action() {

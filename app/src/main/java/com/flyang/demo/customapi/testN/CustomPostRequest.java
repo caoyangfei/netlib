@@ -25,7 +25,7 @@ import com.flyang.netlib.request.PostRequest;
 
 import java.lang.reflect.Type;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
 /**
@@ -52,13 +52,13 @@ public class CustomPostRequest extends PostRequest {
      * @return
      */
     @Override
-    public <T> Flowable<T> execute(Type type) {
+    public <T> Observable<T> execute(Type type) {
         return super.execute(new CallClazzProxy<TestApiResult2<T>, T>(type) {
         });
     }
 
     @Override
-    public <T> Flowable<T> execute(Class<T> clazz) {
+    public <T> Observable<T> execute(Class<T> clazz) {
         return super.execute(new CallClazzProxy<TestApiResult2<T>, T>(clazz) {
         });
     }

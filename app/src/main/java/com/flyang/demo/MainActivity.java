@@ -56,10 +56,9 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.List;
 
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -73,7 +72,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class MainActivity extends AppCompatActivity {
 
-    @SuppressLint("RestrictedApi")
+    @SuppressLint({"RestrictedApi", "CheckResult"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,12 +84,12 @@ public class MainActivity extends AppCompatActivity {
             actionBar.openOptionsMenu();
         }
 
-        Flowable.create(new FlowableOnSubscribe<String>() {
+        Observable.create(new ObservableOnSubscribe<String>() {
             @Override
-            public void subscribe(FlowableEmitter<String> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
                 FileUtils.getFileFromAsset(MainActivity.this, "1.jpg");
             }
-        }, BackpressureStrategy.BUFFER).compose(RxSchedulers.<String>io_main()).subscribe(new Consumer<String>() {
+        }).compose(RxSchedulers.<String>io_main()).subscribe(new Consumer<String>() {
             @Override
             public void accept(@NonNull String s) throws Exception {
 
@@ -211,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void onPostJson(View view) {
         FlyangHttp.post("api/")
-                .baseUrl("http://xxxx.xx.xx/dlydbg/")
+//                .baseUrl("http://xxxx.xx.xx/dlydbg/")
                 .upJson("{\"\":\"\",\"\":\"\",\"\":\"\",\"swry_dm\":\"127053096\",\"version\":\"1.0.0\"}")
                 //这里不想解析，简单只是为了做演示 直接返回String
                 .execute(new SimpleCallBack<String>() {
@@ -274,9 +273,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public void onCallBack(View view) {
         //支持CallBack<SkinTestResult>、CallBack<String>回调
-        Disposable mDisposable = FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        Disposable mDisposable = FlyangHttp.get("http://news-at.zhihu.com/api/3/sections")
                 .timeStamp(true)
-                .execute(new CallBack<SkinTestResult>() {
+                .execute(new CallBack<TestApiResult5<List<SectionItem>>>() {
                     @Override
                     public void onStart() {
                         showToast("开始请求");
@@ -293,9 +292,14 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onSuccess(SkinTestResult response) {
-                        showToast("请求成功：" + response.toString());
+                    public void onSuccess(TestApiResult5<List<SectionItem>> listTestApiResult5) {
+                        showToast("请求成功：" + listTestApiResult5.toString());
                     }
+
+//                    @Override
+//                    public void onSuccess(SkinTestResult response) {
+//
+//                    }
                 });
     }
 
@@ -379,11 +383,11 @@ public class MainActivity extends AppCompatActivity {
      * 本例不讲怎么结合简单订阅下输出结果，结合需要看具体场景
      */
     public void onObservable(View view) {
-        Flowable<SkinTestResult> flowable = FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        Observable<SkinTestResult> observable = FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .timeStamp(true)
                 .execute(SkinTestResult.class);
 
-        flowable.subscribe(new BaseSubscriber<SkinTestResult>() {
+        observable.subscribe(new BaseSubscriber<SkinTestResult>() {
             @Override
             public void onError(ApiException e) {
                 showToast(e.getMessage());
@@ -400,11 +404,11 @@ public class MainActivity extends AppCompatActivity {
      * 带有进度框的订阅者，对话框消失，可以自动取消掉网络请求
      */
     public void onProgressSubscriber(View view) {
-        Flowable<SkinTestResult> flowable = FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        Observable<SkinTestResult> observable = FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
                 .timeStamp(true)
                 .execute(SkinTestResult.class);
 
-        flowable.subscribe(new ProgressSubscriber<SkinTestResult>(this, mProgressDialog) {
+        observable.subscribe(new ProgressSubscriber<SkinTestResult>(this, mProgressDialog) {
             @Override
             public void onError(ApiException e) {
                 super.onError(e);
@@ -531,8 +535,8 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         LoginService mLoginService = request.create(LoginService.class);
-        Flowable<ApiResult<AuthModel>> flowable = request.call(mLoginService.login("v1/account/login", request.getParams().urlParamsMap));
-        Disposable disposable = flowable.subscribe(new Consumer<ApiResult<AuthModel>>() {
+        Observable<ApiResult<AuthModel>> observable = request.call(mLoginService.login("v1/account/login", request.getParams().urlParamsMap));
+        Disposable disposable = observable.subscribe(new Consumer<ApiResult<AuthModel>>() {
             @Override
             public void accept(@NonNull ApiResult<AuthModel> result) throws Exception {
                 showToast(result.toString());
@@ -558,8 +562,8 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         LoginService mLoginService = request.create(LoginService.class);
-        Flowable<AuthModel> flowable = request.apiCall(mLoginService.login("v1/account/login", request.getParams().urlParamsMap));
-        Disposable disposable = flowable.subscribe(new Consumer<AuthModel>() {
+        Observable<AuthModel> observable = request.apiCall(mLoginService.login("v1/account/login", request.getParams().urlParamsMap));
+        Disposable disposable = observable.subscribe(new Consumer<AuthModel>() {
             @Override
             public void accept(@NonNull AuthModel authModel) throws Exception {
                 showToast(authModel.toString());
@@ -578,9 +582,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @SuppressLint("CheckResult")
     public void onListResult(View view) {
         //方式一：
-       /* EasyHttp.get("http://news-at.zhihu.com/api/3/sections")
+        /*FlyangHttp.get("http://news-at.zhihu.com/api/3/sections")
                 .execute(new CallBackProxy<TestApiResult5<List<SectionItem>>, List<SectionItem>>(new SimpleCallBack<List<SectionItem>>() {
                     @Override
                     public void onError(ApiException e) {
@@ -594,11 +599,11 @@ public class MainActivity extends AppCompatActivity {
                 }) {
                 });*/
         //方式二：
-        /*Flowable<List<SectionItem>> flowable = EasyHttp.get("http://news-at.zhihu.com/api/3/sections")
+        /*Flowable<List<SectionItem>> observable = EasyHttp.get("http://news-at.zhihu.com/api/3/sections")
                 .execute(new CallClazzProxy<TestApiResult5<List<SectionItem>>, List<SectionItem>>(new TypeToken<List<SectionItem>>() {
                 }.getType()) {
                 });
-        flowable.subscribe(new Consumer<List<SectionItem>>() {
+        observable.subscribe(new Consumer<List<SectionItem>>() {
             @Override
             public void accept(@NonNull List<SectionItem> sectionItems) throws Exception {
                 showToast(sectionItems.toString());
@@ -610,11 +615,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
         //方式三：
-        Flowable<List<SectionItem>> flowable = FlyangHttp.get("http://news-at.zhihu.com/api/3/sections")
+        Observable<List<SectionItem>> observable = FlyangHttp.get("http://news-at.zhihu.com/api/3/sections")
                 .execute(new CallClazzProxy<TestApiResult5<List<SectionItem>>, List<SectionItem>>(new TypeToken<List<SectionItem>>() {
                 }.getType()) {
                 });
-        flowable.subscribe(new ProgressSubscriber<List<SectionItem>>(MainActivity.this, mProgressDialog) {
+
+        observable.subscribe(new ProgressSubscriber<List<SectionItem>>(MainActivity.this, mProgressDialog) {
             @Override
             public void onError(ApiException e) {
                 super.onError(e);

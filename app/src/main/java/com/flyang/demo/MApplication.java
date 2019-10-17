@@ -26,6 +26,7 @@ import com.flyang.netlib.FlyangHttp;
 import com.flyang.netlib.cache.converter.CacheType;
 import com.flyang.netlib.model.HttpHeaders;
 import com.flyang.netlib.model.HttpParams;
+import com.flyang.progress.ProgressManager;
 import com.flyang.util.log.LogUtils;
 
 import javax.net.ssl.HostnameVerifier;
@@ -43,7 +44,6 @@ public class MApplication extends Application {
 
         //这里涉及到安全我把url去掉了，demo都是调试通的
         String Url = "http://www.xxx.com";
-        FlyangHttp.getInstance().setBaseUrl(Url);
         //设置请求头
         HttpHeaders headers = new HttpHeaders();
         headers.put("User-Agent", SystemInfoUtils.getUserAgent(this, AppConstant.APPID));
@@ -70,6 +70,7 @@ public class MApplication extends Application {
 //        .addInterceptor(new HeTInterceptor());//处理自己业务的拦截器
 
 
+        ProgressManager.getInstance().with(FlyangHttp.getOkHttpClientBuilder());
     }
 
     public class UnSafeHostnameVerifier implements HostnameVerifier {

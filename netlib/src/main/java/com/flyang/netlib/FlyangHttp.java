@@ -50,8 +50,8 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
 import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.subscribers.DisposableSubscriber;
 import okhttp3.Cache;
 import okhttp3.ConnectionPool;
 import okhttp3.Interceptor;
@@ -184,7 +184,10 @@ public final class FlyangHttp {
     }
 
     /**
-     * 调试模式,默认打开所有的异常调试
+     * 调试模式,默认打开所有的异常日志
+     *
+     * @param tag tag
+     * @return
      */
     public FlyangHttp debug(String tag) {
         debug(tag, true);
@@ -192,9 +195,9 @@ public final class FlyangHttp {
     }
 
     /**
-     * 调试模式,第二个参数表示所有catch住的log是否需要打印<br>
-     * 一般来说,这些异常是由于不标准的数据格式,或者特殊需要主动产生的,
-     * 并不是框架错误,如果不想每次打印,这里可以关闭异常显示
+     * @param tag              tag
+     * @param isPrintException log是否显示
+     * @return
      */
     public FlyangHttp debug(String tag, boolean isPrintException) {
         String tempTag = TextUtils.isEmpty(tag) ? "RxEasyHttp_" : tag;
@@ -221,6 +224,9 @@ public final class FlyangHttp {
 
     /**
      * https的全局访问规则
+     *
+     * @param hostnameVerifier
+     * @return
      */
     public FlyangHttp setHostnameVerifier(HostnameVerifier hostnameVerifier) {
         okHttpClientBuilder.hostnameVerifier(hostnameVerifier);
@@ -229,6 +235,9 @@ public final class FlyangHttp {
 
     /**
      * https的全局自签名证书
+     *
+     * @param certificates
+     * @return
      */
     public FlyangHttp setCertificates(InputStream... certificates) {
         HttpsSslManager.SSLParams sslParams = HttpsSslManager.getSslSocketFactory(null, null, certificates);
@@ -238,6 +247,11 @@ public final class FlyangHttp {
 
     /**
      * https双向认证证书
+     *
+     * @param bksFile
+     * @param password
+     * @param certificates
+     * @return
      */
     public FlyangHttp setCertificates(InputStream bksFile, String password, InputStream... certificates) {
         HttpsSslManager.SSLParams sslParams = HttpsSslManager.getSslSocketFactory(bksFile, password, certificates);
@@ -247,6 +261,9 @@ public final class FlyangHttp {
 
     /**
      * 全局cookie存取规则
+     *
+     * @param cookieManager
+     * @return
      */
     public FlyangHttp setCookieStore(CookieManger cookieManager) {
         cookieJar = cookieManager;
@@ -256,6 +273,8 @@ public final class FlyangHttp {
 
     /**
      * 获取全局的cookie实例
+     *
+     * @return
      */
     public static CookieManger getCookieJar() {
         return getInstance().cookieJar;
@@ -263,6 +282,9 @@ public final class FlyangHttp {
 
     /**
      * 全局读取超时时间
+     *
+     * @param readTimeOut
+     * @return
      */
     public FlyangHttp setReadTimeOut(long readTimeOut) {
         okHttpClientBuilder.readTimeout(readTimeOut, TimeUnit.MILLISECONDS);
@@ -271,6 +293,9 @@ public final class FlyangHttp {
 
     /**
      * 全局写入超时时间
+     *
+     * @param writeTimeout
+     * @return
      */
     public FlyangHttp setWriteTimeOut(long writeTimeout) {
         okHttpClientBuilder.writeTimeout(writeTimeout, TimeUnit.MILLISECONDS);
@@ -279,6 +304,9 @@ public final class FlyangHttp {
 
     /**
      * 全局连接超时时间
+     *
+     * @param connectTimeout
+     * @return
      */
     public FlyangHttp setConnectTimeout(long connectTimeout) {
         okHttpClientBuilder.connectTimeout(connectTimeout, TimeUnit.MILLISECONDS);
@@ -287,6 +315,9 @@ public final class FlyangHttp {
 
     /**
      * 超时重试次数
+     *
+     * @param retryCount
+     * @return
      */
     public FlyangHttp setRetryCount(int retryCount) {
         if (retryCount < 0) throw new IllegalArgumentException("retryCount must > 0");
@@ -296,6 +327,8 @@ public final class FlyangHttp {
 
     /**
      * 超时重试次数
+     *
+     * @return
      */
     public static int getRetryCount() {
         return getInstance().mRetryCount;
@@ -303,6 +336,9 @@ public final class FlyangHttp {
 
     /**
      * 超时重试延迟时间
+     *
+     * @param retryDelay
+     * @return
      */
     public FlyangHttp setRetryDelay(int retryDelay) {
         if (retryDelay < 0) throw new IllegalArgumentException("retryDelay must > 0");
@@ -312,6 +348,8 @@ public final class FlyangHttp {
 
     /**
      * 超时重试延迟时间
+     *
+     * @return
      */
     public static int getRetryDelay() {
         return getInstance().mRetryDelay;
@@ -319,6 +357,9 @@ public final class FlyangHttp {
 
     /**
      * 超时重试延迟叠加时间
+     *
+     * @param retryIncreaseDelay
+     * @return
      */
     public FlyangHttp setRetryIncreaseDelay(int retryIncreaseDelay) {
         if (retryIncreaseDelay < 0)
@@ -329,6 +370,8 @@ public final class FlyangHttp {
 
     /**
      * 超时重试延迟叠加时间
+     *
+     * @return
      */
     public static int getRetryIncreaseDelay() {
         return getInstance().mRetryIncreaseDelay;
@@ -336,6 +379,9 @@ public final class FlyangHttp {
 
     /**
      * 全局的缓存模式
+     *
+     * @param cacheMode
+     * @return
      */
     public FlyangHttp setCacheMode(CacheMode cacheMode) {
         mCacheMode = cacheMode;
@@ -344,6 +390,8 @@ public final class FlyangHttp {
 
     /**
      * 获取全局的缓存模式
+     *
+     * @return
      */
     public static CacheMode getCacheMode() {
         return getInstance().mCacheMode;
@@ -351,6 +399,9 @@ public final class FlyangHttp {
 
     /**
      * 全局的缓存过期时间
+     *
+     * @param cacheTime
+     * @return
      */
     public FlyangHttp setCacheTime(int cacheTime) {
         if (cacheTime <= -1) cacheTime = DEFAULT_CACHE_NEVER_EXPIRE;
@@ -525,7 +576,10 @@ public final class FlyangHttp {
     }
 
     /**
-     * 全局设置baseurl
+     * 设置全局baseUrl
+     *
+     * @param baseUrl
+     * @return
      */
     public FlyangHttp setBaseUrl(String baseUrl) {
         mBaseUrl = PreconditionUtils.checkNotNull(baseUrl, "baseUrl == null");
@@ -580,7 +634,7 @@ public final class FlyangHttp {
     /**
      * 取消订阅
      */
-    public static void cancelSubscription(DisposableSubscriber disposable) {
+    public static void cancelSubscription(Disposable disposable) {
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }

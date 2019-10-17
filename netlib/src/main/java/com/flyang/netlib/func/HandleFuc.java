@@ -26,10 +26,12 @@ import io.reactivex.functions.Function;
 
 
 /**
- * <p>描述：ApiResult<T>转换T</p>
- * 作者： zhouyou<br>
- * 日期： 2017/5/15 16:54 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName HandleFuc
+ * @date 2019/10/16
+ * ------------- Description -------------
+ * 取出泛型对象
+ * {@link ApiResult#getData()}
  */
 public class HandleFuc<T> implements Function<ApiResult<T>, T> {
     @Override

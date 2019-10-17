@@ -19,10 +19,9 @@ package com.flyang.netlib.transformer;
 
 import com.flyang.netlib.func.HttpResponseFunc;
 
-import org.reactivestreams.Publisher;
-
-import io.reactivex.Flowable;
-import io.reactivex.FlowableTransformer;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
 
 /**
  * @author caoyangfei
@@ -31,9 +30,9 @@ import io.reactivex.FlowableTransformer;
  * ------------- Description -------------
  * 错误转换Transformer
  */
-public class HandleErrTransformer<T> implements FlowableTransformer<T, T> {
+public class HandleErrTransformer<T> implements ObservableTransformer<T, T> {
     @Override
-    public Publisher<T> apply(Flowable<T> upstream) {
+    public ObservableSource<T> apply(Observable<T> upstream) {
         return upstream.onErrorResumeNext(new HttpResponseFunc<T>());
     }
 }

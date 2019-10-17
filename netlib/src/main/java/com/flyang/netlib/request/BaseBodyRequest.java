@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -160,7 +160,7 @@ public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseReq
     }
 
     @Override
-    protected Flowable<ResponseBody> generateRequest() {
+    protected Observable<ResponseBody> generateRequest() {
         if (this.requestBody != null) { //自定义的请求体
             return apiManager.postBody(url, this.requestBody);
         } else if (this.json != null) {//上传的Json
@@ -186,7 +186,7 @@ public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseReq
         }
     }
 
-    protected Flowable<ResponseBody> uploadFilesWithParts() {
+    protected Observable<ResponseBody> uploadFilesWithParts() {
         List<MultipartBody.Part> parts = new ArrayList<>();
         //拼接参数键值对
         for (Map.Entry<String, String> mapEntry : params.urlParamsMap.entrySet()) {
@@ -203,7 +203,7 @@ public abstract class BaseBodyRequest<R extends BaseBodyRequest> extends BaseReq
         return apiManager.uploadFiles(url, parts);
     }
 
-    protected Flowable<ResponseBody> uploadFilesWithBodys() {
+    protected Observable<ResponseBody> uploadFilesWithBodys() {
         Map<String, RequestBody> mBodyMap = new HashMap<>();
         //拼接参数键值对
         for (Map.Entry<String, String> mapEntry : params.urlParamsMap.entrySet()) {

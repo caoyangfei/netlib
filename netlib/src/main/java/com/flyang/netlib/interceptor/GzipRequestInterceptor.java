@@ -28,11 +28,13 @@ import okio.GzipSink;
 import okio.Okio;
 
 /**
- * <p>描述：post数据进行gzip后发送给服务器</p>
- *  okhttp内部默认启用了gzip,此选项是针对需要对post数据进行gzip后发送给服务器的,如服务器不支持,请勿开启<br>
- * 作者： zhouyou<br>
- * 日期： 2016/12/19 17:11<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName GzipRequestInterceptor
+ * @date 2019/10/16
+ * ------------- Description -------------
+ * post数据进行gzip后发送给服务器
+ * <p>
+ * okhttp内部默认启用了gzip,此选项是针对需要对post数据进行gzip后发送给服务器的,如服务器不支持,请勿开启
  */
 public class GzipRequestInterceptor implements Interceptor {
     @Override
@@ -57,7 +59,7 @@ public class GzipRequestInterceptor implements Interceptor {
 
             @Override
             public long contentLength() {
-                return -1; 
+                return -1;
             }
 
             @Override

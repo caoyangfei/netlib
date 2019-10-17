@@ -24,11 +24,11 @@ import okhttp3.Response;
 
 
 /**
- * <p>描述：不加载缓存</p>
- * 1.不适用Okhttp自带的缓存<br>
- * 作者： zhouyou<br>
- * 日期： 2016/12/20 10:35<br>
- * 版本： v2.0<br>
+ * @author caoyangfei
+ * @ClassName NoCacheInterceptor
+ * @date 2019/10/16
+ * ------------- Description -------------
+ * 不加载缓存
  */
 public class NoCacheInterceptor implements Interceptor {
     @Override

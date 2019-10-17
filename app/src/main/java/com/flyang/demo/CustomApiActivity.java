@@ -92,7 +92,7 @@ public class CustomApiActivity extends AppCompatActivity {
                 }) {
                 });
         //方式二
-        /* Flowable<ResultBean> flowable = EasyHttp.get("http://apis.juhe.cn/mobile/get")
+        /* Flowable<ResultBean> observable = EasyHttp.get("http://apis.juhe.cn/mobile/get")
                 .readTimeOut(30 * 1000)//局部定义读超时
                 .writeTimeOut(30 * 1000)
                 .params("phone", "18688994275")
@@ -100,7 +100,7 @@ public class CustomApiActivity extends AppCompatActivity {
                 .params("key", "5682c1f44a7f486e40f9720d6c97ffe4")
                 .execute(new CallClazzProxy<TestApiResult1<ResultBean>, ResultBean>(ResultBean.class) {
                 });
-        flowable.subscribe(new ProgressSubscriber<ResultBean>(this, mProgressDialog) {
+        observable.subscribe(new ProgressSubscriber<ResultBean>(this, mProgressDialog) {
             @Override
             public void onError(ApiException e) {
                 super.onError(e);

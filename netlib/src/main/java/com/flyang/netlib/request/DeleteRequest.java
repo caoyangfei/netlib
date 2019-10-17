@@ -27,10 +27,10 @@ import com.flyang.netlib.subsciber.CallBackSubsciber;
 import com.flyang.netlib.utils.RxSchedulers;
 import com.google.gson.reflect.TypeToken;
 
-import org.reactivestreams.Publisher;
-
-import io.reactivex.Flowable;
-import io.reactivex.FlowableTransformer;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -54,21 +54,21 @@ public class DeleteRequest extends BaseBodyRequest<DeleteRequest> {
     }
 
     public <T> Disposable execute(CallBackProxy<? extends ApiResult<T>, T> proxy) {
-        Flowable<CacheResult<T>> flowable = build().toObservable(generateRequest(), proxy);
+        Observable<CacheResult<T>> observable = build().toObservable(generateRequest(), proxy);
         if (CacheResult.class != proxy.getCallBack().getRawType()) {
-            return flowable.compose(new FlowableTransformer<CacheResult<T>, T>() {
+            return observable.compose(new ObservableTransformer<CacheResult<T>, T>() {
                 @Override
-                public Publisher<T> apply(Flowable<CacheResult<T>> upstream) {
+                public ObservableSource<T> apply(@NonNull Observable<CacheResult<T>> upstream) {
                     return upstream.map(new CacheResultFunc<T>());
                 }
             }).subscribeWith(new CallBackSubsciber<T>(context, proxy.getCallBack()));
         } else {
-            return flowable.subscribeWith(new CallBackSubsciber<CacheResult<T>>(context, proxy.getCallBack()));
+            return observable.subscribeWith(new CallBackSubsciber<CacheResult<T>>(context, proxy.getCallBack()));
         }
     }
 
-    private <T> Flowable<CacheResult<T>> toObservable(Flowable flowable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
-        return flowable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
+    private <T> Observable<CacheResult<T>> toObservable(Observable observable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
+        return observable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
         }.getType()))
                 .compose(isSyncRequest ? RxSchedulers._main() : RxSchedulers._io_main())
                 .compose(rxCache.transformer(cacheMode, proxy.getCallBack().getType()))
@@ -76,7 +76,7 @@ public class DeleteRequest extends BaseBodyRequest<DeleteRequest> {
     }
 
     @Override
-    protected Flowable<ResponseBody> generateRequest() {
+    protected Observable<ResponseBody> generateRequest() {
         if (this.requestBody != null) { //自定义的请求体
             return apiManager.deleteBody(url, this.requestBody);
         } else if (this.json != null) {//Json

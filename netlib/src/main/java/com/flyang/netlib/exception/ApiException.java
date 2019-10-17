@@ -32,32 +32,18 @@ import java.net.UnknownHostException;
 
 import retrofit2.HttpException;
 
-
 /**
- * <p>描述：统一处理了API异常错误</p>
- * 作者： zhouyou<br>
- * 日期： 2016/12/15 16:50 <br>
- * 版本： v1.0<br>
+ * @author caoyangfei
+ * @ClassName ApiException
+ * @date 2019/10/16
+ * ------------- Description -------------
+ * 异常信息统一处理
  */
 @SuppressWarnings("deprecation")
 public class ApiException extends Exception {
-    //对应HTTP的状态码
-    private static final int BADREQUEST = 400;
-    private static final int UNAUTHORIZED = 401;
-    private static final int FORBIDDEN = 403;
-    private static final int NOT_FOUND = 404;
-    private static final int METHOD_NOT_ALLOWED = 405;
-    private static final int REQUEST_TIMEOUT = 408;
-    private static final int INTERNAL_SERVER_ERROR = 500;
-    private static final int BAD_GATEWAY = 502;
-    private static final int SERVICE_UNAVAILABLE = 503;
-    private static final int GATEWAY_TIMEOUT = 504;
 
     private final int code;
     private String displayMessage;
-
-    public static final int UNKNOWN = 1000;
-    public static final int PARSE_ERROR = 1001;
     private String message;
 
 
@@ -93,20 +79,6 @@ public class ApiException extends Exception {
         if (e instanceof HttpException) {
             HttpException httpException = (HttpException) e;
             ex = new ApiException(httpException, httpException.code());
-            /*switch (httpException.code()) {
-                case BADREQUEST:
-                case UNAUTHORIZED:
-                case FORBIDDEN:
-                case NOT_FOUND:
-                case REQUEST_TIMEOUT:
-                case GATEWAY_TIMEOUT:
-                case INTERNAL_SERVER_ERROR:
-                case BAD_GATEWAY:
-                case SERVICE_UNAVAILABLE:
-                default:
-                    ex.message = "网络错误,Code:"+httpException.code()+" ,err:"+httpException.getMessage();
-                    break;
-            }*/
             ex.message = httpException.getMessage();
             return ex;
         } else if (e instanceof ServerException) {

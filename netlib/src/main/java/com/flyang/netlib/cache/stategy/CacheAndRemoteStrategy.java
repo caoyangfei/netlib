@@ -22,7 +22,7 @@ import com.flyang.netlib.cache.model.CacheResult;
 
 import java.lang.reflect.Type;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Predicate;
 
@@ -36,10 +36,10 @@ import io.reactivex.functions.Predicate;
  */
 public final class CacheAndRemoteStrategy extends BaseStrategy {
     @Override
-    public <T> Flowable<CacheResult<T>> execute(RxCache rxCache, String key, long time, Flowable<T> source, Type type) {
-        Flowable<CacheResult<T>> cache = loadCache(rxCache, type, key, time, true);
-        Flowable<CacheResult<T>> remote = loadRemote(rxCache, key, source, false);
-        return Flowable.concat(cache, remote)
+    public <T> Observable<CacheResult<T>> execute(RxCache rxCache, String key, long time, Observable<T> source, Type type) {
+        Observable<CacheResult<T>> cache = loadCache(rxCache, type, key, time, true);
+        Observable<CacheResult<T>> remote = loadRemote(rxCache, key, source, false);
+        return Observable.concat(cache, remote)
                 .filter(new Predicate<CacheResult<T>>() {
                     @Override
                     public boolean test(@NonNull CacheResult<T> tCacheResult) throws Exception {

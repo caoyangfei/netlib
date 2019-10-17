@@ -23,7 +23,7 @@ import com.flyang.netlib.cache.model.CacheResult;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 
 /**
  * @author caoyangfei
@@ -34,11 +34,11 @@ import io.reactivex.Flowable;
  */
 public final class FirstRemoteStrategy extends BaseStrategy {
     @Override
-    public <T> Flowable<CacheResult<T>> execute(RxCache rxCache, String key, long time, Flowable<T> source, Type type) {
-        Flowable<CacheResult<T>> cache = loadCache(rxCache, type, key, time, true);
-        Flowable<CacheResult<T>> remote = loadRemote(rxCache, key, source, false);
+    public <T> Observable<CacheResult<T>> execute(RxCache rxCache, String key, long time, Observable<T> source, Type type) {
+        Observable<CacheResult<T>> cache = loadCache(rxCache, type, key, time, true);
+        Observable<CacheResult<T>> remote = loadRemote(rxCache, key, source, false);
         //return remote.switchIfEmpty(cache);
-        return Flowable
+        return Observable
                 .concatDelayError(Arrays.asList(remote, cache))
                 .take(1);
     }

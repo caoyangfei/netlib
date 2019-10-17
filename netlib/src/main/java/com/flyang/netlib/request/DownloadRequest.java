@@ -22,11 +22,11 @@ import com.flyang.netlib.func.RetryExceptionFunc;
 import com.flyang.netlib.subsciber.DownloadSubscriber;
 import com.flyang.netlib.transformer.HandleErrTransformer;
 
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-
-import io.reactivex.Flowable;
-import io.reactivex.FlowableTransformer;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
@@ -64,10 +64,10 @@ public class DownloadRequest extends BaseRequest<DownloadRequest> {
         return this;
     }
 
-    public <T> Subscriber execute(CallBack<T> callBack) {
-        return build().generateRequest().compose(new FlowableTransformer<ResponseBody, ResponseBody>() {
+    public <T> Disposable execute(CallBack<T> callBack) {
+        return (Disposable) build().generateRequest().compose(new ObservableTransformer<ResponseBody, ResponseBody>() {
             @Override
-            public Publisher<ResponseBody> apply(Flowable<ResponseBody> upstream) {
+            public ObservableSource<ResponseBody> apply(@NonNull Observable<ResponseBody> upstream) {
                 if (isSyncRequest) {
                     return upstream;//.observeOn(AndroidSchedulers.mainThread());
                 } else {
@@ -81,7 +81,7 @@ public class DownloadRequest extends BaseRequest<DownloadRequest> {
     }
 
     @Override
-    protected Flowable<ResponseBody> generateRequest() {
+    protected Observable<ResponseBody> generateRequest() {
         return apiManager.downloadFile(url);
     }
 }

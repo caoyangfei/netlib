@@ -22,7 +22,7 @@ import com.flyang.netlib.cache.model.CacheResult;
 
 import java.lang.reflect.Type;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 
@@ -35,7 +35,7 @@ import io.reactivex.functions.Function;
  */
 public class NoStrategy implements IStrategy {
     @Override
-    public <T> Flowable<CacheResult<T>> execute(RxCache rxCache, String cacheKey, long cacheTime, Flowable<T> source, Type type) {
+    public <T> Observable<CacheResult<T>> execute(RxCache rxCache, String cacheKey, long cacheTime, Observable<T> source, Type type) {
         return source.map(new Function<T, CacheResult<T>>() {
             @Override
             public CacheResult<T> apply(@NonNull T t) throws Exception {

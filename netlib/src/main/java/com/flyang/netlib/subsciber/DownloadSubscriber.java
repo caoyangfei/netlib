@@ -30,7 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
@@ -159,7 +159,7 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
                         if (callBack != null) {
                             if (callBack != null) {
                                 final long finalFileSizeDownloaded = fileSizeDownloaded;
-                                Flowable.just(finalFileSizeDownloaded).observeOn(AndroidSchedulers.mainThread())
+                                Observable.just(finalFileSizeDownloaded).observeOn(AndroidSchedulers.mainThread())
                                         .subscribe(new Consumer<Long>() {
                                             @Override
                                             public void accept(@NonNull Long aLong) throws Exception {
@@ -185,7 +185,7 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
                 if (callBack != null) {
                     //final String finalName = name;
                     final String finalPath = path;
-                    Flowable.just(finalPath).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<String>() {
+                    Observable.just(finalPath).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<String>() {
                         @Override
                         public void accept(@NonNull String s) throws Exception {
                             if (callBack instanceof DownloadProgressCallBack) {
@@ -228,7 +228,7 @@ public class DownloadSubscriber<ResponseBody extends okhttp3.ResponseBody> exten
             return;
         }
         //if (Utils.checkMain()) {
-        Flowable.just(new ApiException(e, 100)).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<ApiException>() {
+        Observable.just(new ApiException(e, 100)).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<ApiException>() {
             @Override
             public void accept(@NonNull ApiException e) throws Exception {
                 if (mCallBack != null) {

@@ -16,6 +16,7 @@
 
 package com.flyang.netlib.request;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -46,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import okhttp3.Cache;
@@ -114,7 +115,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
         if (!TextUtils.isEmpty(this.baseUrl)) {
             httpUrl = HttpUrl.parse(baseUrl);
         }
-        if (baseUrl == null && url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
+        if (/*baseUrl == null&&*/  url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
             httpUrl = HttpUrl.parse(url);
             baseUrl = httpUrl.url().getProtocol() + "://" + httpUrl.url().getHost() + "/";
         }
@@ -141,6 +142,8 @@ public abstract class BaseRequest<R extends BaseRequest> {
         return this.params;
     }
 
+    /**********************参数配置,当前请求的接口参数替换全局配置参数,只在请求的接口处有效**************************/
+
     public R readTimeOut(long readTimeOut) {
         this.readTimeOut = readTimeOut;
         return (R) this;
@@ -161,6 +164,12 @@ public abstract class BaseRequest<R extends BaseRequest> {
         return (R) this;
     }
 
+    /**
+     * 缓存模式
+     *
+     * @param cacheMode
+     * @return
+     */
     public R cacheMode(CacheMode cacheMode) {
         this.cacheMode = cacheMode;
         return (R) this;
@@ -171,12 +180,24 @@ public abstract class BaseRequest<R extends BaseRequest> {
         return (R) this;
     }
 
+    /**
+     * 缓存时间
+     *
+     * @param cacheTime
+     * @return
+     */
     public R cacheTime(int cacheTime) {
         if (cacheTime <= -1) cacheTime = FlyangHttp.DEFAULT_CACHE_NEVER_EXPIRE;
         this.cacheTime = cacheTime;
         return (R) this;
     }
 
+    /**
+     * 设置baseUrl
+     *
+     * @param baseUrl
+     * @return
+     */
     public R baseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
         if (!TextUtils.isEmpty(this.baseUrl))
@@ -369,6 +390,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
     /**
      * 移除缓存（key）
      */
+    @SuppressLint("CheckResult")
     public void removeCache(String key) {
         getRxCache().remove(key).compose(RxSchedulers.<Boolean>io_main())
                 .subscribe(new Consumer<Boolean>() {
@@ -546,5 +568,5 @@ public abstract class BaseRequest<R extends BaseRequest> {
         return (R) this;
     }
 
-    protected abstract Flowable<ResponseBody> generateRequest();
+    protected abstract Observable<ResponseBody> generateRequest();
 }
