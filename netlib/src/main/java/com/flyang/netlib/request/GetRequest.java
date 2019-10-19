@@ -96,6 +96,7 @@ public class GetRequest extends BaseRequest<GetRequest> {
                 .compose(new ObservableTransformer() {
                     @Override
                     public ObservableSource apply(@NonNull Observable observable) {
+                        //无论是否启用缓存都转换为泛型对象返回
                         return observable.map(new CacheResultFunc<T>());
                     }
                 });
@@ -130,10 +131,12 @@ public class GetRequest extends BaseRequest<GetRequest> {
             return observable.compose(new ObservableTransformer<CacheResult<T>, T>() {
                 @Override
                 public ObservableSource<T> apply(@NonNull Observable<CacheResult<T>> observable) {
+                    //没有启用缓存时,转换成泛型对象返回
                     return observable.map(new CacheResultFunc<T>());
                 }
             }).subscribeWith(new CallBackSubsciber<T>(context, proxy.getCallBack()));
         } else {
+            //启用缓存时,返回CacheResult对象
             return observable.subscribeWith(new CallBackSubsciber<CacheResult<T>>(context, proxy.getCallBack()));
         }
     }
