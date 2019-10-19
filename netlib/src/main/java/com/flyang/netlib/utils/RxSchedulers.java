@@ -35,7 +35,6 @@ import io.reactivex.schedulers.Schedulers;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static android.support.annotation.RestrictTo.Scope.SUBCLASSES;
 
 
 /**
@@ -87,7 +86,7 @@ public class RxSchedulers {
      * @param <T>
      * @return
      */
-    @RestrictTo({LIBRARY, LIBRARY_GROUP, SUBCLASSES})
+    @RestrictTo({LIBRARY, LIBRARY_GROUP})
     public static <T> ObservableTransformer<ApiResult<T>, T> _io_main() {
         return new ObservableTransformer<ApiResult<T>, T>() {
 
@@ -122,7 +121,7 @@ public class RxSchedulers {
      * @param <T>
      * @return
      */
-    @RestrictTo({LIBRARY, LIBRARY_GROUP, SUBCLASSES})
+    @RestrictTo({LIBRARY, LIBRARY_GROUP})
     public static <T> ObservableTransformer<ApiResult<T>, T> _main() {
         return new ObservableTransformer<ApiResult<T>, T>() {
 
