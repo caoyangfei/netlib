@@ -58,7 +58,7 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
     }
 
     /**
-     * 创建api服务  可以支持自定义的api，默认使用BaseApiService,上层不用关心
+     * 创建api服务  可以支持自定义的api，默认使用ApiService,上层不用关心
      *
      * @param service 自定义的apiservice class
      */
@@ -67,9 +67,11 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
         return retrofit.create(service);
     }
 
+
     /**
-     * 调用call返回一个Observable<T>
-     * 举例：如果你给的是一个Observable<ApiResult<AuthModel>> 那么返回的<T>是一个ApiResult<AuthModel>
+     * 返回Observable
+     * <p>
+     * 可以自定义返回实体继承ApiResult
      */
     public <T> Observable<T> call(Observable<T> observable) {
         PreconditionUtils.checkNotNull(retrofit, "请先在调用build()才能使用");
@@ -78,10 +80,16 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
     }
 
+    /**
+     * CallBack回调处理结果
+     */
     public <T> void call(Observable<T> observable, CallBack<T> callBack) {
         call(observable, new CallBackSubsciber(context, callBack));
     }
 
+    /**
+     * CallBack回调处理结果
+     */
     public <R> void call(Observable observable, Observer<R> subscriber) {
         observable.compose(RxSchedulers.io_main())
                 .subscribe(subscriber);
@@ -89,8 +97,11 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
 
 
     /**
-     * Flowable,针对ApiResult的业务<T>
-     * 举例：如果你给的是一个Observable<ApiResult<AuthModel>> 那么返回的<T>是AuthModel
+     * 返回Observable<AuthModel>
+     *
+     * @param observable
+     * @param <T>
+     * @return
      */
     public <T> Observable<T> apiCall(Observable<ApiResult<T>> observable) {
         PreconditionUtils.checkNotNull(retrofit, "请先在调用build()才能使用");
@@ -101,11 +112,21 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
                 .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
     }
 
+    /**
+     * CallBack回调处理结果
+     * <p>
+     * 默认使用ApiResult
+     */
     public <T> Disposable apiCall(Observable<T> observable, CallBack<T> callBack) {
         return call(observable, new CallBackProxy<ApiResult<T>, T>(callBack) {
         });
     }
 
+    /**
+     * CallBack回调处理结果
+     * <p>
+     * 自定义返回实体继承ApiResult
+     */
     public <T> Disposable call(Observable<T> observable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
         Observable<CacheResult<T>> cacheobservable = build().toObservable(observable, proxy);
         if (CacheResult.class != proxy.getCallBack().getRawType()) {
@@ -120,7 +141,7 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
         }
     }
 
-    @SuppressWarnings(value = {"unchecked", "deprecation"})
+    @SuppressWarnings(value = {"unchecked"})
     private <T> Observable<CacheResult<T>> toObservable(Observable observable, CallBackProxy<? extends ApiResult<T>, T> proxy) {
         return observable.map(new ApiResultFunc(proxy != null ? proxy.getType() : new TypeToken<ResponseBody>() {
         }.getType()))
