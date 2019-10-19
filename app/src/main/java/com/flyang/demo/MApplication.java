@@ -51,7 +51,7 @@ public class MApplication extends Application {
         HttpParams params = new HttpParams();
         params.put("appId", AppConstant.APPID);
         FlyangHttp.getInstance()
-                .debug("RxEasyHttp", BuildConfig.DEBUG)
+                .debug(BuildConfig.DEBUG)
                 .setReadTimeOut(60 * 1000)
                 .setWriteTimeOut(60 * 1000)
                 .setConnectTimeout(60 * 1000)
@@ -71,6 +71,8 @@ public class MApplication extends Application {
 
 
         ProgressManager.getInstance().with(FlyangHttp.getOkHttpClientBuilder());
+
+        LogUtils.getLogConfig().configTagPrefix("测试");
     }
 
     public class UnSafeHostnameVerifier implements HostnameVerifier {

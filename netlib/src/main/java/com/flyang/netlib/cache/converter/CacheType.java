@@ -9,7 +9,10 @@ package com.flyang.netlib.cache.converter;
  */
 public enum CacheType {
     //序列化
-    Serializable(1);
+    Serializable(1),
+
+    //json缓存
+    Json(2);
 
 
     private int type;

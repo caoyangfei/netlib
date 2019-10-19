@@ -36,6 +36,7 @@ import okhttp3.ResponseBody;
  * 回调代理
  * <p>
  * 主要用于可以自定义ApiResult
+ * {@link CallBack}返回结果
  */
 public abstract class CallBackProxy<T extends ApiResult<R>, R> implements IType<T> {
     CallBack<R> mCallBack;

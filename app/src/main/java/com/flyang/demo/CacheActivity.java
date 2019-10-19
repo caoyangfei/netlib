@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flyang.demo.model.SectionItem;
 import com.flyang.demo.model.SkinTestResult;
 import com.flyang.netlib.FlyangHttp;
 import com.flyang.netlib.cache.converter.CacheType;
@@ -33,6 +34,8 @@ import com.flyang.netlib.exception.ApiException;
 import com.flyang.netlib.subsciber.BaseSubscriber;
 import com.flyang.util.log.LogUtils;
 import com.google.gson.reflect.TypeToken;
+
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
@@ -103,7 +106,7 @@ public class CacheActivity extends AppCompatActivity implements View.OnClickList
      * new SimpleCallBack<String>()//返回字符串<br>
      */
     private void requestCahce() {
-        FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        FlyangHttp.get("http://news-at.zhihu.com/api/4/sections")
                 .readTimeOut(30 * 1000)//测试局部读超时30s
                 .cacheMode(cacheMode)
                 .cacheKey(this.getClass().getSimpleName())//缓存key
@@ -113,7 +116,7 @@ public class CacheActivity extends AppCompatActivity implements View.OnClickList
                 //.cacheDiskConverter(new GsonDiskConverter())//默认使用的是 new SerializableDiskConverter();
                 .cacheCacheType(CacheType.Serializable)//默认使用的是 new SerializableDiskConverter();
                 .timeStamp(true)
-                .execute(new SimpleCallBack<CacheResult<SkinTestResult>>() {
+                .execute(new SimpleCallBack<CacheResult<List<SectionItem>>>() {
 
                     @Override
                     public void onError(ApiException e) {
@@ -121,7 +124,7 @@ public class CacheActivity extends AppCompatActivity implements View.OnClickList
                     }
 
                     @Override
-                    public void onSuccess(CacheResult<SkinTestResult> cacheResult) {
+                    public void onSuccess(CacheResult<List<SectionItem>> cacheResult) {
                         LogUtils.i(cacheResult.toString());
                         String from;
                         if (cacheResult.isFromCache) {
@@ -148,7 +151,7 @@ public class CacheActivity extends AppCompatActivity implements View.OnClickList
      * execute(CacheResult<SkinTestResult> clazz)<br>
      */
     private void requestCahce2() {
-        FlyangHttp.get("/v1/app/chairdressing/skinAnalyzePower/skinTestResult")
+        FlyangHttp.get("http://news-at.zhihu.com/api/4/sections")
                 .readTimeOut(30 * 1000)//测试局部读超时30s
                 .cacheMode(cacheMode)
                 .cacheKey(this.getClass().getSimpleName())//缓存key

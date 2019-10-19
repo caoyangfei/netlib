@@ -16,11 +16,12 @@
 
 package com.flyang.netlib.interceptor;
 
+import com.flyang.util.log.LogUtils;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import okhttp3.Connection;
 import okhttp3.Headers;
@@ -46,8 +47,6 @@ public class HttpLoggingInterceptor implements Interceptor {
     private static final Charset UTF8 = Charset.forName("UTF-8");
 
     private volatile Level level = Level.NONE;
-    private Logger logger;
-    private boolean isLogEnable = false;
 
     public enum Level {
         NONE,       //不打印log
@@ -56,27 +55,10 @@ public class HttpLoggingInterceptor implements Interceptor {
         BODY        //所有数据全部打印
     }
 
-    public void log(String message) {
-        logger.log(java.util.logging.Level.INFO, message);
-    }
-
-    public HttpLoggingInterceptor(String tag) {
-        logger = Logger.getLogger(tag);
-    }
-
-    public HttpLoggingInterceptor(String tag, boolean isLogEnable) {
-        this.isLogEnable = isLogEnable;
-        logger = Logger.getLogger(tag);
-    }
-
     public HttpLoggingInterceptor setLevel(Level level) {
         if (level == null) throw new NullPointerException("level == null. Use Level.NONE instead.");
         this.level = level;
         return this;
-    }
-
-    public Level getLevel() {
-        return level;
     }
 
     @Override
@@ -95,7 +77,7 @@ public class HttpLoggingInterceptor implements Interceptor {
         try {
             response = chain.proceed(request);
         } catch (Exception e) {
-            log("<-- HTTP FAILED: " + e);
+            LogUtils.tag("FlyangHttp").i("<-- HTTP FAILED: " + e);
             throw e;
         }
         long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
@@ -112,7 +94,7 @@ public class HttpLoggingInterceptor implements Interceptor {
      * @throws IOException
      */
     private void logForRequest(Request request, Connection connection) throws IOException {
-        log("-------------------------------request-------------------------------");
+        LogUtils.tag("FlyangHttp").i("-------------------------------request-------------------------------");
         boolean logBody = (level == Level.BODY);
         boolean logHeaders = (level == Level.BODY || level == Level.HEADERS);
         RequestBody requestBody = request.body();
@@ -121,27 +103,26 @@ public class HttpLoggingInterceptor implements Interceptor {
 
         try {
             String requestStartMessage = "--> " + request.method() + ' ' + URLDecoder.decode(request.url().url().toString(), UTF8.name()) + ' ' + protocol;
-            log(requestStartMessage);
+            LogUtils.tag("FlyangHttp").i(requestStartMessage);
 
             if (logHeaders) {
                 Headers headers = request.headers();
                 for (int i = 0, count = headers.size(); i < count; i++) {
-                    log("\t" + headers.name(i) + ": " + headers.value(i));
+                    LogUtils.tag("FlyangHttp").i("\t" + headers.name(i) + ": " + headers.value(i));
                 }
 
-                //log(" ");
                 if (logBody && hasRequestBody) {
                     if (isPlaintext(requestBody.contentType())) {
                         bodyToString(request);
                     } else {
-                        log("\tbody: maybe [file part] , too large too print , ignored!");
+                        LogUtils.tag("FlyangHttp").i("\tbody: maybe [file part] , too large too print , ignored!");
                     }
                 }
             }
         } catch (Exception e) {
-            e(e);
+            e.printStackTrace();
         } finally {
-            log("--> END " + request.method());
+            LogUtils.tag("FlyangHttp").i("--> END " + request.method());
         }
     }
 
@@ -153,7 +134,7 @@ public class HttpLoggingInterceptor implements Interceptor {
      * @return
      */
     private Response logForResponse(Response response, long tookMs) {
-        log("-------------------------------response-------------------------------");
+        LogUtils.tag("FlyangHttp").i("-------------------------------response-------------------------------");
         Response.Builder builder = response.newBuilder();
         Response clone = builder.build();
         ResponseBody responseBody = clone.body();
@@ -161,30 +142,27 @@ public class HttpLoggingInterceptor implements Interceptor {
         boolean logHeaders = (level == Level.BODY || level == Level.HEADERS);
 
         try {
-            log("<-- " + clone.code() + ' ' + clone.message() + ' ' + URLDecoder.decode(clone.request().url().url().toString(), UTF8.name()) + " (" + tookMs + "ms）");
+            LogUtils.tag("FlyangHttp").i("<-- " + clone.code() + ' ' + clone.message() + ' ' + URLDecoder.decode(clone.request().url().url().toString(), UTF8.name()) + " (" + tookMs + "ms）");
             if (logHeaders) {
-                log(" ");
                 Headers headers = clone.headers();
                 for (int i = 0, count = headers.size(); i < count; i++) {
-                    log("\t" + headers.name(i) + ": " + headers.value(i));
+                    LogUtils.tag("FlyangHttp").i("\t" + headers.name(i) + ": " + headers.value(i));
                 }
-                log(" ");
                 if (logBody && HttpHeaders.hasBody(clone)) {
                     if (isPlaintext(responseBody.contentType())) {
                         String body = responseBody.string();
-                        log("\tbody:" + body);
+                        LogUtils.tag("FlyangHttp").i("\tbody:" + body);
                         responseBody = ResponseBody.create(responseBody.contentType(), body);
                         return response.newBuilder().body(responseBody).build();
                     } else {
-                        log("\tbody: maybe [file part] , too large too print , ignored!");
+                        LogUtils.tag("FlyangHttp").i("\tbody: maybe [file part] , too large too print , ignored!");
                     }
                 }
-                log(" ");
             }
         } catch (Exception e) {
-            e(e);
+            e.printStackTrace();
         } finally {
-            log("<-- END HTTP");
+            LogUtils.tag("FlyangHttp").i("<-- END HTTP");
         }
         return response;
     }
@@ -221,7 +199,7 @@ public class HttpLoggingInterceptor implements Interceptor {
                 charset = contentType.charset(UTF8);
             }
             String result = buffer.readString(charset);
-            log("\tbody:" + URLDecoder.decode(replacer(result), UTF8.name()));
+            LogUtils.tag("FlyangHttp").i("\tbody:" + URLDecoder.decode(replacer(result), UTF8.name()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -237,9 +215,5 @@ public class HttpLoggingInterceptor implements Interceptor {
             e.printStackTrace();
         }
         return data;
-    }
-
-    public void e(Throwable t) {
-        if (isLogEnable) t.printStackTrace();
     }
 }

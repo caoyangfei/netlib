@@ -34,6 +34,6 @@ import io.reactivex.Observable;
 public final class OnlyRemoteStrategy extends BaseStrategy {
     @Override
     public <T> Observable<CacheResult<T>> execute(RxCache rxCache, String key, long time, Observable<T> source, Type type) {
-        return loadRemote(rxCache, key, source, false);
+        return loadRemote(rxCache, key, source);
     }
 }

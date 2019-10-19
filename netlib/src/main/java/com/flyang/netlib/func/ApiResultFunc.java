@@ -42,7 +42,7 @@ import okhttp3.ResponseBody;
  * @ClassName ApiResultFunc
  * @date 2019/7/23
  * ------------- Description -------------
- * ApiResult结果转换Func
+ * ApiResult结果解析
  * <p>
  * 返回结果解析
  */
@@ -72,17 +72,10 @@ public class ApiResultFunc<T> implements Function<ResponseBody, ApiResult<T>> {
                 try {
                     String json = responseBody.string();
                     //增加是List<String>判断错误的问题
+                    //TODO gson解析返回结果
                     if (!List.class.isAssignableFrom(rawType) && clazz.equals(String.class)) {
                         apiResult.setData((T) json);
                         apiResult.setCode(0);
-                       /* final Type type = Utils.getType(cls, 0);
-                        ApiResult result = gson.fromJson(json, type);
-                        if (result != null) {
-                            apiResult = result;
-                            apiResult.setData((T) json);
-                        } else {
-                            apiResult.setMsg("json is null");
-                        }*/
                     } else {
                         ApiResult result = gson.fromJson(json, type);
                         if (result != null) {
@@ -105,8 +98,6 @@ public class ApiResultFunc<T> implements Function<ResponseBody, ApiResult<T>> {
                 final String json = responseBody.string();
                 final Class<T> clazz = HttpUtils.getClass(type, 0);
                 if (clazz.equals(String.class)) {
-                    //apiResult.setData((T) json);
-                    //apiResult.setCode(0);
                     final ApiResult result = parseApiResult(json, apiResult);
                     if (result != null) {
                         apiResult = result;

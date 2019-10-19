@@ -16,13 +16,15 @@
 
 package com.flyang.demo.model;
 
+import java.io.Serializable;
+
 /**
  * <p>描述：选择</p>
  * 作者： zhouyou<br>
  * 日期： 2017/5/31 16:54 <br>
  * 版本： v1.0<br>
  */
-public class SectionItem {
+public class SectionItem implements Serializable {
     String description;//
     int  id;//
     String name; //"深夜惊奇",

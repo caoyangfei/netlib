@@ -109,7 +109,7 @@ public final class RxCache {
         return new ObservableTransformer<T, CacheResult<T>>() {
             @Override
             public ObservableSource<CacheResult<T>> apply(Observable<T> upstream) {
-                LogUtils.i("cackeKey=" + RxCache.this.cacheKey);
+                LogUtils.tag("FlyangHttp").i("cackeKey=" + RxCache.this.cacheKey);
                 Type tempType = type;
                 if (type instanceof ParameterizedType) {//自定义ApiResult
                     Class<T> cls = (Class) ((ParameterizedType) type).getRawType();
@@ -131,7 +131,7 @@ public final class RxCache {
                     subscriber.onNext(data);
                 }
             } catch (Throwable e) {
-                LogUtils.e(e.getMessage());
+                LogUtils.tag("FlyangHttp").e(e.getMessage());
                 if (!subscriber.isDisposed()) {
                     subscriber.onError(e);
                 }
@@ -170,7 +170,6 @@ public final class RxCache {
             @Override
             T execute() throws Throwable {
                 return CacheFactory.load(key, cacheType, type);
-//                return cacheCore.load(type, key, time);
             }
         });
     }
@@ -182,7 +181,6 @@ public final class RxCache {
      * @param value 缓存Value
      */
     public <T> Observable<Boolean> save(final String key, final T value) {
-
         return Observable.create(new SimpleSubscribe<Boolean>() {
             @Override
             Boolean execute() throws Throwable {

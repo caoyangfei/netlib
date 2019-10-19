@@ -31,7 +31,7 @@ import okhttp3.Response;
  * @ClassName CacheInterceptor
  * @date 2019/10/16
  * ------------- Description -------------
- * 设置缓存功能
+ * 设置OKhttp自带缓存
  */
 public class CacheInterceptor implements Interceptor {
 
@@ -63,7 +63,7 @@ public class CacheInterceptor implements Interceptor {
         Response originalResponse = chain.proceed(chain.request());
         String cacheControl = originalResponse.header("Cache-Control");
         //String cacheControl = request.cacheControl().toString();
-        LogUtils.e(maxStaleOnline + "s load cache:" + cacheControl);
+        LogUtils.tag("FlyangHttp").e(maxStaleOnline + "s load cache:" + cacheControl);
         if (TextUtils.isEmpty(cacheControl) || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
                 cacheControl.contains("must-revalidate") || cacheControl.contains("max-age") || cacheControl.contains("max-stale")) {
             return originalResponse.newBuilder()

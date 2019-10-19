@@ -44,12 +44,13 @@ dependencies {
 
 
     implementation project(':netlib')
-    implementation dep.logginginterceptor
+
     implementation dep.okhttp
     implementation dep.disklrucache
     implementation dep.rxjava
     implementation dep.rxandroid
     implementation dep.retrofit
+    //gson解析
     implementation dep.convertergson
     implementation dep.adapterrxjava
 

@@ -73,7 +73,7 @@ public class RetryExceptionFunc implements Function<Observable<? extends Throwab
             @Override
             public ObservableSource<?> apply(Wrapper wrapper) throws Exception {
                 if (wrapper.index > 1)
-                    LogUtils.i("重试次数：" + (wrapper.index));
+                    LogUtils.tag("FlyangHttp").i("重试次数：" + (wrapper.index));
                 int errCode = 0;
                 if (wrapper.throwable instanceof ApiException) {
                     ApiException exception = (ApiException) wrapper.throwable;

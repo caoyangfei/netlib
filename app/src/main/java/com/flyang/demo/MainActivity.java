@@ -39,7 +39,7 @@ import com.flyang.demo.model.SkinTestResult;
 import com.flyang.demo.utils.FileUtils;
 import com.flyang.demo.utils.MD5;
 import com.flyang.netlib.FlyangHttp;
-import com.flyang.netlib.callback.CallBack;
+import com.flyang.netlib.callback.CallBackProxy;
 import com.flyang.netlib.callback.CallClazzProxy;
 import com.flyang.netlib.callback.ProgressDialogCallBack;
 import com.flyang.netlib.callback.SimpleCallBack;
@@ -275,32 +275,44 @@ public class MainActivity extends AppCompatActivity {
         //支持CallBack<SkinTestResult>、CallBack<String>回调
         Disposable mDisposable = FlyangHttp.get("http://news-at.zhihu.com/api/3/sections")
                 .timeStamp(true)
-                .execute(new CallBack<TestApiResult5<List<SectionItem>>>() {
-                    @Override
-                    public void onStart() {
-                        showToast("开始请求");
-                    }
-
-                    @Override
-                    public void onCompleted() {
-                        showToast("请求完成");
-                    }
-
+                .execute(new CallBackProxy<TestApiResult5<List<SectionItem>>, List<SectionItem>>(new SimpleCallBack<List<SectionItem>>() {
                     @Override
                     public void onError(ApiException e) {
                         showToast("请求失败：" + e.getMessage());
                     }
 
                     @Override
-                    public void onSuccess(TestApiResult5<List<SectionItem>> listTestApiResult5) {
-                        showToast("请求成功：" + listTestApiResult5.toString());
+                    public void onSuccess(List<SectionItem> sectionItems) {
+                        showToast("请求成功：" + sectionItems.toString());
                     }
-
-//                    @Override
-//                    public void onSuccess(SkinTestResult response) {
-//
-//                    }
+                }) {
                 });
+//                .execute(new CallBack<TestApiResult5<List<SectionItem>>>() {
+//                    @Override
+//                    public void onStart() {
+//                        showToast("开始请求");
+//                    }
+//
+//                    @Override
+//                    public void onCompleted() {
+//                        showToast("请求完成");
+//                    }
+//
+//                    @Override
+//                    public void onError(ApiException e) {
+//                        showToast("请求失败：" + e.getMessage());
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(TestApiResult5<List<SectionItem>> listTestApiResult5) {
+//                        showToast("请求成功：" + listTestApiResult5.toString());
+//                    }
+//
+////                    @Override
+////                    public void onSuccess(SkinTestResult response) {
+////
+////                    }
+//                });
     }
 
     /**

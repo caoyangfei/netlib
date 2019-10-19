@@ -73,7 +73,7 @@ public class UploadProgressRequestBody extends RequestBody {
         try {
             return delegate.contentLength();
         } catch (IOException e) {
-            LogUtils.e(e.getMessage());
+            LogUtils.tag("FlyangHttp").e(e.getMessage());
             return -1;
         }
     }
@@ -113,7 +113,7 @@ public class UploadProgressRequestBody extends RequestBody {
                 progressCallBack.onResponseProgress(bytesWritten, contentLength, bytesWritten == contentLength);
                 lastRefreshUiTime = System.currentTimeMillis();
             }
-            LogUtils.i("bytesWritten=" + bytesWritten + " ,totalBytesCount=" + contentLength);
+            LogUtils.tag("FlyangHttp").i("bytesWritten=" + bytesWritten + " ,totalBytesCount=" + contentLength);
         }
     }
 

@@ -45,14 +45,6 @@ public abstract class BaseStrategy implements IStrategy {
 
     /**
      * 加载缓存
-     *
-     * @param rxCache
-     * @param type
-     * @param key
-     * @param time
-     * @param needEmpty
-     * @param <T>
-     * @return
      */
     protected <T> Observable<CacheResult<T>> loadCache(final RxCache rxCache, Type type, final String key, final long time, final boolean needEmpty) {
         Observable<CacheResult<T>> observable = rxCache.<T>load(type, key, time).flatMap(new Function<T, ObservableSource<CacheResult<T>>>() {
@@ -77,98 +69,61 @@ public abstract class BaseStrategy implements IStrategy {
     }
 
     /**
-     * 请求成功后：异步保存
-     *
-     * @param rxCache
-     * @param key
-     * @param source
-     * @param needEmpty
-     * @param <T>
-     * @return
+     * 同步保存缓存
      */
-    protected <T> Observable<CacheResult<T>> loadRemote2(final RxCache rxCache, final String key, Observable<T> source, final boolean needEmpty) {
+    protected <T> Observable<CacheResult<T>> loadRemote(final RxCache rxCache, final String key, Observable<T> source) {
         Observable<CacheResult<T>> observable = source
-                .map(new Function<T, CacheResult<T>>() {
-                    @SuppressLint("CheckResult")
+                .flatMap(new Function<T, ObservableSource<CacheResult<T>>>() {
                     @Override
-                    public CacheResult<T> apply(T t) throws Exception {
-                        LogUtils.i("loadRemote result=" + t);
-                        rxCache.save(key, t).subscribeOn(Schedulers.io())
-                                .subscribe(new Consumer<Boolean>() {
-                                    @Override
-                                    public void accept(@NonNull Boolean status) throws Exception {
-                                        LogUtils.i("save status => " + status);
-                                    }
-                                }, new Consumer<Throwable>() {
-                                    @Override
-                                    public void accept(@NonNull Throwable throwable) throws Exception {
-                                        if (throwable instanceof ConcurrentModificationException) {
-                                            LogUtils.i("Save failed, please use a synchronized cache strategy :", throwable);
-                                        } else {
-                                            LogUtils.i(throwable.getMessage());
-                                        }
-                                    }
-                                });
-                        return new CacheResult<T>(false, t);
+                    public ObservableSource<CacheResult<T>> apply(final @NonNull T t) throws Exception {
+                        return rxCache.save(key, t).map(new Function<Boolean, CacheResult<T>>() {
+                            @Override
+                            public CacheResult<T> apply(@NonNull Boolean aBoolean) throws Exception {
+                                LogUtils.tag("FlyangHttp").i("save status => " + aBoolean);
+                                return new CacheResult<T>(false, t);
+                            }
+                        }).onErrorReturn(new Function<Throwable, CacheResult<T>>() {
+                            @Override
+                            public CacheResult<T> apply(@NonNull Throwable throwable) throws Exception {
+                                LogUtils.tag("FlyangHttp").i("save status => " + throwable);
+                                return new CacheResult<T>(false, t);
+                            }
+                        });
                     }
                 });
-        if (needEmpty) {
-            observable = observable
-                    .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends CacheResult<T>>>() {
-                        @Override
-                        public ObservableSource<? extends CacheResult<T>> apply(Throwable throwable) throws Exception {
-                            return Observable.empty();
-                        }
-                    });
-        }
         return observable;
     }
 
     /**
-     * 请求成功后：同步保存
-     *
-     * @param rxCache
-     * @param key
-     * @param source
-     * @param needEmpty
-     * @param <T>
-     * @return
+     * 请求成功后：异步保存
      */
-    protected <T> Observable<CacheResult<T>> loadRemote(final RxCache rxCache, final String key, Observable<T> source, final boolean needEmpty) {
+    @SuppressLint("CheckResult")
+    <T> Observable<CacheResult<T>> loadRemoteAsync(final RxCache rxCache, final String key, Observable<T> source) {
         Observable<CacheResult<T>> observable = source
                 .map(new Function<T, CacheResult<T>>() {
-                    @SuppressLint("CheckResult")
                     @Override
                     public CacheResult<T> apply(@NonNull T t) throws Exception {
+                        LogUtils.tag("FlyangHttp").i("loadRemote result=" + t);
                         rxCache.save(key, t).subscribeOn(Schedulers.io())
                                 .subscribe(new Consumer<Boolean>() {
                                     @Override
                                     public void accept(@NonNull Boolean status) throws Exception {
-                                        LogUtils.i("save status => " + status);
+                                        LogUtils.tag("FlyangHttp").i("save status => " + status);
                                     }
                                 }, new Consumer<Throwable>() {
                                     @Override
                                     public void accept(@NonNull Throwable throwable) throws Exception {
                                         if (throwable instanceof ConcurrentModificationException) {
-                                            LogUtils.i("Save failed, please use a synchronized cache strategy :", throwable);
+                                            LogUtils.tag("FlyangHttp").i("Save failed, please use a synchronized cache strategy :", throwable);
                                         } else {
-                                            LogUtils.i(throwable.getMessage());
+                                            LogUtils.tag("FlyangHttp").i(throwable.getMessage());
                                         }
                                     }
                                 });
-
                         return new CacheResult<T>(false, t);
                     }
                 });
-        if (needEmpty) {
-            observable = observable
-                    .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends CacheResult<T>>>() {
-                        @Override
-                        public ObservableSource<? extends CacheResult<T>> apply(Throwable throwable) throws Exception {
-                            return Observable.empty();
-                        }
-                    });
-        }
         return observable;
     }
+
 }

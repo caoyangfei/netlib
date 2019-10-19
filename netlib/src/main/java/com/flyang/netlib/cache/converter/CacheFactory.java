@@ -1,6 +1,7 @@
 package com.flyang.netlib.cache.converter;
 
 import com.flyang.util.cache.CacheDoubleStaticUtils;
+import com.flyang.util.data.GsonUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -22,6 +23,9 @@ public class CacheFactory<T> {
             case Serializable:
                 Object serializable = CacheDoubleStaticUtils.getSerializable(cacheKey);
                 return (T) serializable;
+            case Json:
+                String str = CacheDoubleStaticUtils.getString(cacheKey);
+                return GsonUtils.fromJson(str, type);
             default:
                 return null;
         }
@@ -32,6 +36,9 @@ public class CacheFactory<T> {
         switch (cacheType) {
             case Serializable:
                 CacheDoubleStaticUtils.put(cacheKey, ((Serializable) data), saveTime);
+                break;
+            case Json:
+                CacheDoubleStaticUtils.put(cacheKey, GsonUtils.toJson(data));
                 break;
         }
     }

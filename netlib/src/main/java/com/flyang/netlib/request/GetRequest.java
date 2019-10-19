@@ -102,7 +102,7 @@ public class GetRequest extends BaseRequest<GetRequest> {
     }
 
     /**
-     * 默认
+     * 默认ApiResult
      * {@link ApiResult}
      *
      * @param callBack
@@ -115,7 +115,7 @@ public class GetRequest extends BaseRequest<GetRequest> {
     }
 
     /**
-     * 拓展使用
+     * 拓展使用继承ApiResult
      * {@link CallBackProxy}代理
      * <p>
      * 继承{@link ApiResult}

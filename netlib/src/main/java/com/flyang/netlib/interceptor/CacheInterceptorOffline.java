@@ -32,7 +32,7 @@ import okhttp3.Response;
  * @ClassName CacheInterceptorOffline
  * @date 2019/10/16
  * ------------- Description -------------
- * 支持离线缓存,使用OKhttp自带的缓存功能
+ * 支持离线缓存,使用OKhttp自带缓存
  * <p>
  * 配置Okhttp的Cache
  * 配置请求头中的cache-control或者统一处理所有请求的请求头
@@ -62,7 +62,7 @@ public class CacheInterceptorOffline extends CacheInterceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         if (!HttpUtils.isNetworkAvailable(context)) {
-            LogUtils.i(" no network load cache:" + request.cacheControl().toString());
+            LogUtils.tag("FlyangHttp").i(" no network load cache:" + request.cacheControl().toString());
            /* request = request.newBuilder()
                     .removeHeader("Pragma")
                     .header("Cache-Control", "only-if-cached, " + cacheControlValue_Offline)

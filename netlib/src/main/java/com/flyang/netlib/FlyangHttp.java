@@ -19,7 +19,6 @@ package com.flyang.netlib;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
-import android.text.TextUtils;
 
 import com.flyang.netlib.cache.RxCache;
 import com.flyang.netlib.cache.converter.CacheType;
@@ -183,30 +182,17 @@ public final class FlyangHttp {
         return getInstance().rxCacheBuilder;
     }
 
-    /**
-     * 调试模式,默认打开所有的异常日志
-     *
-     * @param tag tag
-     * @return
-     */
-    public FlyangHttp debug(String tag) {
-        debug(tag, true);
-        return this;
-    }
 
     /**
-     * @param tag              tag
      * @param isPrintException log是否显示
      * @return
      */
-    public FlyangHttp debug(String tag, boolean isPrintException) {
-        String tempTag = TextUtils.isEmpty(tag) ? "RxEasyHttp_" : tag;
+    public FlyangHttp debug(boolean isPrintException) {
         if (isPrintException) {
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(tempTag, isPrintException);
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             okHttpClientBuilder.addInterceptor(loggingInterceptor);
         }
-        LogUtils.getLogConfig().configAllowLog(isPrintException);
         return this;
     }
 
@@ -649,12 +635,12 @@ public final class FlyangHttp {
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(@NonNull Boolean aBoolean) throws Exception {
-                        LogUtils.i("clearCache success!!!");
+                        LogUtils.tag("FlyangHttp").i("clearCache success!!!");
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(@NonNull Throwable throwable) throws Exception {
-                        LogUtils.i("clearCache err!!!");
+                        LogUtils.tag("FlyangHttp").i("clearCache err!!!");
                     }
                 });
     }
@@ -667,12 +653,12 @@ public final class FlyangHttp {
         getRxCache().remove(key).compose(RxSchedulers.<Boolean>io_main()).subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
-                LogUtils.i("removeCache success!!!");
+                LogUtils.tag("FlyangHttp").i("removeCache success!!!");
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(@NonNull Throwable throwable) throws Exception {
-                LogUtils.i("removeCache err!!!");
+                LogUtils.tag("FlyangHttp").i("removeCache err!!!");
             }
         });
     }

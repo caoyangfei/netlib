@@ -90,7 +90,7 @@ public class HttpsSslManager {
                 try {
                     if (certificate != null) certificate.close();
                 } catch (IOException e) {
-                    LogUtils.e(e);
+                    LogUtils.tag("FlyangHttp").e(e);
                 }
             }
             TrustManagerFactory trustManagerFactory;
@@ -98,13 +98,13 @@ public class HttpsSslManager {
             trustManagerFactory.init(keyStore);
             return trustManagerFactory.getTrustManagers();
         } catch (NoSuchAlgorithmException e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         } catch (CertificateException e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         } catch (KeyStoreException e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         } catch (Exception e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         }
         return null;
     }
@@ -118,17 +118,17 @@ public class HttpsSslManager {
             keyManagerFactory.init(clientKeyStore, password.toCharArray());
             return keyManagerFactory.getKeyManagers();
         } catch (KeyStoreException e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         } catch (NoSuchAlgorithmException e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         } catch (UnrecoverableKeyException e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         } catch (CertificateException e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         } catch (IOException e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         } catch (Exception e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         }
         return null;
     }

@@ -158,14 +158,12 @@ public abstract class BaseDynamicInterceptor<R extends BaseDynamicInterceptor> i
             //拼装新的参数
             TreeMap<String, String> newParams = dynamic(oldparams);
             PreconditionUtils.checkNotNull(newParams, "newParams==null");
-            //Logc.i("======post请求参数===========");
             for (Map.Entry<String, String> entry : newParams.entrySet()) {
                 String value = URLDecoder.decode(entry.getValue(), UTF8.name());
                 bodyBuilder.addEncoded(entry.getKey(), value);
-                //Logc.i(entry.getKey() + " -> " + value);
             }
             String url = HttpUtils.createUrlFromParams(httpUrl.url().toString(), newParams);
-            LogUtils.i(url);
+            LogUtils.tag("FlyangHttp").i(url);
             formBody = bodyBuilder.build();
             request = request.newBuilder().post(formBody).build();
         } else if (request.body() instanceof MultipartBody) {

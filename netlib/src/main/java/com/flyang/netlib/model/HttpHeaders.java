@@ -140,7 +140,7 @@ public class HttpHeaders implements Serializable {
                 jsonObject.put(entry.getKey(), entry.getValue());
             }
         } catch (JSONException e) {
-            LogUtils.e(e);
+            LogUtils.tag("FlyangHttp").e(e);
         }
         return jsonObject.toString();
     }

@@ -46,7 +46,7 @@ public abstract class BaseSubscriber<T> extends DisposableObserver<T> {
 
     @Override
     protected void onStart() {
-        LogUtils.e("-->http is onStart");
+        LogUtils.tag("FlyangHttp").e("-->http is onStart");
         if (contextWeakReference != null && contextWeakReference.get() != null && !HttpUtils.isNetworkAvailable(contextWeakReference.get())) {
             //Toast.makeText(context, "无网络，读取缓存数据", Toast.LENGTH_SHORT).show();
             onComplete();
@@ -62,24 +62,24 @@ public abstract class BaseSubscriber<T> extends DisposableObserver<T> {
 
     @Override
     public void onNext(@NonNull T t) {
-        LogUtils.e("-->http is onNext");
+        LogUtils.tag("FlyangHttp").e("-->http is onNext");
     }
 
     @Override
     public final void onError(Throwable e) {
-        LogUtils.e("-->http is onError");
+        LogUtils.tag("FlyangHttp").e("-->http is onError");
         if (e instanceof ApiException) {
-            LogUtils.e("--> e instanceof ApiException err:" + e);
+            LogUtils.tag("FlyangHttp").e("--> e instanceof ApiException err:" + e);
             onError((ApiException) e);
         } else {
-            LogUtils.e("--> e !instanceof ApiException err:" + e);
+            LogUtils.tag("FlyangHttp").e("--> e !instanceof ApiException err:" + e);
             onError(ApiException.handleException(e));
         }
     }
 
     @Override
     public void onComplete() {
-        LogUtils.e("-->http is onComplete");
+        LogUtils.tag("FlyangHttp").e("-->http is onComplete");
     }
 
 

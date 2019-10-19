@@ -59,7 +59,7 @@ public class RxSchedulers {
                         .doOnSubscribe(new Consumer<Disposable>() {
                             @Override
                             public void accept(Disposable disposable) throws Exception {
-                                LogUtils.i("+++doOnSubscribe+++" + disposable.isDisposed());
+                                LogUtils.tag("FlyangHttp").i("+++doOnSubscribe+++" + disposable.isDisposed());
                             }
                         })
                         .doFinally(new Action() {

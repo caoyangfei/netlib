@@ -28,7 +28,7 @@ import okhttp3.Response;
  * @ClassName NoCacheInterceptor
  * @date 2019/10/16
  * ------------- Description -------------
- * 不加载缓存
+ * 不设置OKhttp自带缓存
  */
 public class NoCacheInterceptor implements Interceptor {
     @Override

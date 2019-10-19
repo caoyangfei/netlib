@@ -23,6 +23,7 @@ import com.google.gson.internal.$Gson$Types;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 
 /**
@@ -33,6 +34,7 @@ import okhttp3.ResponseBody;
  * Clazz回调代理
  * <p>
  * 主要用于可以自定义ApiResult
+ * {@link Observable}返回结果处理
  */
 public abstract class CallClazzProxy<T extends ApiResult<R>, R> implements IType<T> {
     private Type type;

@@ -396,12 +396,12 @@ public abstract class BaseRequest<R extends BaseRequest> {
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(@NonNull Boolean aBoolean) throws Exception {
-                        LogUtils.i("removeCache success!!!");
+                        LogUtils.tag("FlyangHttp").i("removeCache success!!!");
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(@NonNull Throwable throwable) throws Exception {
-                        LogUtils.i("removeCache err!!!" + throwable);
+                        LogUtils.tag("FlyangHttp").i("removeCache err!!!" + throwable);
                     }
                 });
     }
@@ -538,10 +538,9 @@ public abstract class BaseRequest<R extends BaseRequest> {
             case CACHEANDREMOTEDISTINCT:
                 interceptors.add(new NoCacheInterceptor());
                 if (cacheType == null) {
-                    final RxCache.Builder tempRxCacheBuilder = rxCacheBuilder;
-                    tempRxCacheBuilder.cachekey(PreconditionUtils.checkNotNull(cacheKey, "cacheKey == null"))
+                    rxCacheBuilder.cachekey(PreconditionUtils.checkNotNull(cacheKey, "cacheKey == null"))
                             .cacheTime(cacheTime);
-                    return tempRxCacheBuilder;
+                    return rxCacheBuilder;
                 } else {
                     final RxCache.Builder cacheBuilder = getRxCache().newBuilder();
                     cacheBuilder.cacheType(cacheType)
