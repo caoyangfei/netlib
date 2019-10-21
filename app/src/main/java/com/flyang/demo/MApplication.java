@@ -48,8 +48,6 @@ public class MApplication extends Application {
                 .configShowBorders(true) // 是否显示边框
                 .configLevel(LogLevel.TYPE_VERBOSE); // 配置可展示日志等级
 
-        FlyangHttp.init(this);
-
         //这里涉及到安全我把url去掉了，demo都是调试通的
         String Url = "http://www.xxx.com";
         //设置请求头

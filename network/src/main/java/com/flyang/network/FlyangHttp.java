@@ -118,7 +118,6 @@ public final class FlyangHttp {
     }
 
     public static FlyangHttp getInstance() {
-        testInitialize();
         if (singleton == null) {
             synchronized (FlyangHttp.class) {
                 if (singleton == null) {
@@ -130,25 +129,12 @@ public final class FlyangHttp {
     }
 
     /**
-     * 必须在全局Application先调用，获取context上下文，否则缓存无法使用
-     */
-    public static void init(Application app) {
-        sContext = app;
-    }
-
-    /**
      * 获取全局上下文
      */
     public static Context getContext() {
-        testInitialize();
         return sContext;
     }
-
-    private static void testInitialize() {
-        if (sContext == null)
-            throw new ExceptionInInitializerError("请先在全局Application中调用 FlyangHttp.init() 初始化！");
-    }
-
+    
     public static OkHttpClient getOkHttpClient() {
         return getInstance().okHttpClientBuilder.build();
     }
