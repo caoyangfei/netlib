@@ -37,7 +37,6 @@ ext {
             util              : "com.github.caoyangfei:utillib:$utilVersion",
 
             //第三方依赖库
-            logginginterceptor: 'com.squareup.okhttp3:logging-interceptor:3.12.2',
             okhttp            : 'com.squareup.okhttp3:okhttp:3.12.2',
             disklrucache      : 'com.jakewharton:disklrucache:2.0.2',
             //RXjava

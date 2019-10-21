@@ -78,13 +78,6 @@ dependencies {
     implementation dep.rxjava
     implementation dep.rxandroid
 
-
-    //第三方依赖库
-    //日志打印
-//    implementation dep.logginginterceptor
-//    implementation dep.disklrucache
-//    implementation dep.convertergson
-
 }
 
 def version = "2.1.1.2019_beta_01"
@@ -95,7 +88,7 @@ uploadArchives {
         mavenDeployer {
 
             pom.version = version
-            pom.artifactId = "netlib"
+            pom.artifactId = "network"
             pom.groupId = GROUP_ID
 
             repository(url: rootProject.getRepositoryUrl(version)) {
