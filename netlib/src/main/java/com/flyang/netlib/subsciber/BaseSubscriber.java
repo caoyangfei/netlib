@@ -46,7 +46,7 @@ public abstract class BaseSubscriber<T> extends DisposableObserver<T> {
 
     @Override
     protected void onStart() {
-        LogUtils.tag("FlyangHttp").e("-->http is onStart");
+        LogUtils.tag("FlyangHttp").i("-->http is onStart");
         if (contextWeakReference != null && contextWeakReference.get() != null && !HttpUtils.isNetworkAvailable(contextWeakReference.get())) {
             //Toast.makeText(context, "无网络，读取缓存数据", Toast.LENGTH_SHORT).show();
             onComplete();
@@ -62,7 +62,7 @@ public abstract class BaseSubscriber<T> extends DisposableObserver<T> {
 
     @Override
     public void onNext(@NonNull T t) {
-        LogUtils.tag("FlyangHttp").e("-->http is onNext");
+        LogUtils.tag("FlyangHttp").i("-->http is onNext");
     }
 
     @Override
@@ -79,7 +79,7 @@ public abstract class BaseSubscriber<T> extends DisposableObserver<T> {
 
     @Override
     public void onComplete() {
-        LogUtils.tag("FlyangHttp").e("-->http is onComplete");
+        LogUtils.tag("FlyangHttp").i("-->http is onComplete");
     }
 
 

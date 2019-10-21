@@ -67,19 +67,6 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
         return retrofit.create(service);
     }
 
-
-    /**
-     * 返回Observable
-     * <p>
-     * 可以自定义返回实体继承ApiResult
-     */
-    public <T> Observable<T> call(Observable<T> observable) {
-        PreconditionUtils.checkNotNull(retrofit, "请先在调用build()才能使用");
-        return observable.compose(RxSchedulers.io_main())
-                .compose(new HandleErrTransformer())
-                .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
-    }
-
     /**
      * CallBack回调处理结果
      */
@@ -95,6 +82,18 @@ public class CustomRequest extends BaseRequest<CustomRequest> {
                 .subscribe(subscriber);
     }
 
+
+    /**
+     * 返回Observable
+     * <p>
+     * 可以自定义返回实体继承ApiResult
+     */
+    public <T> Observable<T> call(Observable<T> observable) {
+        PreconditionUtils.checkNotNull(retrofit, "请先在调用build()才能使用");
+        return observable.compose(RxSchedulers.io_main())
+                .compose(new HandleErrTransformer())
+                .retryWhen(new RetryExceptionFunc(retryCount, retryDelay, retryIncreaseDelay));
+    }
 
     /**
      * 返回Observable<AuthModel>

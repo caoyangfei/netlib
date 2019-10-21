@@ -28,6 +28,7 @@ import com.flyang.netlib.model.HttpHeaders;
 import com.flyang.netlib.model.HttpParams;
 import com.flyang.progress.ProgressManager;
 import com.flyang.util.log.LogUtils;
+import com.flyang.util.log.config.LogLevel;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
@@ -40,6 +41,13 @@ public class MApplication extends Application {
     public void onCreate() {
         super.onCreate();
         app = this;
+        LogUtils.getLogConfig()
+                .configAllowLog(true)  // 是否在Logcat显示日志
+                .configTagPrefix("LogUtilsDemo") // 配置统一的TAG 前缀
+                .configFormatTag("%t %c{-4}") // 首行显示信息(可配置日期，线程等等)
+                .configShowBorders(true) // 是否显示边框
+                .configLevel(LogLevel.TYPE_VERBOSE); // 配置可展示日志等级
+
         FlyangHttp.init(this);
 
         //这里涉及到安全我把url去掉了，demo都是调试通的
@@ -72,7 +80,6 @@ public class MApplication extends Application {
 
         ProgressManager.getInstance().with(FlyangHttp.getOkHttpClientBuilder());
 
-        LogUtils.getLogConfig().configTagPrefix("测试");
     }
 
     public class UnSafeHostnameVerifier implements HostnameVerifier {
