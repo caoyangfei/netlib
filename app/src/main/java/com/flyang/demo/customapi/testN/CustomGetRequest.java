@@ -18,10 +18,10 @@ package com.flyang.demo.customapi.testN;
 
 
 import com.flyang.demo.customapi.test2.TestApiResult2;
-import com.flyang.netlib.callback.CallBack;
-import com.flyang.netlib.callback.CallBackProxy;
-import com.flyang.netlib.callback.CallClazzProxy;
-import com.flyang.netlib.request.GetRequest;
+import com.flyang.network.callback.CallBack;
+import com.flyang.network.callback.CallBackProxy;
+import com.flyang.network.callback.CallClazzProxy;
+import com.flyang.network.request.GetRequest;
 
 import java.lang.reflect.Type;
 

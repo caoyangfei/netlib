@@ -8,10 +8,10 @@ import android.widget.Toast;
 
 import com.flyang.demo.customapi.test6.Content;
 import com.flyang.demo.customapi.test6.TestApiResult6;
-import com.flyang.netlib.FlyangHttp;
-import com.flyang.netlib.callback.CallClazzProxy;
-import com.flyang.netlib.exception.ApiException;
-import com.flyang.netlib.subsciber.BaseSubscriber;
+import com.flyang.network.FlyangHttp;
+import com.flyang.network.callback.CallClazzProxy;
+import com.flyang.network.exception.ApiException;
+import com.flyang.network.subsciber.BaseSubscriber;
 
 import java.util.concurrent.TimeUnit;
 

@@ -18,7 +18,7 @@ package com.flyang.demo.Api;
 
 
 import com.flyang.demo.model.AuthModel;
-import com.flyang.netlib.model.ApiResult;
+import com.flyang.network.model.ApiResult;
 
 import java.util.Map;
 

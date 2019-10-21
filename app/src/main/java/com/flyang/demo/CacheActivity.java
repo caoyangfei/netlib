@@ -25,13 +25,13 @@ import android.widget.Toast;
 
 import com.flyang.demo.model.SectionItem;
 import com.flyang.demo.model.SkinTestResult;
-import com.flyang.netlib.FlyangHttp;
-import com.flyang.netlib.cache.converter.CacheType;
-import com.flyang.netlib.cache.model.CacheMode;
-import com.flyang.netlib.cache.model.CacheResult;
-import com.flyang.netlib.callback.SimpleCallBack;
-import com.flyang.netlib.exception.ApiException;
-import com.flyang.netlib.subsciber.BaseSubscriber;
+import com.flyang.network.FlyangHttp;
+import com.flyang.network.cache.converter.CacheType;
+import com.flyang.network.cache.model.CacheMode;
+import com.flyang.network.cache.model.CacheResult;
+import com.flyang.network.callback.SimpleCallBack;
+import com.flyang.network.exception.ApiException;
+import com.flyang.network.subsciber.BaseSubscriber;
 import com.flyang.util.log.LogUtils;
 import com.google.gson.reflect.TypeToken;
 

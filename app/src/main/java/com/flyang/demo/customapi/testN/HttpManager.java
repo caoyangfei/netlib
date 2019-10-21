@@ -17,8 +17,8 @@
 package com.flyang.demo.customapi.testN;
 
 
-import com.flyang.netlib.request.GetRequest;
-import com.flyang.netlib.request.PostRequest;
+import com.flyang.network.request.GetRequest;
+import com.flyang.network.request.PostRequest;
 
 /**
  * <p>描述：根据自定义请求写一个请求的管理类方便调用</p>

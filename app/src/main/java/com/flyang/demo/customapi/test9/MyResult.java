@@ -1,7 +1,7 @@
 package com.flyang.demo.customapi.test9;
 
 
-import com.flyang.netlib.model.ApiResult;
+import com.flyang.network.model.ApiResult;
 
 public class MyResult<T> extends ApiResult<T> {
 

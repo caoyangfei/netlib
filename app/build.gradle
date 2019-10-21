@@ -43,7 +43,7 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
 
 
-    implementation project(':netlib')
+    implementation project(':network')
 
     implementation dep.okhttp
     implementation dep.disklrucache

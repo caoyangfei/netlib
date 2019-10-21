@@ -24,9 +24,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.flyang.demo.utils.FileUtils;
-import com.flyang.netlib.FlyangHttp;
-import com.flyang.netlib.callback.DownloadProgressCallBack;
-import com.flyang.netlib.exception.ApiException;
+import com.flyang.network.FlyangHttp;
+import com.flyang.network.callback.DownloadProgressCallBack;
+import com.flyang.network.exception.ApiException;
 import com.flyang.util.log.LogUtils;
 
 

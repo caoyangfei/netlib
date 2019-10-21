@@ -17,7 +17,7 @@
 package com.flyang.demo.customapi.test7;
 
 
-import com.flyang.netlib.model.ApiResult;
+import com.flyang.network.model.ApiResult;
 
 /**
  * <p>描述：自定义ApiResult，使用情景举列7</p>

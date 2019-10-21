@@ -34,14 +34,14 @@ import com.flyang.demo.customapi.test4.GwclBean;
 import com.flyang.demo.customapi.test9.FriendsListBean;
 import com.flyang.demo.customapi.test9.MyResult;
 import com.flyang.demo.customapi.testN.HttpManager;
-import com.flyang.netlib.FlyangHttp;
-import com.flyang.netlib.cache.model.CacheMode;
-import com.flyang.netlib.cache.model.CacheResult;
-import com.flyang.netlib.callback.CallBackProxy;
-import com.flyang.netlib.callback.ProgressDialogCallBack;
-import com.flyang.netlib.callback.SimpleCallBack;
-import com.flyang.netlib.exception.ApiException;
-import com.flyang.netlib.subsciber.IProgressDialog;
+import com.flyang.network.FlyangHttp;
+import com.flyang.network.cache.model.CacheMode;
+import com.flyang.network.cache.model.CacheResult;
+import com.flyang.network.callback.CallBackProxy;
+import com.flyang.network.callback.ProgressDialogCallBack;
+import com.flyang.network.callback.SimpleCallBack;
+import com.flyang.network.exception.ApiException;
+import com.flyang.network.subsciber.IProgressDialog;
 
 import java.util.List;
 

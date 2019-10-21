@@ -19,12 +19,12 @@ import com.flyang.demo.model.AuthModel;
 import com.flyang.demo.model.SectionItem;
 import com.flyang.demo.model.SkinTestResult;
 import com.flyang.demo.utils.MD5;
-import com.flyang.netlib.FlyangHttp;
-import com.flyang.netlib.callback.CallClazzProxy;
-import com.flyang.netlib.exception.ApiException;
-import com.flyang.netlib.subsciber.BaseSubscriber;
-import com.flyang.netlib.subsciber.IProgressDialog;
-import com.flyang.netlib.subsciber.ProgressSubscriber;
+import com.flyang.network.FlyangHttp;
+import com.flyang.network.callback.CallClazzProxy;
+import com.flyang.network.exception.ApiException;
+import com.flyang.network.subsciber.BaseSubscriber;
+import com.flyang.network.subsciber.IProgressDialog;
+import com.flyang.network.subsciber.ProgressSubscriber;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;

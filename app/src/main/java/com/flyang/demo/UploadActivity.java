@@ -26,11 +26,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
-import com.flyang.netlib.FlyangHttp;
-import com.flyang.netlib.body.UIProgressResponseCallBack;
-import com.flyang.netlib.callback.ProgressDialogCallBack;
-import com.flyang.netlib.exception.ApiException;
-import com.flyang.netlib.subsciber.IProgressDialog;
+import com.flyang.network.FlyangHttp;
+import com.flyang.network.body.UIProgressResponseCallBack;
+import com.flyang.network.callback.ProgressDialogCallBack;
+import com.flyang.network.exception.ApiException;
+import com.flyang.network.subsciber.IProgressDialog;
 import com.flyang.util.log.LogUtils;
 
 import java.io.ByteArrayOutputStream;

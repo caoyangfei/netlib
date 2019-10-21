@@ -17,7 +17,7 @@
 package com.flyang.demo.customapi.test1;
 
 
-import com.flyang.netlib.model.ApiResult;
+import com.flyang.network.model.ApiResult;
 
 /**
  * <p>描述：如果你的不是约定的标准ApiResult，你可以继承ApiResult后扩展</p>

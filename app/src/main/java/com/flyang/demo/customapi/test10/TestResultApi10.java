@@ -1,7 +1,7 @@
 package com.flyang.demo.customapi.test10;
 
 
-import com.flyang.netlib.model.ApiResult;
+import com.flyang.network.model.ApiResult;
 
 public class TestResultApi10<T> extends ApiResult<T> {
     private int errorCode;

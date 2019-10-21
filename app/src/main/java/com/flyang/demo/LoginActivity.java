@@ -43,10 +43,10 @@ import com.flyang.demo.model.LoginInfo;
 import com.flyang.demo.token.TokenManager;
 import com.flyang.demo.utils.MD5;
 import com.flyang.demo.utils.Validator;
-import com.flyang.netlib.FlyangHttp;
-import com.flyang.netlib.callback.ProgressDialogCallBack;
-import com.flyang.netlib.exception.ApiException;
-import com.flyang.netlib.subsciber.IProgressDialog;
+import com.flyang.network.FlyangHttp;
+import com.flyang.network.callback.ProgressDialogCallBack;
+import com.flyang.network.exception.ApiException;
+import com.flyang.network.subsciber.IProgressDialog;
 
 
 /**

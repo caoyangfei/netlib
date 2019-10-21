@@ -21,7 +21,7 @@ import com.flyang.demo.constant.AppConstant;
 import com.flyang.demo.constant.ComParamContact;
 import com.flyang.demo.token.TokenManager;
 import com.flyang.demo.utils.MD5;
-import com.flyang.netlib.interceptor.BaseDynamicInterceptor;
+import com.flyang.network.interceptor.BaseDynamicInterceptor;
 import com.flyang.util.log.LogUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -29,7 +29,7 @@ import java.net.URLDecoder;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static com.flyang.netlib.utils.HttpUtils.UTF8;
+import static com.flyang.network.utils.HttpUtils.UTF8;
 
 
 /**
