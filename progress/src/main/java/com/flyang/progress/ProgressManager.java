@@ -61,8 +61,8 @@ public final class ProgressManager {
     private static final String OKHTTP_PACKAGE_NAME = "okhttp3.OkHttpClient";
     private static final boolean DEPENDENCY_OKHTTP;
     private static final int DEFAULT_REFRESH_TIME = 150;
-    private static final String IDENTIFICATION_NUMBER = "?JessYan=";
-    private static final String IDENTIFICATION_HEADER = "JessYan";
+    private static final String IDENTIFICATION_NUMBER = "?flyang=";
+    private static final String IDENTIFICATION_HEADER = "flyang";
     private static final String LOCATION_HEADER = "Location";
 
 
