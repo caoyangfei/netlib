@@ -115,7 +115,7 @@ public abstract class BaseRequest<R extends BaseRequest> {
         if (!TextUtils.isEmpty(this.baseUrl)) {
             httpUrl = HttpUrl.parse(baseUrl);
         }
-        if (/*baseUrl == null&&*/  url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
+        if (baseUrl == null && url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
             httpUrl = HttpUrl.parse(url);
             baseUrl = httpUrl.url().getProtocol() + "://" + httpUrl.url().getHost() + "/";
         }
