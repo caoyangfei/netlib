@@ -1,11 +1,15 @@
 package com.flyang.imageloader;
 
 import android.content.Context;
+import android.support.annotation.RestrictTo;
 
 import com.bumptech.glide.MemoryCategory;
 import com.flyang.imageloader.config.ImageConfigSpread;
 import com.flyang.imageloader.loader.ImageLoaderStrategy;
 import com.flyang.util.data.PreconditionUtils;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 /**
  * @author yangfei.cao
@@ -40,6 +44,7 @@ public class ImageLoader<T extends ImageLoaderStrategy, R extends Runnable> {
      *
      * @return
      */
+    @RestrictTo({LIBRARY, LIBRARY_GROUP})
     public static ImageLoaderStrategy getActualLoader() {
         PreconditionUtils.checkNotNull(imageLoaderStrategy, "Not initialized ImageLoader");
         return imageLoaderStrategy;
