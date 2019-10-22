@@ -24,9 +24,9 @@ package com.flyang.network.model;
  * 默认的标注返回api
  */
 public class ApiResult<T> {
-    private int code;
-    private String msg;
-    private T data;
+    protected int code;
+    protected String msg;
+    protected T data;
 
     public int getCode() {
         return code;
@@ -53,7 +53,7 @@ public class ApiResult<T> {
     }
 
     public boolean isOk() {
-        return code == 0;
+        return code == 200;
     }
 
     @Override
