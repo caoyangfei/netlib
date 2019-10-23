@@ -12,13 +12,13 @@ ext {
     isAlone = false
 
     //本地
-//    utilVersion = "2.1.1.2019_beta_01"
+//    utilVersion = "2.1.1.2019_beta_03"
 //
+//    progressVersion = "2.1.1.2019_beta_03"
 //    dep = [
 //            util              : "com.flyang.common:util:$utilVersion",
 //
 //            //第三方依赖库
-//            logginginterceptor: 'com.squareup.okhttp3:logging-interceptor:3.12.2',
 //            okhttp            : 'com.squareup.okhttp3:okhttp:3.12.2',
 //            disklrucache      : 'com.jakewharton:disklrucache:2.0.2',
 //            //RXjava
@@ -28,6 +28,7 @@ ext {
 //            convertergson     : 'com.squareup.retrofit2:converter-gson:2.5.0',
 //            adapterrxjava     : 'com.squareup.retrofit2:adapter-rxjava2:2.5.0',
 //
+//            progress   : "com.flyang.common:progress:$progressVersion"
 //    ]
 
     //GitHub

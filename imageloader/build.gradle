@@ -77,9 +77,11 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     implementation dep.util
     implementation project(':progress')
+    //本地nexus库使用时，必须使用线上依赖不然此库时使用时有问题
+//    implementation dep.progress
 }
 
-def version = "2.1.1.2019_beta_01"
+def version = "2.1.1.2019_beta_04"
 
 uploadArchives {
 
