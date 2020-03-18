@@ -44,7 +44,7 @@ import okhttp3.ResponseBody;
  * ------------- Description -------------
  * ApiResult结果解析
  * <p>
- * 返回结果解析
+ * 返回结果解析,解析json数据
  */
 @SuppressWarnings("unchecked")
 public class ApiResultFunc<T> implements Function<ResponseBody, ApiResult<T>> {
